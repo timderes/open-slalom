@@ -6,6 +6,7 @@ import {
   APP_FOOTER_HEIGHT,
   APP_HEADER_HEIGHT,
 } from "@/components/shared/Layout";
+import { APP_NAME } from "@/lib/constants";
 
 const APP_MAIN_HEIGHT = `calc(100vh - ${APP_HEADER_HEIGHT}px - ${APP_FOOTER_HEIGHT}px)`;
 
@@ -16,12 +17,12 @@ const IndexPage = () => {
   return (
     <>
       <Head>
-        <title>MSF Training</title>
+        <title>{APP_NAME}</title>
       </Head>
       <Layout>
         <Center h={APP_MAIN_HEIGHT}>
           <Title fs="italic" tt="uppercase">
-            MSF Training
+            {APP_NAME}
           </Title>
         </Center>
       </Layout>
