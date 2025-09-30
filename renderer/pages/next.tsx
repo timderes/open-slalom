@@ -1,6 +1,6 @@
-import React from 'react'
-import Head from 'next/head'
-import Link from 'next/link'
+import React from "react";
+import Head from "next/head";
+import Link from "next/link";
 
 export default function NextPage() {
   return (
@@ -10,9 +10,9 @@ export default function NextPage() {
       </Head>
       <div>
         <p>
-          ⚡ Electron + Next.js ⚡ -<Link href="/home">Go to home page</Link>
+          ⚡ Electron + Next.js ⚡ -<Link href="/">Go to home page</Link>
         </p>
       </div>
     </React.Fragment>
-  )
+  );
 }
