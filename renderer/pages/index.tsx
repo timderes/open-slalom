@@ -1,5 +1,5 @@
 import React from "react";
-import { Center, Title } from "@mantine/core";
+import { Center, Image, Stack, Title } from "@mantine/core";
 import Layout from "@/components/shared/Layout";
 import Head from "next/head";
 import {
@@ -19,11 +19,20 @@ const IndexPage = () => {
       <Head>
         <title>{APP_NAME}</title>
       </Head>
-      <Layout>
+      <Layout currentRoute="/">
         <Center h={APP_MAIN_HEIGHT}>
-          <Title fs="italic" tt="uppercase">
-            {APP_NAME}
-          </Title>
+          <Stack>
+            <Image
+              alt=""
+              h={200}
+              w="auto"
+              fit="contain"
+              src="images/logo.png"
+            />
+            <Title fs="italic" tt="uppercase">
+              {APP_NAME}
+            </Title>
+          </Stack>
         </Center>
       </Layout>
     </>
