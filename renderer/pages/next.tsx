@@ -1,18 +1,14 @@
-import React from "react";
-import Head from "next/head";
 import Link from "next/link";
+import Layout from "@/components/shared/Layout";
 
 export default function NextPage() {
   return (
-    <React.Fragment>
-      <Head>
-        <title>Next - Nextron (basic-lang-typescript)</title>
-      </Head>
+    <Layout>
       <div>
         <p>
           ⚡ Electron + Next.js ⚡ -<Link href="/">Go to home page</Link>
         </p>
       </div>
-    </React.Fragment>
+    </Layout>
   );
 }
