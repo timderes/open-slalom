@@ -2,6 +2,7 @@ import React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { Alert } from "@mantine/core";
 
 export default function IndexPage() {
   const [message, setMessage] = React.useState("No message found");
@@ -37,6 +38,15 @@ export default function IndexPage() {
           Test IPC
         </button>
         <p>{message}</p>
+        <Alert
+          variant="light"
+          color="blue"
+          title="Alert title"
+          icon={undefined}
+        >
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. At officiis,
+          quae tempore necessitatibus placeat saepe.
+        </Alert>
       </div>
     </React.Fragment>
   );
