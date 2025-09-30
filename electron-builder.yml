@@ -1,0 +1,12 @@
+appId: com.msf.training
+productName: MSF Training
+copyright: Copyright © 2025 Tim Deres
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null
