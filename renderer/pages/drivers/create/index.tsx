@@ -7,15 +7,18 @@ import {
 } from "@/lib/misc/getDriverClass";
 import {
   Button,
+  ButtonGroup,
   Container,
   Group,
   NumberInput,
   Stack,
+  Text,
   TextInput,
   Title,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
+import { modals } from "@mantine/modals";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 
@@ -59,6 +62,26 @@ const CreateDriverPage = () => {
     });
   };
 
+  const handleGoBack = () => {
+    if (!form.isDirty()) {
+      // Skip confirmation modal if form is not dirty
+      router.push("/drivers");
+      return;
+    }
+
+    modals.openConfirmModal({
+      title: "Fahrer nicht anlegen?",
+      centered: true,
+      children: (
+        <Text>
+          Bereits eingetragende Informationen werden nicht gespeichert!
+        </Text>
+      ),
+      labels: { confirm: "Ja", cancel: "Nein" },
+      onConfirm: () => router.push("/drivers"),
+    });
+  };
+
   return (
     <Layout currentRoute="/drivers/create">
       <Container my="sm">
@@ -99,14 +122,15 @@ const CreateDriverPage = () => {
               {...form.getInputProps("driverClass.sks")}
             />
           </Group>
-          <Button
-            disabled={!form.isValid()}
-            ms="auto"
-            w="fit-content"
-            onClick={() => handleCreateDriver()}
-          >
-            Fahrer erstellen
-          </Button>
+          <ButtonGroup>
+            <Button onClick={() => handleGoBack()}>Zurück</Button>
+            <Button
+              disabled={!form.isValid()}
+              onClick={() => handleCreateDriver()}
+            >
+              Fahrer erstellen
+            </Button>
+          </ButtonGroup>
         </Stack>
       </Container>
     </Layout>
