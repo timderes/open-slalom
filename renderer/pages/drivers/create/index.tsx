@@ -1,6 +1,10 @@
 import Layout from "@/components/shared/Layout";
+import { JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
 import database from "@/lib/database";
-import getDriverClass from "@/lib/misc/getDriverClass";
+import {
+  getJksDriverClass,
+  getSksDriverClass,
+} from "@/lib/misc/getDriverClass";
 import {
   Button,
   Container,
@@ -12,7 +16,6 @@ import {
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
-import { get } from "http";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 
@@ -42,13 +45,11 @@ const CreateDriverPage = () => {
   const handleBirthDateChange = (date: string) => {
     form.getInputProps("birthDate").onChange(date);
 
-    const classJKS = getDriverClass({ birthDate: date, type: "JKS" });
-    let classSKS = getDriverClass({ birthDate: date, type: "SKS" });
+    const classJKS = getJksDriverClass({ birthDate: date });
+    const classSKS = getSksDriverClass({ birthDate: date });
 
     form.setFieldValue("driverClass.jks", classJKS);
-
-    // TODO: This is really bad code... Find a better way
-    form.setFieldValue("driverClass.sks", classSKS as 1 | 2 | 3 | 4 | 5);
+    form.setFieldValue("driverClass.sks", classSKS);
   };
 
   const handleCreateDriver = () => {
@@ -86,14 +87,14 @@ const CreateDriverPage = () => {
           />
           <Group grow>
             <NumberInput
-              min={0}
-              max={7}
+              min={Math.min(...JKS_CLASSES)}
+              max={Math.max(...JKS_CLASSES)}
               label="Klasse JKS"
               {...form.getInputProps("driverClass.jks")}
             />
             <NumberInput
-              min={1}
-              max={5}
+              min={Math.min(...SKS_CLASSES)}
+              max={Math.max(...SKS_CLASSES)}
               label="Klasse SKS"
               {...form.getInputProps("driverClass.sks")}
             />

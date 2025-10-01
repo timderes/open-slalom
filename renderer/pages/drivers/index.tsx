@@ -2,7 +2,10 @@ import Layout from "@/components/shared/Layout";
 import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
 import database from "@/lib/database";
 import calculateDriverAge from "@/lib/misc/calculateDriverAge";
-import getDriverClass from "@/lib/misc/getDriverClass";
+import {
+  getJksDriverClass,
+  getSksDriverClass,
+} from "@/lib/misc/getDriverClass";
 import {
   Button,
   ButtonGroup,
@@ -33,12 +36,8 @@ const DriversPage = () => {
         })}{" "}
         ({calculateDriverAge(driver.birthDate)} Jahre)
       </Table.Td>
-      <Table.Td>
-        K{getDriverClass({ birthDate: driver.birthDate, type: "JKS" })}
-      </Table.Td>
-      <Table.Td>
-        K{getDriverClass({ birthDate: driver.birthDate, type: "SKS" })}
-      </Table.Td>
+      <Table.Td>K{getJksDriverClass({ birthDate: driver.birthDate })}</Table.Td>
+      <Table.Td>K{getSksDriverClass({ birthDate: driver.birthDate })}</Table.Td>
       <Table.Td>
         <ButtonGroup>
           <Button disabled variant="default">
