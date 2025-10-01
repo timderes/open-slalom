@@ -1,9 +1,14 @@
 // Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+
+import "dayjs/locale/de";
 
 import type { AppProps } from "next/app";
 import { createTheme, MantineProvider } from "@mantine/core";
+import { DatesProvider } from "@mantine/dates";
+import { ModalsProvider } from "@mantine/modals";
 
 const theme = createTheme({
   /** Put your mantine theme override here */
@@ -12,7 +17,11 @@ const theme = createTheme({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <MantineProvider theme={theme}>
-      <Component {...pageProps} />
+      <DatesProvider settings={{ locale: "de" }}>
+        <ModalsProvider>
+          <Component {...pageProps} />
+        </ModalsProvider>
+      </DatesProvider>
     </MantineProvider>
   );
 }

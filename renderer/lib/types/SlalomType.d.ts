@@ -1,0 +1,1 @@
+type SlalomType = "JKS" | "SKS";
