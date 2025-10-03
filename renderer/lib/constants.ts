@@ -33,6 +33,10 @@ export const APP_ROUTES = [
     label: "Fahrer",
   },
   {
+    path: "/karts",
+    label: "Karts",
+  },
+  {
     path: "/settings",
     label: "Einstellungen",
   },
@@ -40,3 +44,20 @@ export const APP_ROUTES = [
 
 export const JKS_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7];
 export const SKS_CLASSES = [1, 2, 3, 4, 5];
+
+export const TIME_PENALTIES_JKS = {
+  HIT_CONE: 2, // seconds
+  MISSED_GATE: 10, // seconds
+};
+
+export const TIME_PENALTIES_SKS = {
+  HIT_CONE: 3, // seconds
+  MISSED_GATE: 10, // seconds
+};
+
+export const EMPTY_TRAINING_DATA = {
+  totalCones: 0,
+  totalGates: 0,
+  totalLaps: 0,
+  laps: [] as Lap[],
+};
