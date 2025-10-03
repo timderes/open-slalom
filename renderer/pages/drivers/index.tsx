@@ -40,10 +40,10 @@ const DriversPage = () => {
       <Table.Td>K{getSksDriverClass({ birthDate: driver.birthDate })}</Table.Td>
       <Table.Td>
         <ButtonGroup>
-          <Button disabled variant="default">
+          <Button onClick={() => router.push(`/drivers/view/${driver.uuid}`)}>
             <IconUserSearch />
           </Button>
-          <Button disabled variant="default">
+          <Button disabled>
             <IconPencil />
           </Button>
           <Button
