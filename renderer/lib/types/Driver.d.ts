@@ -14,6 +14,8 @@ type Driver = {
 };
 
 type DriverWithTrainingData = Driver & {
+  bestLapTime: number;
+  averageLapTime: number;
   totalLaps: number;
   totalCones: number;
   totalGates: number;

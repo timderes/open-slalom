@@ -8,6 +8,7 @@ import {
   Grid,
   Group,
   NumberInput,
+  SegmentedControl,
   Stack,
   Table,
   Text,
@@ -15,33 +16,23 @@ import {
 import { useStopwatch } from "react-use-precision-timer";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-
 import { useLiveQuery } from "dexie-react-hooks";
 import database from "@/lib/database";
 import { useDisclosure } from "@mantine/hooks";
-import { IconUserMinus, IconUserPlus } from "@tabler/icons-react";
+import { IconHelmet, IconUserMinus, IconUserPlus } from "@tabler/icons-react";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import PageHeader from "@/components/shared/PageHeader";
-
-type DriverWithTrainingData = Driver & {
-  bestLapTime: number;
-  lastLapTime: number;
-  totalLaps: number;
-  cones: number;
-  gates: number;
-  laps: { time: number; cones: number; gates: number }[];
-};
+import { EMPTY_TRAINING_DATA } from "@/lib/constants";
 
 const TrainingPage = () => {
   const stopwatch = useStopwatch();
-  const [finishedLaps, setFinishedLaps] = useState<{ time: number }[]>([]);
+  const [finishedLaps, setFinishedLaps] = useState<
+    { cones: number; gates: number; time: number }[]
+  >([]);
   const [elapsed, setElapsed] = useState(0);
   const [currentDriverIndex, setCurrentDriverIndex] = useState(0);
   const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const [opened, { open, close }] = useDisclosure(false);
-  const [activeDriver, setActiveDriver] = useState<DriverWithTrainingData[]>(
-    []
-  );
 
   useEffect(() => {
     const updateElapsed = () => setElapsed(stopwatch.getElapsedRunningTime());
@@ -49,27 +40,33 @@ const TrainingPage = () => {
     const interval = setInterval(updateElapsed, 100);
     return () => clearInterval(interval);
   }, [stopwatch]);
-  const form = useForm({
+  const training = useForm<Training>({
     initialValues: {
-      laps: 3,
+      lapsPerStint: 3,
+      mode: "JKS",
+      drivers: [],
     },
   });
 
-  const handleCrossingFinishline = () => {
-    const lapTime = stopwatch.getElapsedRunningTime();
-    console.log(`Lap ${finishedLaps.length + 1} time:`, lapTime);
-    stopwatch.stop();
+  const handleCrossingFinishLine = () => {
+    stopwatch.pause();
 
-    if (finishedLaps.length + 1 < form.values.laps) {
-      setFinishedLaps((prev) => [...prev, { time: lapTime }]);
+    const currentLapTime = stopwatch.getElapsedRunningTime();
+
+    setFinishedLaps((laps) => [
+      ...laps,
+      { time: currentLapTime, cones: 0, gates: 0 },
+    ]);
+
+    if (finishedLaps.length + 1 >= training.values.lapsPerStint) {
+      stopwatch.stop();
+    } else {
       stopwatch.start();
-    } else if (finishedLaps.length + 1 === form.values.laps) {
-      setFinishedLaps((prev) => [...prev, { time: lapTime }]);
-      // Timer stays stopped, all laps are available
     }
   };
 
-  const isLastDriver = currentDriverIndex === activeDriver.length - 1;
+  const isLastDriver =
+    currentDriverIndex === training.values.drivers.length - 1;
 
   const handleUpdateCurrentDriver = () => {
     if (!isLastDriver) {
@@ -79,6 +76,32 @@ const TrainingPage = () => {
     }
 
     // SAVE
+    training.setValues((prev) => {
+      const currentDriver = prev.drivers[currentDriverIndex];
+      currentDriver.laps = [
+        ...prev.drivers[currentDriverIndex].laps,
+        ...finishedLaps.map((lap) => ({
+          time: lap.time,
+          cones: lap.cones,
+          gates: lap.gates,
+        })),
+      ];
+      currentDriver.totalLaps += finishedLaps.length;
+
+      // Get Best lap time from laps
+      currentDriver.bestLapTime = Math.min(
+        ...currentDriver.laps.map((lap) => lap.time)
+      );
+
+      // get average lap time from laps
+      currentDriver.averageLapTime =
+        currentDriver.laps.reduce((acc, lap) => acc + lap.time, 0) /
+        currentDriver.laps.length;
+
+      return { ...prev };
+    });
+
+    console.info(training.values);
 
     // RESET
     setFinishedLaps([]);
@@ -117,13 +140,18 @@ const TrainingPage = () => {
               <Text>
                 {driver.firstName} {driver.lastName}
               </Text>
-              {activeDriver.includes(driver) ? (
+              {training.values.drivers.some((d) => d.uuid === driver.uuid) ? (
                 <Button
                   ms="auto"
                   variant="light"
                   color="red"
                   onClick={() =>
-                    setActiveDriver(activeDriver.filter((d) => d !== driver))
+                    training.setFieldValue(
+                      "drivers",
+                      training.values.drivers.filter(
+                        (d) => d.uuid !== driver.uuid
+                      )
+                    )
                   }
                 >
                   <IconUserMinus />
@@ -132,7 +160,12 @@ const TrainingPage = () => {
                 <Button
                   ms="auto"
                   variant="light"
-                  onClick={() => setActiveDriver([...activeDriver, driver])}
+                  onClick={() =>
+                    training.setFieldValue("drivers", [
+                      ...training.values.drivers,
+                      { ...driver, ...EMPTY_TRAINING_DATA },
+                    ])
+                  }
                 >
                   <IconUserPlus />
                 </Button>
@@ -144,30 +177,48 @@ const TrainingPage = () => {
       <Layout currentRoute="/training">
         <Container my="sm" fluid>
           <PageHeader title="Training" />
+          {JSON.stringify(training.values)}
           <Grid>
             <Grid.Col span={7}>
-              Runden:
-              <NumberInput
-                min={1}
-                defaultValue={3}
-                max={99}
-                {...form.getInputProps("laps")}
-              />
-              <Button onClick={open}>Fahrer Management</Button>
+              <Group align="end" mb="sm">
+                <NumberInput
+                  disabled={stopwatch.isRunning()}
+                  label="Runden"
+                  min={1}
+                  defaultValue={3}
+                  max={99}
+                  {...training.getInputProps("lapsPerStint")}
+                />
+
+                <SegmentedControl
+                  disabled={stopwatch.isRunning()}
+                  color="blue"
+                  data={["JKS", "SKS"]}
+                  {...training.getInputProps("mode")}
+                />
+                <Button
+                  disabled={stopwatch.isRunning()}
+                  leftSection={<IconHelmet />}
+                  ms="auto"
+                  onClick={open}
+                >
+                  Fahrer
+                </Button>
+              </Group>
               <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Fahrer</Table.Th>
                     <Table.Th>Kart</Table.Th>
                     <Table.Th>Beste Zeit</Table.Th>
-                    <Table.Th>Letzte Zeit</Table.Th>
+                    <Table.Th>&#8709; Zeit</Table.Th>
                     <Table.Th>Runden</Table.Th>
                     <Table.Th>Pylonen</Table.Th>
                     <Table.Th>Tore</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {activeDriver.map((driver, index) => (
+                  {training.values.drivers.map((driver, index) => (
                     <Table.Tr
                       key={driver.uuid}
                       bg={index === currentDriverIndex ? "blue" : ""}
@@ -177,11 +228,15 @@ const TrainingPage = () => {
                         {driver.firstName} {driver.lastName}
                       </Table.Td>
                       <Table.Td>UNDEFINED</Table.Td>
-                      <Table.Td>{convertTimeToString(0)}</Table.Td>
-                      <Table.Td>{convertTimeToString(0)}</Table.Td>
-                      <Table.Td>{0}</Table.Td>
-                      <Table.Td>{0}</Table.Td>
-                      <Table.Td>{0}</Table.Td>
+                      <Table.Td>
+                        {convertTimeToString(driver.bestLapTime || 0)}
+                      </Table.Td>
+                      <Table.Td>
+                        {convertTimeToString(driver.averageLapTime || 0)}
+                      </Table.Td>
+                      <Table.Td>{driver.totalLaps}</Table.Td>
+                      <Table.Td>{driver.totalCones}</Table.Td>
+                      <Table.Td>{driver.totalGates}</Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
@@ -193,13 +248,20 @@ const TrainingPage = () => {
               </Text>
               <ButtonGroup mx="auto">
                 <Button
-                  disabled={stopwatch.isRunning()}
+                  disabled={
+                    stopwatch.isRunning() ||
+                    training.values.drivers.length === 0
+                  }
                   size="xl"
                   onClick={() => stopwatch.start()}
                 >
                   Start
                 </Button>
-                <Button size="xl" onClick={() => handleCrossingFinishline()}>
+                <Button
+                  disabled={!stopwatch.isRunning()}
+                  size="xl"
+                  onClick={() => handleCrossingFinishLine()}
+                >
                   Ziel
                 </Button>
                 <Button size="xl" color="red" onClick={() => handleResetTurn()}>
@@ -239,15 +301,22 @@ const TrainingPage = () => {
               </Table>
               <Divider />
               <Button
+                disabled={finishedLaps.length !== training.values.lapsPerStint}
                 onClick={() => handleUpdateCurrentDriver()}
-                disabled={finishedLaps.length !== form.values.laps}
               >
                 Nächster Fahrer
               </Button>
-              <Button onClick={() => handleSkipCurrentDriver()}>
+              <Button
+                disabled={stopwatch.isRunning()}
+                onClick={() => handleSkipCurrentDriver()}
+              >
                 Fahrer überspringen
               </Button>
-              <Button onClick={() => handleEndTraining()} color="red">
+              <Button
+                disabled={stopwatch.isRunning()}
+                onClick={() => handleEndTraining()}
+                color="red"
+              >
                 Training beenden
               </Button>
             </Grid.Col>
