@@ -12,3 +12,10 @@ type Driver = {
   createdAt: string; // Unix timestamp
   updatedAt: string; // Unix timestamp
 };
+
+type DriverWithTrainingData = Driver & {
+  totalLaps: number;
+  totalCones: number;
+  totalGates: number;
+  laps: Lap[];
+};
