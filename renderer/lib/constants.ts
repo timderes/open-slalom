@@ -26,7 +26,7 @@ export const APP_ROUTES = [
   },
   {
     path: "/training",
-    label: "Neues Training",
+    label: "Training",
   },
   {
     path: "/drivers",
