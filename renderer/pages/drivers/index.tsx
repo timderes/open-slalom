@@ -13,12 +13,12 @@ import {
   Group,
   Table,
   Text,
-  Title,
 } from "@mantine/core";
 import { IconPencil, IconTrash, IconUserSearch } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
 import { modals } from "@mantine/modals";
+import PageHeader from "@/components/shared/PageHeader";
 
 const DriversPage = () => {
   const router = useRouter();
@@ -76,9 +76,8 @@ const DriversPage = () => {
   return (
     <Layout currentRoute="/drivers">
       <Container my="sm">
-        <Group component="header">
-          <Title me="auto">Fahrer</Title>
-
+        <PageHeader title="Fahrer" />
+        <Group>
           <Button
             onClick={() => router.push("/drivers/create")}
             variant="filled"
@@ -87,7 +86,6 @@ const DriversPage = () => {
             Fahrer anlegen
           </Button>
         </Group>
-
         {!drivers || drivers.length === 0 ? (
           <p>Es sind noch keine Fahrer angelegt.</p>
         ) : (

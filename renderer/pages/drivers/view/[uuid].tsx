@@ -1,6 +1,7 @@
 import Layout from "@/components/shared/Layout";
+import PageHeader from "@/components/shared/PageHeader";
 import database from "@/lib/database";
-import { Container, Stack, Title } from "@mantine/core";
+import { Container, Stack } from "@mantine/core";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
 
@@ -18,9 +19,7 @@ const DriverViewPage = () => {
     <Layout currentRoute="/drivers/view/[uuid]">
       <Container my="sm">
         <Stack>
-          <header>
-            <Title>{driver.firstName + " " + driver.lastName}</Title>
-          </header>
+          <PageHeader title={driver.firstName + " " + driver.lastName} />
         </Stack>
       </Container>
     </Layout>

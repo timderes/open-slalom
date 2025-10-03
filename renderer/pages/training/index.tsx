@@ -11,7 +11,6 @@ import {
   Stack,
   Table,
   Text,
-  Title,
 } from "@mantine/core";
 import { useStopwatch } from "react-use-precision-timer";
 import { useEffect, useState } from "react";
@@ -22,6 +21,7 @@ import database from "@/lib/database";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUserMinus, IconUserPlus } from "@tabler/icons-react";
 import convertTimeToString from "@/lib/training/convertTimeToString";
+import PageHeader from "@/components/shared/PageHeader";
 
 type DriverWithTrainingData = Driver & {
   bestLapTime: number;
@@ -143,9 +143,7 @@ const TrainingPage = () => {
       </Drawer>
       <Layout currentRoute="/training">
         <Container my="sm" fluid>
-          <header>
-            <Title>Training</Title>
-          </header>
+          <PageHeader title="Training" />
           <Grid>
             <Grid.Col span={7}>
               Runden:

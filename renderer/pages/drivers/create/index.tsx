@@ -1,4 +1,5 @@
 import Layout from "@/components/shared/Layout";
+import PageHeader from "@/components/shared/PageHeader";
 import { JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
 import database from "@/lib/database";
 import {
@@ -14,7 +15,6 @@ import {
   Stack,
   Text,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
@@ -86,9 +86,7 @@ const CreateDriverPage = () => {
     <Layout currentRoute="/drivers/create">
       <Container my="sm">
         <Stack>
-          <header>
-            <Title>Fahrer anlegen</Title>
-          </header>
+          <PageHeader title="Fahrer anlegen" />
           <Group grow>
             <TextInput
               label="Vorname"
