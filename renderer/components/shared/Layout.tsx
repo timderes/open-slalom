@@ -62,9 +62,6 @@ const Layout = ({ currentRoute, children }: LayoutProps) => {
         <Group h="100%" px="md">
           <Burger opened={opened} onClick={toggle} size="sm" />
           {APP_NAME}
-          <Text ms="auto">
-            {CURRENT_DATE} {CURRENT_TIME}
-          </Text>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
@@ -79,7 +76,12 @@ const Layout = ({ currentRoute, children }: LayoutProps) => {
         ))}
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-      <AppShell.Footer p="md">{APP_VERSION}</AppShell.Footer>
+      <AppShell.Footer p="md" component={Group}>
+        <Text>{APP_VERSION}</Text>
+        <Text ms="auto">
+          {CURRENT_DATE} {CURRENT_TIME}
+        </Text>
+      </AppShell.Footer>
     </AppShell>
   );
 };
