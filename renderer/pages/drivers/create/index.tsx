@@ -35,8 +35,8 @@ const CreateDriverPage = () => {
         sks: 1,
       },
       uuid: uuidv4(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     },
     validate: {
       firstName: (value) => (value.length < 2 ? "Zu kurz" : null),
