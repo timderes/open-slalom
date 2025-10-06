@@ -55,7 +55,9 @@ export const TIME_PENALTIES_SKS = {
   MISSED_GATE: 10, // seconds
 };
 
-export const EMPTY_TRAINING_DATA = {
+export const EMPTY_TRAINING_DATA: TrainingData = {
+  averageLapTime: 0,
+  bestLapTime: 0,
   totalCones: 0,
   totalGates: 0,
   totalLaps: 0,

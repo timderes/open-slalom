@@ -9,15 +9,8 @@ type Driver = {
     sks: 1 | 2 | 3 | 4 | 5;
   };
   uuid: string; // UUID v4
-  createdAt: string; // Unix timestamp
-  updatedAt: string; // Unix timestamp
+  createdAt: number; // Unix timestamp
+  updatedAt: number; // Unix timestamp
 };
 
-type DriverWithTrainingData = Driver & {
-  bestLapTime: number;
-  averageLapTime: number;
-  totalLaps: number;
-  totalCones: number;
-  totalGates: number;
-  laps: Lap[];
-};
+type DriverWithTrainingData = Driver & TrainingData;
