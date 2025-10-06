@@ -1,7 +1,8 @@
 import path from "path";
-import { app, ipcMain } from "electron";
+import { app, dialog, ipcMain } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
+import { writeFile } from "fs";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -40,3 +41,38 @@ app.on("window-all-closed", () => {
 ipcMain.on("message", async (event, arg) => {
   event.reply("message", `${arg} World!`);
 });
+
+ipcMain.on(
+  "save-file",
+  async (
+    _,
+    { fileName, bufferData }: { fileName: string; bufferData: ArrayBuffer }
+  ) => {
+    const data = Buffer.from(bufferData);
+
+    // Open electron dialog to select save location
+    const filePath = await dialog
+      .showSaveDialog({
+        defaultPath: app.getPath("documents") + `/${fileName}`,
+
+        title: "Datenbank sichern",
+        buttonLabel: "Sichern",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      })
+      .then((result) => {
+        if (result.canceled || !result.filePath) {
+          console.log("Save operation was canceled.");
+          return null;
+        }
+        return result.filePath;
+      });
+
+    writeFile(filePath, data, (err) => {
+      if (err) {
+        console.error("Error saving file:", err);
+      } else {
+        console.log("File saved successfully:", filePath);
+      }
+    });
+  }
+);

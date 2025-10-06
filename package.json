@@ -26,6 +26,7 @@
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "dexie": "^4.2.0",
+    "dexie-export-import": "^4.1.4",
     "dexie-react-hooks": "^4.2.0",
     "electron": "^38.2.0",
     "electron-builder": "^26.0.2",
