@@ -19,6 +19,7 @@ import {
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 
