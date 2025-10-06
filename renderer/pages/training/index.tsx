@@ -2,323 +2,313 @@ import Layout from "@/components/shared/Layout";
 import {
   Button,
   ButtonGroup,
+  Card,
   Container,
   Divider,
   Drawer,
   Grid,
   Group,
   NumberInput,
-  SegmentedControl,
   Stack,
   Table,
   Text,
 } from "@mantine/core";
+import { useDisclosure, useInterval } from "@mantine/hooks";
 import { useStopwatch } from "react-use-precision-timer";
-import { useEffect, useState } from "react";
-import { useForm } from "@mantine/form";
-import { useLiveQuery } from "dexie-react-hooks";
-import database from "@/lib/database";
-import { useDisclosure } from "@mantine/hooks";
-import { IconHelmet, IconUserMinus, IconUserPlus } from "@tabler/icons-react";
 import convertTimeToString from "@/lib/training/convertTimeToString";
-import PageHeader from "@/components/shared/PageHeader";
-import { EMPTY_TRAINING_DATA } from "@/lib/constants";
+import {
+  IconAlertSquareRounded,
+  IconClockOff,
+  IconFlag,
+  IconRotate360,
+  IconStopwatch,
+} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { TIME_PENALTIES_JKS } from "@/lib/constants";
+
+const LAPS_PER_STINT = 3;
 
 const TrainingPage = () => {
-  const stopwatch = useStopwatch();
-  const [finishedLaps, setFinishedLaps] = useState<
-    { cones: number; gates: number; time: number }[]
-  >([]);
-  const [elapsed, setElapsed] = useState(0);
-  const [currentDriverIndex, setCurrentDriverIndex] = useState(0);
-  const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const [opened, { open, close }] = useDisclosure(false);
+  const stopwatch = useStopwatch();
+  const [currentStint, setCurrentStint] = useState<{
+    currentLap: number;
+    driver: Driver;
+    laps: Lap[];
+    time: number;
+  }>({
+    currentLap: 1,
+    driver: {
+      firstName: "Max",
+      lastName: "Verstappen",
+      uuid: "1234",
+      birthDate: "1997-09-30",
+      sex: "male", // or "female", depending on your data
+      driverClass: { jks: 7, sks: 5 }, // replace with appropriate class value
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+    laps: [],
+    time: 0,
+  });
+  const interval = useInterval(
+    () =>
+      setCurrentStint((prev) => ({
+        ...prev,
+        time: stopwatch.getElapsedRunningTime(),
+      })),
+    50 // TODO: Magic value. Add settings slider for this
+  );
 
   useEffect(() => {
-    const updateElapsed = () => setElapsed(stopwatch.getElapsedRunningTime());
-    setElapsed(stopwatch.getElapsedRunningTime());
-    const interval = setInterval(updateElapsed, 100);
-    return () => clearInterval(interval);
-  }, [stopwatch]);
-  const training = useForm<Training>({
-    initialValues: {
-      lapsPerStint: 3,
-      mode: "JKS",
-      drivers: [],
-    },
-  });
-
-  const handleCrossingFinishLine = () => {
-    stopwatch.pause();
-
-    const currentLapTime = stopwatch.getElapsedRunningTime();
-
-    setFinishedLaps((laps) => [
-      ...laps,
-      { time: currentLapTime, cones: 0, gates: 0 },
-    ]);
-
-    if (finishedLaps.length + 1 >= training.values.lapsPerStint) {
-      stopwatch.stop();
+    if (stopwatch.isRunning()) {
+      interval.start();
     } else {
+      interval.stop();
+    }
+    return () => {
+      interval.stop();
+    };
+  }, [stopwatch.isRunning()]);
+
+  const IS_FINAL_LAP_IN_THIS_STINT = currentStint.currentLap === LAPS_PER_STINT;
+
+  const handleStopwatchStart = () => {
+    // Stop the watch to reset the elapsed time and then start it again
+    stopwatch.stop();
+    stopwatch.start();
+  };
+
+  const handleStopwatchReset = () => {
+    stopwatch.stop();
+    setCurrentStint((prev) => ({ ...prev, laps: [], time: 0, currentLap: 1 }));
+  };
+
+  const handleStopwatchLap = () => {
+    setCurrentStint((prev) => ({
+      ...prev,
+      currentLap: IS_FINAL_LAP_IN_THIS_STINT
+        ? prev.currentLap
+        : prev.currentLap + 1,
+      laps: [
+        ...prev.laps,
+        {
+          time: prev.time,
+          timestamp: stopwatch.getStartTime(),
+          cones: 0,
+          gates: 0,
+        },
+      ],
+    }));
+
+    if (IS_FINAL_LAP_IN_THIS_STINT) {
+      stopwatch.stop();
+
+      // TODO: Save stint to driver
+    } else {
+      stopwatch.stop();
       stopwatch.start();
     }
   };
 
-  const isLastDriver =
-    currentDriverIndex === training.values.drivers.length - 1;
-
-  const handleUpdateCurrentDriver = () => {
-    if (!isLastDriver) {
-      setCurrentDriverIndex((index) => index + 1);
-    } else {
-      setCurrentDriverIndex(0);
-    }
-
-    // SAVE
-    training.setValues((prev) => {
-      const currentDriver = prev.drivers[currentDriverIndex];
-      currentDriver.laps = [
-        ...prev.drivers[currentDriverIndex].laps,
-        ...finishedLaps.map((lap) => ({
-          time: lap.time,
-          cones: lap.cones,
-          gates: lap.gates,
-        })),
-      ];
-      currentDriver.totalLaps += finishedLaps.length;
-
-      // Get Best lap time from laps
-      currentDriver.bestLapTime = Math.min(
-        ...currentDriver.laps.map((lap) => lap.time)
-      );
-
-      // get average lap time from laps
-      currentDriver.averageLapTime =
-        currentDriver.laps.reduce((acc, lap) => acc + lap.time, 0) /
-        currentDriver.laps.length;
-
-      return { ...prev };
-    });
-
-    console.info(training.values);
-
-    // RESET
-    setFinishedLaps([]);
-    setElapsed(0);
-    stopwatch.stop();
-  };
-
-  const handleSkipCurrentDriver = () => {
-    if (!isLastDriver) {
-      setCurrentDriverIndex((index) => index + 1);
-    } else {
-      setCurrentDriverIndex(0);
-    }
-
-    setFinishedLaps([]);
-    setElapsed(0);
-    stopwatch.stop();
-  };
-
-  const handleEndTraining = () => {
-    // TODO: Save data to db and go to index route
-    return;
-  };
-
-  const handleResetTurn = () => {
-    stopwatch.stop();
-    setElapsed(0);
-    setFinishedLaps([]);
-  };
   return (
     <>
-      <Drawer opened={opened} onClose={close} title="Fahrer Management">
-        <Stack>
-          {drivers?.map((driver) => (
-            <Group key={driver.uuid}>
-              <Text>
-                {driver.firstName} {driver.lastName}
-              </Text>
-              {training.values.drivers.some((d) => d.uuid === driver.uuid) ? (
-                <Button
-                  ms="auto"
-                  variant="light"
-                  color="red"
-                  onClick={() =>
-                    training.setFieldValue(
-                      "drivers",
-                      training.values.drivers.filter(
-                        (d) => d.uuid !== driver.uuid
-                      )
-                    )
-                  }
-                >
-                  <IconUserMinus />
-                </Button>
-              ) : (
-                <Button
-                  ms="auto"
-                  variant="light"
-                  onClick={() =>
-                    training.setFieldValue("drivers", [
-                      ...training.values.drivers,
-                      { ...driver, ...EMPTY_TRAINING_DATA },
-                    ])
-                  }
-                >
-                  <IconUserPlus />
-                </Button>
-              )}
-            </Group>
-          ))}
-        </Stack>
-      </Drawer>
+      <Drawer
+        opened={opened}
+        onClose={close}
+        title="Fahrer Management"
+      ></Drawer>
       <Layout currentRoute="/training">
         <Container my="sm" fluid>
-          <PageHeader title="Training" />
-          {JSON.stringify(training.values)}
           <Grid>
-            <Grid.Col span={7}>
-              <Group align="end" mb="sm">
-                <NumberInput
-                  disabled={stopwatch.isRunning()}
-                  label="Runden"
-                  min={1}
-                  defaultValue={3}
-                  max={99}
-                  {...training.getInputProps("lapsPerStint")}
-                />
-
-                <SegmentedControl
-                  disabled={stopwatch.isRunning()}
-                  color="blue"
-                  data={["JKS", "SKS"]}
-                  {...training.getInputProps("mode")}
-                />
-                <Button
-                  disabled={stopwatch.isRunning()}
-                  leftSection={<IconHelmet />}
-                  ms="auto"
-                  onClick={open}
-                >
-                  Fahrer
-                </Button>
-              </Group>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Fahrer</Table.Th>
-                    <Table.Th>Kart</Table.Th>
-                    <Table.Th>Beste Zeit</Table.Th>
-                    <Table.Th>&#8709; Zeit</Table.Th>
-                    <Table.Th>Runden</Table.Th>
-                    <Table.Th>Pylonen</Table.Th>
-                    <Table.Th>Tore</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {training.values.drivers.map((driver, index) => (
-                    <Table.Tr
-                      key={driver.uuid}
-                      bg={index === currentDriverIndex ? "blue" : ""}
-                      c={index === currentDriverIndex ? "white" : ""}
-                    >
-                      <Table.Td>
-                        {driver.firstName} {driver.lastName}
-                      </Table.Td>
-                      <Table.Td>UNDEFINED</Table.Td>
-                      <Table.Td>
-                        {convertTimeToString(driver.bestLapTime || 0)}
-                      </Table.Td>
-                      <Table.Td>
-                        {convertTimeToString(driver.averageLapTime || 0)}
-                      </Table.Td>
-                      <Table.Td>{driver.totalLaps}</Table.Td>
-                      <Table.Td>{driver.totalCones}</Table.Td>
-                      <Table.Td>{driver.totalGates}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
+            <Grid.Col bg="violet" span={12}>
+              CONTROLS_HEADER
             </Grid.Col>
-            <Grid.Col span={5} component={Stack}>
-              <Text ta="center" fz="6rem" fw="bold">
-                {convertTimeToString(elapsed)}
-              </Text>
-              <ButtonGroup mx="auto">
-                <Button
-                  disabled={
-                    stopwatch.isRunning() ||
-                    training.values.drivers.length === 0
+
+            <Grid.Col
+              bg="pink"
+              span={{ lg: 8, base: 12 }}
+              order={{ lg: 0, base: 1 }}
+              mb="md"
+            >
+              {JSON.stringify(currentStint, null, 2)}
+            </Grid.Col>
+            <Grid.Col span={{ lg: 4, base: 12 }} ta="center">
+              <Card component={Stack} gap="xl" withBorder>
+                <Divider
+                  tt="uppercase"
+                  label={
+                    <>
+                      <IconStopwatch />
+                      <Text ml="xs">
+                        Stoppuhr &mdash; Fahrer:{" "}
+                        {currentStint.driver
+                          ? `${currentStint.driver.firstName} ${currentStint.driver.lastName}`
+                          : "N/A"}
+                      </Text>
+                    </>
                   }
-                  size="xl"
-                  onClick={() => stopwatch.start()}
-                >
-                  Start
-                </Button>
-                <Button
-                  disabled={!stopwatch.isRunning()}
-                  size="xl"
-                  onClick={() => handleCrossingFinishLine()}
-                >
-                  Ziel
-                </Button>
-                <Button size="xl" color="red" onClick={() => handleResetTurn()}>
-                  Zurücksetzen
-                </Button>
-              </ButtonGroup>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Runde</Table.Th>
-                    <Table.Th>Zeit</Table.Th>
-                    <Table.Th>Pylonen</Table.Th>
-                    <Table.Th>Tore</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {finishedLaps.map((lap, index) => (
-                    <Table.Tr key={index}>
-                      <Table.Td>{index + 1}</Table.Td>
-                      <Table.Td>
-                        <Group gap="xs">
-                          {convertTimeToString(lap.time)}
-                          <Text fz="xs" c="red">
-                            +0s
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <NumberInput defaultValue={0} min={0} max={99} />
-                      </Table.Td>
-                      <Table.Td>
-                        <NumberInput defaultValue={0} min={0} max={99} />
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-              <Divider />
-              <Button
-                disabled={finishedLaps.length !== training.values.lapsPerStint}
-                onClick={() => handleUpdateCurrentDriver()}
-              >
-                Nächster Fahrer
-              </Button>
-              <Button
-                disabled={stopwatch.isRunning()}
-                onClick={() => handleSkipCurrentDriver()}
-              >
-                Fahrer überspringen
-              </Button>
-              <Button
-                disabled={stopwatch.isRunning()}
-                onClick={() => handleEndTraining()}
-                color="red"
-              >
-                Training beenden
-              </Button>
+                  labelPosition="left"
+                />
+                <Stack gap={0}>
+                  <Text ff="monospace" fz="5rem" fw="bold">
+                    {convertTimeToString(currentStint.time)}
+                  </Text>
+                  <Text opacity={0.7}>
+                    Runde: {currentStint.currentLap} / {LAPS_PER_STINT}
+                  </Text>
+                </Stack>
+                <Group grow>
+                  <ButtonGroup>
+                    <Button
+                      leftSection={<IconFlag />}
+                      disabled={stopwatch.isRunning()}
+                      onClick={() => handleStopwatchStart()}
+                    >
+                      Start
+                    </Button>
+                    <Button
+                      disabled={
+                        LAPS_PER_STINT === currentStint.laps.length ||
+                        !stopwatch.isRunning()
+                      }
+                      onClick={() => handleStopwatchLap()}
+                    >
+                      {IS_FINAL_LAP_IN_THIS_STINT ? "Stop" : "Runde"}
+                    </Button>
+                  </ButtonGroup>
+                  <Button
+                    leftSection={<IconClockOff />}
+                    w="fit-content"
+                    bg="red"
+                    onClick={() => handleStopwatchReset()}
+                  >
+                    Stint löschen
+                  </Button>
+                </Group>
+                <Divider
+                  tt="uppercase"
+                  label={
+                    <>
+                      <IconRotate360 />
+                      <Text ml="xs">Runden</Text>
+                    </>
+                  }
+                  labelPosition="left"
+                />
+                <Stack ta="left">
+                  <Text opacity={0.7}>
+                    Gesamtzeit:{" "}
+                    {convertTimeToString(
+                      currentStint.laps.reduce(
+                        (total, lap) => total + lap.time,
+                        0
+                      )
+                    )}{" "}
+                    &mdash; &#x00D8;{" "}
+                    {currentStint.laps.length === 0
+                      ? "N/A"
+                      : convertTimeToString(
+                          currentStint.laps.reduce(
+                            (total, lap) => total + lap.time,
+                            0
+                          ) / currentStint.laps.length
+                        )}
+                  </Text>
+                  <Table striped highlightOnHover>
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>Runde</Table.Th>
+                        <Table.Th ta="center">Zeit</Table.Th>
+                        <Table.Th>Pylonen</Table.Th>
+                        <Table.Th>Tore</Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {currentStint.laps.map((lap, index) => {
+                        const LAP_HAS_PENALTIES =
+                          lap.cones !== 0 || lap.gates !== 0;
+
+                        return (
+                          <Table.Tr key={index}>
+                            <Table.Td>
+                              <Group gap={5}>
+                                {index + 1}
+
+                                {LAP_HAS_PENALTIES && (
+                                  <IconAlertSquareRounded
+                                    color="red"
+                                    size={24}
+                                  />
+                                )}
+                              </Group>
+                            </Table.Td>
+                            <Table.Td w={150} ta="center">
+                              <Stack gap={0}>
+                                <Text component="span">
+                                  {convertTimeToString(lap.time)}
+                                </Text>
+                                {LAP_HAS_PENALTIES && (
+                                  <Text component="span" fz="xs" opacity={0.9}>
+                                    +
+                                    {lap.cones * TIME_PENALTIES_JKS.HIT_CONE +
+                                      lap.gates *
+                                        TIME_PENALTIES_JKS.MISSED_GATE}
+                                    s
+                                  </Text>
+                                )}
+                              </Stack>
+                            </Table.Td>
+                            <Table.Td>
+                              <NumberInput
+                                defaultValue={0}
+                                maw={100}
+                                min={0}
+                                max={99}
+                                variant="unstyled"
+                                onChange={(val) =>
+                                  setCurrentStint((prev) => {
+                                    const updatedLaps = [...prev.laps];
+                                    updatedLaps[index] = {
+                                      ...updatedLaps[index],
+                                      cones: (val as number) || 0,
+                                    };
+                                    return { ...prev, laps: updatedLaps };
+                                  })
+                                }
+                              />
+                            </Table.Td>
+                            <Table.Td>
+                              <NumberInput
+                                style={{
+                                  color: LAP_HAS_PENALTIES
+                                    ? "white"
+                                    : undefined,
+                                }}
+                                defaultValue={0}
+                                maw={100}
+                                min={0}
+                                max={99}
+                                variant="unstyled"
+                                onChange={(val) =>
+                                  setCurrentStint((prev) => {
+                                    const updatedLaps = [...prev.laps];
+                                    updatedLaps[index] = {
+                                      ...updatedLaps[index],
+                                      gates: (val as number) || 0,
+                                    };
+                                    return { ...prev, laps: updatedLaps };
+                                  })
+                                }
+                              />
+                            </Table.Td>
+                          </Table.Tr>
+                        );
+                      })}
+                    </Table.Tbody>
+                  </Table>
+                </Stack>
+              </Card>
             </Grid.Col>
           </Grid>
         </Container>
