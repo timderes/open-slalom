@@ -20,6 +20,7 @@ import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import { IconHelmet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 
@@ -58,6 +59,15 @@ const CreateDriverPage = () => {
 
   const handleCreateDriver = () => {
     database.drivers.add(form.values).then(() => {
+      const { firstName, lastName } = form.values;
+
+      notifications.show({
+        icon: <IconHelmet />,
+        title: "Fahrer angelegt",
+        message: `${firstName} ${lastName} wurde erfolgreich angelegt.`,
+        color: "green",
+      });
+
       form.reset();
       router.push("/drivers");
     });
