@@ -3,7 +3,7 @@ type TrainingMode = "JKS" | "SKS";
 type Training = {
   lapsPerStint: number;
   mode: TrainingMode;
-  drivers: DriverWithTrainingData[];
+  drivers: Driver[];
   uuid: string; // UUID v4
   createdAt: number; // Unix timestamp
   updatedAt: number; // Unix timestamp

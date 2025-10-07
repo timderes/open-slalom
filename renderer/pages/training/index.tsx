@@ -1,5 +1,6 @@
 import Layout from "@/components/shared/Layout";
 import {
+  ActionIcon,
   Button,
   ButtonGroup,
   Card,
@@ -9,9 +10,13 @@ import {
   Grid,
   Group,
   NumberInput,
+  SegmentedControl,
   Stack,
   Table,
   Text,
+  Title,
+  Tooltip,
+  useDrawersStack,
 } from "@mantine/core";
 import { useDisclosure, useInterval } from "@mantine/hooks";
 import { useStopwatch } from "react-use-precision-timer";
@@ -20,17 +25,34 @@ import {
   IconAlertSquareRounded,
   IconClockOff,
   IconFlag,
+  IconHelmet,
   IconRotate360,
+  IconSettings,
   IconStopwatch,
+  IconUserMinus,
+  IconUserPlus,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { TIME_PENALTIES_JKS } from "@/lib/constants";
-
-const LAPS_PER_STINT = 3;
+import { useForm } from "@mantine/form";
+import { v4 as uuidv4 } from "uuid";
+import { useLiveQuery } from "dexie-react-hooks";
+import database from "@/lib/database";
 
 const TrainingPage = () => {
-  const [opened, { open, close }] = useDisclosure(false);
+  const stack = useDrawersStack(["drivers", "settings"]);
+  const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const stopwatch = useStopwatch();
+  const settings = useForm<Training>({
+    initialValues: {
+      lapsPerStint: 3,
+      drivers: [],
+      mode: "JKS",
+      uuid: uuidv4(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+  });
   const [currentStint, setCurrentStint] = useState<{
     currentLap: number;
     driver: Driver;
@@ -38,19 +60,11 @@ const TrainingPage = () => {
     time: number;
   }>({
     currentLap: 1,
-    driver: {
-      firstName: "Max",
-      lastName: "Verstappen",
-      uuid: "1234",
-      birthDate: "1997-09-30",
-      sex: "male", // or "female", depending on your data
-      driverClass: { jks: 7, sks: 5 }, // replace with appropriate class value
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    },
+    driver: settings.values.drivers[0] || undefined,
     laps: [],
     time: 0,
   });
+
   const interval = useInterval(
     () =>
       setCurrentStint((prev) => ({
@@ -71,7 +85,8 @@ const TrainingPage = () => {
     };
   }, [stopwatch.isRunning()]);
 
-  const IS_FINAL_LAP_IN_THIS_STINT = currentStint.currentLap === LAPS_PER_STINT;
+  const IS_FINAL_LAP_IN_THIS_STINT =
+    currentStint.currentLap === settings.values.lapsPerStint;
 
   const handleStopwatchStart = () => {
     // Stop the watch to reset the elapsed time and then start it again
@@ -111,29 +126,127 @@ const TrainingPage = () => {
     }
   };
 
+  const handleAddDriver = (driver: Driver) => {
+    if (settings.values.drivers.includes(driver)) {
+      settings.setFieldValue(
+        "drivers",
+        settings.values.drivers.filter((d) => d !== driver)
+      );
+    } else {
+      settings.setFieldValue("drivers", [...settings.values.drivers, driver]);
+    }
+
+    setCurrentStint((prev) => ({
+      ...prev,
+      driver: settings.values.drivers[0] || undefined,
+    }));
+  };
+
   return (
     <>
-      <Drawer
-        opened={opened}
-        onClose={close}
-        title="Fahrer Management"
-      ></Drawer>
+      <Drawer.Stack>
+        <Drawer
+          overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
+          size="xl"
+          title="Fahrer Management"
+          {...stack.register("drivers")}
+        >
+          <Stack>
+            {drivers?.map((driver) => (
+              <Group key={driver.uuid}>
+                <Text>
+                  {driver.firstName} {driver.lastName}
+                </Text>
+                <ActionIcon
+                  color={
+                    settings.values.drivers.includes(driver) ? "red" : "blue"
+                  }
+                  ms="auto"
+                  onClick={() => handleAddDriver(driver)}
+                >
+                  {settings.values.drivers.includes(driver) ? (
+                    <IconUserMinus />
+                  ) : (
+                    <IconUserPlus />
+                  )}
+                </ActionIcon>
+              </Group>
+            ))}
+          </Stack>
+        </Drawer>
+        <Drawer
+          overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
+          size="xl"
+          title="Einstellungen"
+          {...stack.register("settings")}
+        >
+          <Stack>
+            <NumberInput
+              label="Runden"
+              description="Anzahl der Runden die jeder Fahrer pro Stint fährt."
+              min={1}
+              max={99}
+              {...settings.getInputProps("lapsPerStint")}
+            />
+            <Stack gap={0}>
+              <Text fz="sm" fw="bold" opacity={0.8}>
+                Modus
+              </Text>
+              <SegmentedControl
+                color="blue"
+                data={["JKS", "SKS"]}
+                value={settings.values.mode}
+                onChange={(value) =>
+                  settings.setFieldValue("mode", value as "JKS" | "SKS")
+                }
+              />
+            </Stack>
+          </Stack>
+        </Drawer>
+      </Drawer.Stack>
       <Layout currentRoute="/training">
         <Container my="sm" fluid>
           <Grid>
-            <Grid.Col bg="violet" span={12}>
-              CONTROLS_HEADER
+            <Grid.Col span={12}>
+              <Group>
+                <Title>Training</Title>
+
+                <Group ms="auto">
+                  <Tooltip
+                    label="Fahrer"
+                    withArrow
+                    position="bottom"
+                    onClick={() => stack.open("drivers")}
+                  >
+                    <ActionIcon>
+                      <IconHelmet />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Tooltip
+                    label="Einstellungen"
+                    withArrow
+                    position="bottom"
+                    onClick={() => stack.open("settings")}
+                  >
+                    <ActionIcon variant="default" w="fit-content">
+                      <IconSettings />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+              </Group>
             </Grid.Col>
 
             <Grid.Col
               bg="pink"
-              span={{ lg: 8, base: 12 }}
+              span={{ lg: 7, base: 12 }}
               order={{ lg: 0, base: 1 }}
               mb="md"
             >
               {JSON.stringify(currentStint, null, 2)}
+              <br />
+              {JSON.stringify(settings.values, null, 2)}
             </Grid.Col>
-            <Grid.Col span={{ lg: 4, base: 12 }} ta="center">
+            <Grid.Col span={{ lg: 5, base: 12 }} ta="center">
               <Card component={Stack} gap="xl" withBorder>
                 <Divider
                   tt="uppercase"
@@ -155,7 +268,8 @@ const TrainingPage = () => {
                     {convertTimeToString(currentStint.time)}
                   </Text>
                   <Text opacity={0.7}>
-                    Runde: {currentStint.currentLap} / {LAPS_PER_STINT}
+                    Runde: {currentStint.currentLap} /{" "}
+                    {settings.values.lapsPerStint}
                   </Text>
                 </Stack>
                 <Group grow>
@@ -169,8 +283,8 @@ const TrainingPage = () => {
                     </Button>
                     <Button
                       disabled={
-                        LAPS_PER_STINT === currentStint.laps.length ||
-                        !stopwatch.isRunning()
+                        settings.values.lapsPerStint ===
+                          currentStint.laps.length || !stopwatch.isRunning()
                       }
                       onClick={() => handleStopwatchLap()}
                     >
@@ -215,41 +329,44 @@ const TrainingPage = () => {
                           ) / currentStint.laps.length
                         )}
                   </Text>
-                  <Table striped highlightOnHover>
-                    <Table.Thead>
-                      <Table.Tr>
-                        <Table.Th>Runde</Table.Th>
-                        <Table.Th ta="center">Zeit</Table.Th>
-                        <Table.Th>Pylonen</Table.Th>
-                        <Table.Th>Tore</Table.Th>
-                      </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                      {currentStint.laps.map((lap, index) => {
-                        const LAP_HAS_PENALTIES =
-                          lap.cones !== 0 || lap.gates !== 0;
+                  <Table.ScrollContainer minWidth="auto" maxHeight={300}>
+                    <Table striped highlightOnHover stickyHeader>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>Runde</Table.Th>
+                          <Table.Th>Zeit</Table.Th>
+                          <Table.Th>Zeitstrafe</Table.Th>
+                          <Table.Th>Pylonen</Table.Th>
+                          <Table.Th>Tore</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {currentStint.laps.map((lap, index) => {
+                          const LAP_HAS_PENALTIES =
+                            lap.cones !== 0 || lap.gates !== 0;
 
-                        return (
-                          <Table.Tr key={index}>
-                            <Table.Td>
-                              <Group gap={5}>
-                                {index + 1}
+                          return (
+                            <Table.Tr key={index}>
+                              <Table.Td>
+                                <Group gap={5}>
+                                  {index + 1}
 
-                                {LAP_HAS_PENALTIES && (
-                                  <IconAlertSquareRounded
-                                    color="red"
-                                    size={24}
-                                  />
-                                )}
-                              </Group>
-                            </Table.Td>
-                            <Table.Td w={150} ta="center">
-                              <Stack gap={0}>
+                                  {LAP_HAS_PENALTIES && (
+                                    <IconAlertSquareRounded
+                                      color="red"
+                                      size={24}
+                                    />
+                                  )}
+                                </Group>
+                              </Table.Td>
+                              <Table.Td>
                                 <Text component="span">
                                   {convertTimeToString(lap.time)}
                                 </Text>
+                              </Table.Td>
+                              <Table.Td>
                                 {LAP_HAS_PENALTIES && (
-                                  <Text component="span" fz="xs" opacity={0.9}>
+                                  <Text c="red" fw="bold">
                                     +
                                     {lap.cones * TIME_PENALTIES_JKS.HIT_CONE +
                                       lap.gates *
@@ -257,56 +374,56 @@ const TrainingPage = () => {
                                     s
                                   </Text>
                                 )}
-                              </Stack>
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                defaultValue={0}
-                                maw={100}
-                                min={0}
-                                max={99}
-                                variant="unstyled"
-                                onChange={(val) =>
-                                  setCurrentStint((prev) => {
-                                    const updatedLaps = [...prev.laps];
-                                    updatedLaps[index] = {
-                                      ...updatedLaps[index],
-                                      cones: (val as number) || 0,
-                                    };
-                                    return { ...prev, laps: updatedLaps };
-                                  })
-                                }
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                style={{
-                                  color: LAP_HAS_PENALTIES
-                                    ? "white"
-                                    : undefined,
-                                }}
-                                defaultValue={0}
-                                maw={100}
-                                min={0}
-                                max={99}
-                                variant="unstyled"
-                                onChange={(val) =>
-                                  setCurrentStint((prev) => {
-                                    const updatedLaps = [...prev.laps];
-                                    updatedLaps[index] = {
-                                      ...updatedLaps[index],
-                                      gates: (val as number) || 0,
-                                    };
-                                    return { ...prev, laps: updatedLaps };
-                                  })
-                                }
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                        );
-                      })}
-                    </Table.Tbody>
-                  </Table>
+                              </Table.Td>
+                              <Table.Td>
+                                <NumberInput
+                                  defaultValue={0}
+                                  maw={100}
+                                  min={0}
+                                  max={99}
+                                  variant="unstyled"
+                                  onChange={(val) =>
+                                    setCurrentStint((prev) => {
+                                      const updatedLaps = [...prev.laps];
+                                      updatedLaps[index] = {
+                                        ...updatedLaps[index],
+                                        cones: (val as number) || 0,
+                                      };
+                                      return { ...prev, laps: updatedLaps };
+                                    })
+                                  }
+                                />
+                              </Table.Td>
+                              <Table.Td>
+                                <NumberInput
+                                  style={{
+                                    color: LAP_HAS_PENALTIES
+                                      ? "white"
+                                      : undefined,
+                                  }}
+                                  defaultValue={0}
+                                  maw={100}
+                                  min={0}
+                                  max={99}
+                                  variant="unstyled"
+                                  onChange={(val) =>
+                                    setCurrentStint((prev) => {
+                                      const updatedLaps = [...prev.laps];
+                                      updatedLaps[index] = {
+                                        ...updatedLaps[index],
+                                        gates: (val as number) || 0,
+                                      };
+                                      return { ...prev, laps: updatedLaps };
+                                    })
+                                  }
+                                />
+                              </Table.Td>
+                            </Table.Tr>
+                          );
+                        })}
+                      </Table.Tbody>
+                    </Table>
+                  </Table.ScrollContainer>
                 </Stack>
               </Card>
             </Grid.Col>
