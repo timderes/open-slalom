@@ -11,6 +11,7 @@ import {
   Group,
   NumberInput,
   SegmentedControl,
+  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -23,6 +24,7 @@ import { useStopwatch } from "react-use-precision-timer";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
   IconAlertSquareRounded,
+  IconBugFilled,
   IconClockOff,
   IconFlag,
   IconHelmet,
@@ -40,7 +42,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import database from "@/lib/database";
 
 const TrainingPage = () => {
-  const stack = useDrawersStack(["drivers", "settings"]);
+  const stack = useDrawersStack(["drivers", "settings", "dev"]);
   const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const stopwatch = useStopwatch();
   const settings = useForm<Training>({
@@ -203,6 +205,12 @@ const TrainingPage = () => {
             </Stack>
           </Stack>
         </Drawer>
+        <Drawer size="100%" title="Entwickler" {...stack.register("dev")}>
+          <Divider label="CURRENT STINT" />
+          <pre>{JSON.stringify(currentStint, null, 2)}</pre>
+          <Divider label="FORM" />
+          <pre>{JSON.stringify(settings.values, null, 2)}</pre>
+        </Drawer>
       </Drawer.Stack>
       <Layout currentRoute="/training">
         <Container my="sm" fluid>
@@ -210,7 +218,6 @@ const TrainingPage = () => {
             <Grid.Col span={12}>
               <Group>
                 <Title>Training</Title>
-
                 <Group ms="auto">
                   <Tooltip
                     label="Fahrer"
@@ -232,6 +239,16 @@ const TrainingPage = () => {
                       <IconSettings />
                     </ActionIcon>
                   </Tooltip>
+                  <Tooltip
+                    label="Entwickler"
+                    withArrow
+                    position="bottom"
+                    onClick={() => stack.open("dev")}
+                  >
+                    <ActionIcon c="orange" variant="default" w="fit-content">
+                      <IconBugFilled />
+                    </ActionIcon>
+                  </Tooltip>
                 </Group>
               </Group>
             </Grid.Col>
@@ -242,9 +259,7 @@ const TrainingPage = () => {
               order={{ lg: 0, base: 1 }}
               mb="md"
             >
-              {JSON.stringify(currentStint, null, 2)}
-              <br />
-              {JSON.stringify(settings.values, null, 2)}
+              MAIN
             </Grid.Col>
             <Grid.Col span={{ lg: 5, base: 12 }} ta="center">
               <Card component={Stack} gap="xl" withBorder>
