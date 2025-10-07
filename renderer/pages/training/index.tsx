@@ -44,8 +44,10 @@ import { useForm } from "@mantine/form";
 import { v4 as uuidv4 } from "uuid";
 import { useLiveQuery } from "dexie-react-hooks";
 import database from "@/lib/database";
+import { useRouter } from "next/router";
 
 const TrainingPage = () => {
+  const router = useRouter();
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
   const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const stopwatch = useStopwatch();
@@ -60,11 +62,13 @@ const TrainingPage = () => {
     },
   });
   const [currentStint, setCurrentStint] = useState<{
+    currentDriverIndex: number;
     currentLap: number;
     driver: Driver;
     laps: Lap[];
     time: number;
   }>({
+    currentDriverIndex: 0,
     currentLap: 1,
     driver: settings.values.drivers[0] || undefined,
     laps: [],
@@ -122,10 +126,9 @@ const TrainingPage = () => {
       ],
     }));
 
+    //  Stop restarting the stopwatch when this was the final lap in this stint
     if (IS_FINAL_LAP_IN_THIS_STINT) {
       stopwatch.stop();
-
-      // TODO: Save stint to driver
     } else {
       stopwatch.stop();
       stopwatch.start();
@@ -147,12 +150,50 @@ const TrainingPage = () => {
     const updatedDrivers = settings.values.drivers.includes(driver)
       ? settings.values.drivers.filter((d) => d !== driver)
       : [...settings.values.drivers, driver];
+
     setCurrentStint((prev) => ({
       ...prev,
-      driver: updatedDrivers[0] || undefined,
+      driver: updatedDrivers[prev.currentDriverIndex] || undefined,
     }));
   };
 
+  const handleUpdateCurrentDriver = () => {
+    // TODO: Save current stint before updating current driver
+
+    // Update current driver index
+    setCurrentStint((prev) => ({
+      currentDriverIndex:
+        (prev.currentDriverIndex + 1) % settings.values.drivers.length,
+      currentLap: 1,
+      driver:
+        settings.values.drivers[
+          (prev.currentDriverIndex + 1) % settings.values.drivers.length
+        ],
+      laps: [],
+      time: 0,
+    }));
+  };
+
+  const handleSkipDriver = () => {
+    // TODO: Maybe add modal to confirm skipping driver if they already have laps in this stint?
+    setCurrentStint((prev) => ({
+      currentDriverIndex:
+        (prev.currentDriverIndex + 1) % settings.values.drivers.length,
+      currentLap: 1,
+      driver:
+        settings.values.drivers[
+          (prev.currentDriverIndex + 1) % settings.values.drivers.length
+        ],
+      laps: [],
+      time: 0,
+    }));
+  };
+
+  const handleStopTraining = () => {
+    // TODO: Maybe add modal to confirm ending training if there are ongoing laps
+    // TODO: Save training and driver data
+    router.push("/");
+  };
   return (
     <>
       <Drawer.Stack>
@@ -268,68 +309,117 @@ const TrainingPage = () => {
               order={{ lg: 0, base: 1 }}
               mb="md"
             >
-              <Tabs defaultValue="starterList" variant="outline">
-                <Tabs.List>
-                  <Tabs.Tab
-                    value="starterList"
-                    leftSection={<IconList size={16} />}
-                  >
-                    Starterliste
-                  </Tabs.Tab>
-                  <Tabs.Tab
-                    value="fastestLaps"
-                    leftSection={<IconListNumbers size={16} />}
-                  >
-                    Schnellste Runden
-                  </Tabs.Tab>
-                  <Tabs.Tab value="stats" leftSection={<IconGraph size={16} />}>
-                    Statistiken
-                  </Tabs.Tab>
-                </Tabs.List>
-                <Tabs.Panel value="starterList">
-                  <Table.ScrollContainer minWidth="auto" maxHeight={600}>
-                    <Table striped highlightOnHover stickyHeader>
-                      <Table.Thead>
-                        <Table.Tr>
-                          <Table.Th>Fahrer</Table.Th>
-                          <Table.Th>Kart</Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>
-                        {settings.values.drivers.length === 0 && (
-                          <Table.Tr>
-                            <Table.Td colSpan={1} ta="center" component={Stack}>
-                              <Text fz="h4">
-                                Es wurden keine Fahrer ausgewählt!
-                              </Text>
-                              <Button
-                                leftSection={<IconHelmet />}
-                                w="fit-content"
-                                mx="auto"
-                                onClick={() => stack.open("drivers")}
+              <Stack>
+                <Card withBorder>
+                  <Group grow>
+                    <Button
+                      size="compact-md"
+                      disabled={
+                        stopwatch.isRunning() ||
+                        currentStint.laps.length !==
+                          settings.values.lapsPerStint
+                      }
+                    >
+                      Nächster Fahrer
+                    </Button>
+                    <Button
+                      color="red"
+                      size="compact-md"
+                      disabled={
+                        stopwatch.isRunning() ||
+                        settings.values.drivers.length === 0
+                      }
+                      onClick={() => handleSkipDriver()}
+                    >
+                      Fahrer überspringen
+                    </Button>
+                    <Button
+                      color="red"
+                      size="compact-md"
+                      disabled={stopwatch.isRunning()}
+                      onClick={() => handleStopTraining()}
+                    >
+                      Training beenden
+                    </Button>
+                  </Group>
+                </Card>
+                <Tabs defaultValue="starterList" variant="outline">
+                  <Tabs.List>
+                    <Tabs.Tab
+                      value="starterList"
+                      leftSection={<IconList size={16} />}
+                    >
+                      Starterliste
+                    </Tabs.Tab>
+                    <Tabs.Tab
+                      value="fastestLaps"
+                      leftSection={<IconListNumbers size={16} />}
+                    >
+                      Schnellste Runden
+                    </Tabs.Tab>
+                    <Tabs.Tab
+                      value="stats"
+                      leftSection={<IconGraph size={16} />}
+                    >
+                      Statistiken
+                    </Tabs.Tab>
+                  </Tabs.List>
+                  <Tabs.Panel value="starterList" my="lg">
+                    {settings.values.drivers.length === 0 ? (
+                      <Stack align="center">
+                        <Text fz="h4">Es wurden keine Fahrer ausgewählt!</Text>
+                        <Button
+                          leftSection={<IconHelmet />}
+                          w="fit-content"
+                          mx="auto"
+                          onClick={() => stack.open("drivers")}
+                        >
+                          Fahrer hinzufügen
+                        </Button>
+                      </Stack>
+                    ) : (
+                      <Table.ScrollContainer minWidth="auto" maxHeight={600}>
+                        <Table striped highlightOnHover stickyHeader>
+                          <Table.Thead>
+                            <Table.Tr>
+                              <Table.Th>Fahrer</Table.Th>
+                              <Table.Th>Kart</Table.Th>
+                            </Table.Tr>
+                          </Table.Thead>
+                          <Table.Tbody>
+                            {settings.values?.drivers.map((driver, _idx) => (
+                              <Table.Tr
+                                key={driver.uuid}
+                                bg={
+                                  currentStint.currentDriverIndex === _idx
+                                    ? "blue"
+                                    : undefined
+                                }
+                                c={
+                                  currentStint.currentDriverIndex === _idx
+                                    ? "white"
+                                    : undefined
+                                }
                               >
-                                Fahrer hinzufügen
-                              </Button>
-                            </Table.Td>
-                          </Table.Tr>
-                        )}
-                        {settings.values?.drivers.map((driver) => (
-                          <Table.Tr key={driver.uuid}>
-                            <Table.Td>
-                              {driver.firstName} {driver.lastName}
-                            </Table.Td>
-                            <Table.Td>UNDEFINED</Table.Td>
-                          </Table.Tr>
-                        ))}
-                      </Table.Tbody>
-                    </Table>
-                  </Table.ScrollContainer>
-                </Tabs.Panel>
-                <Tabs.Panel value="fastestLaps">
-                  TODO_ADD_FASTEST_LAPS_CONTENT
-                </Tabs.Panel>
-                <Tabs.Panel value="stats">TODO_ADD_STATS_CONTENT</Tabs.Panel>
-              </Tabs>
+                                <Table.Td>
+                                  {driver.firstName} {driver.lastName}
+                                </Table.Td>
+                                <Table.Td>UNDEFINED</Table.Td>
+                              </Table.Tr>
+                            ))}
+                          </Table.Tbody>
+                        </Table>
+                      </Table.ScrollContainer>
+                    )}
+                  </Tabs.Panel>
+                  <Tabs.Panel value="fastestLaps" my="lg">
+                    TODO_ADD_FASTEST_LAPS_CONTENT
+                  </Tabs.Panel>
+                  <Tabs.Panel value="stats" my="lg">
+                    TODO_ADD_STATS_CONTENT
+                  </Tabs.Panel>
+                </Tabs>
+              </Stack>
             </Grid.Col>
             <Grid.Col span={{ lg: 5, base: 12 }} ta="center">
               <Card component={Stack} gap="xl" withBorder>
