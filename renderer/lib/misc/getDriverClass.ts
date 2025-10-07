@@ -34,8 +34,7 @@ const getSksDriverClass = ({
   if (age < 12) return 1;
   if (age < 15) return 2;
   if (age < 18) return 3;
-  if (age < 21) return 4;
-  return 5;
+  return 4;
 };
 
 export { getJksDriverClass, getSksDriverClass };

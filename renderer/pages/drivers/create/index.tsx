@@ -8,23 +8,42 @@ import {
 } from "@/lib/misc/getDriverClass";
 import {
   Button,
-  ButtonGroup,
+  type ComboboxData,
   Container,
   Group,
+  NativeSelect,
   NumberInput,
   Stack,
   Text,
   TextInput,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import { useForm } from "@mantine/form";
+import { hasLength, isInRange, isNotEmpty, useForm } from "@mantine/form";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconHelmet } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
+import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from "@/lib/constants";
+import calculateDriverAge from "@/lib/misc/calculateDriverAge";
 
 const CreateDriverPage = () => {
+  const sexOptions: ComboboxData = [
+    // See Driver.d.ts for more information
+    {
+      label: "Männlich",
+      value: "male",
+    },
+    {
+      label: "Weiblich",
+      value: "female",
+    },
+    {
+      label: "Divers",
+      value: "other",
+    },
+  ];
+
   const router = useRouter();
   const form = useForm<Driver>({
     initialValues: {
@@ -41,10 +60,26 @@ const CreateDriverPage = () => {
       updatedAt: Date.now(),
     },
     validate: {
-      firstName: (value) => (value.length < 2 ? "Zu kurz" : null),
-      lastName: (value) => (value.length < 2 ? "Zu kurz" : null),
-      birthDate: (value) => (value ? null : "Bitte ein Datum auswählen"),
+      firstName: hasLength(
+        { min: 2, max: 99 },
+        "Dieses Feld darf nicht leer sein."
+      ),
+      lastName: hasLength(
+        { min: 2, max: 99 },
+        "Dieses Feld darf nicht leer sein."
+      ),
+      birthDate: (value) => {
+        const age = calculateDriverAge(value);
+        return (
+          isInRange(
+            { min: MIN_DRIVER_AGE, max: MAX_DRIVER_AGE },
+            `Ungültiges Geburtsdatum. Fahrer müssen zwischen ${MIN_DRIVER_AGE} und ${MAX_DRIVER_AGE} Jahre alt sein.`
+          )(age) || isNotEmpty("Dieses Feld darf nicht leer sein.")(value)
+        );
+      },
+      sex: isNotEmpty("Dieses Feld darf nicht leer sein."),
     },
+    validateInputOnChange: true,
   });
 
   const handleBirthDateChange = (date: string) => {
@@ -94,52 +129,82 @@ const CreateDriverPage = () => {
   };
 
   return (
-    <Layout currentRoute="/drivers/create">
+    <Layout currentRoute="/drivers">
       <Container my="sm">
         <Stack>
           <PageHeader title="Fahrer anlegen" />
-          <Group grow>
-            <TextInput
-              label="Vorname"
-              placeholder="Max"
-              {...form.getInputProps("firstName")}
-            />
-            <TextInput
-              label="Nachname"
-              placeholder="Mustermann"
-              {...form.getInputProps("lastName")}
-            />
-          </Group>
-          <DateInput
-            valueFormat="DD. MMMM YYYY"
-            value={form.values.birthDate}
-            onChange={(e) => handleBirthDateChange(e)}
-            label="Geburtsdatum"
-            placeholder="Geburtsdatum"
-          />
-          <Group grow>
-            <NumberInput
-              min={Math.min(...JKS_CLASSES)}
-              max={Math.max(...JKS_CLASSES)}
-              label="Klasse JKS"
-              {...form.getInputProps("driverClass.jks")}
-            />
-            <NumberInput
-              min={Math.min(...SKS_CLASSES)}
-              max={Math.max(...SKS_CLASSES)}
-              label="Klasse SKS"
-              {...form.getInputProps("driverClass.sks")}
-            />
-          </Group>
-          <ButtonGroup>
-            <Button onClick={() => handleGoBack()}>Zurück</Button>
-            <Button
-              disabled={!form.isValid()}
-              onClick={() => handleCreateDriver()}
-            >
-              Fahrer erstellen
-            </Button>
-          </ButtonGroup>
+          <form
+            onSubmit={form.onSubmit(
+              () => handleCreateDriver(),
+              (errors) => {
+                // Focus first invalid field
+                const getFirstErrorField = Object.keys(errors)[0];
+                form.getInputProps(getFirstErrorField).onFocus();
+              }
+            )}
+          >
+            <Stack>
+              <Group grow>
+                <TextInput
+                  label="Vorname"
+                  placeholder="Max"
+                  {...form.getInputProps("firstName")}
+                  key={form.key("firstName")}
+                />
+                <TextInput
+                  label="Nachname"
+                  placeholder="Verstappen"
+                  {...form.getInputProps("lastName")}
+                  key={form.key("lastName")}
+                />
+              </Group>
+              <Group grow>
+                <DateInput
+                  valueFormat="DD. MMMM YYYY"
+                  value={form.values.birthDate}
+                  onChange={(e) => handleBirthDateChange(e)}
+                  label="Geburtsdatum"
+                  placeholder="Geburtsdatum"
+                  key={form.key("birthDate")}
+                  error={form.getInputProps("birthDate").error}
+                />
+                <NativeSelect
+                  label="Geschlecht"
+                  data={sexOptions}
+                  key={form.key("sex")}
+                  {...form.getInputProps("sex")}
+                />
+              </Group>
+              <Group grow>
+                <NumberInput
+                  description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
+                  min={Math.min(...JKS_CLASSES)}
+                  max={Math.max(...JKS_CLASSES)}
+                  label="Klasse JKS"
+                  {...form.getInputProps("driverClass.jks")}
+                  key={form.key("driverClass.jks")}
+                />
+                <NumberInput
+                  description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
+                  min={Math.min(...SKS_CLASSES)}
+                  max={Math.max(...SKS_CLASSES)}
+                  label="Klasse SKS"
+                  {...form.getInputProps("driverClass.sks")}
+                  key={form.key("driverClass.sks")}
+                />
+              </Group>
+              <Group mt="xl">
+                <Button type="submit">Fahrer erstellen</Button>
+                <Button
+                  ms="auto"
+                  variant="subtle"
+                  onClick={() => handleGoBack()}
+                >
+                  Zurück
+                </Button>
+              </Group>
+            </Stack>
+          </form>
         </Stack>
       </Container>
     </Layout>

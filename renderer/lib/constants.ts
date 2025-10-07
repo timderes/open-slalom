@@ -42,8 +42,15 @@ export const APP_ROUTES = [
   },
 ];
 
+// JKS class 0 only exists in North Rhine-Westphalia
 export const JKS_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7];
-export const SKS_CLASSES = [1, 2, 3, 4, 5];
+export const SKS_CLASSES = [1, 2, 3, 4];
+
+/**
+ * The minimum and maximum age for drivers.
+ */
+export const MIN_DRIVER_AGE = 5; // years
+export const MAX_DRIVER_AGE = 99; // years
 
 export const TIME_PENALTIES_JKS = {
   HIT_CONE: 2, // seconds
@@ -61,5 +68,5 @@ export const EMPTY_TRAINING_DATA: TrainingData = {
   totalCones: 0,
   totalGates: 0,
   totalLaps: 0,
-  laps: [] as Lap[],
+  laps: [],
 };
