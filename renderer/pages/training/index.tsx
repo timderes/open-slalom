@@ -14,6 +14,7 @@ import {
   SimpleGrid,
   Stack,
   Table,
+  Tabs,
   Text,
   Title,
   Tooltip,
@@ -27,7 +28,10 @@ import {
   IconBugFilled,
   IconClockOff,
   IconFlag,
+  IconGraph,
   IconHelmet,
+  IconList,
+  IconListNumbers,
   IconRotate360,
   IconSettings,
   IconStopwatch,
@@ -254,12 +258,73 @@ const TrainingPage = () => {
             </Grid.Col>
 
             <Grid.Col
-              bg="pink"
+              // bg="pink"
               span={{ lg: 7, base: 12 }}
               order={{ lg: 0, base: 1 }}
               mb="md"
             >
-              MAIN
+              <Tabs defaultValue="starterList" variant="outline">
+                <Tabs.List>
+                  <Tabs.Tab
+                    value="starterList"
+                    leftSection={<IconList size={16} />}
+                  >
+                    Starterliste
+                  </Tabs.Tab>
+                  <Tabs.Tab
+                    value="fastestLaps"
+                    leftSection={<IconListNumbers size={16} />}
+                  >
+                    Schnellste Runden
+                  </Tabs.Tab>
+                  <Tabs.Tab value="stats" leftSection={<IconGraph size={16} />}>
+                    Statistiken
+                  </Tabs.Tab>
+                </Tabs.List>
+                <Tabs.Panel value="starterList">
+                  <Table.ScrollContainer minWidth="auto" maxHeight={600}>
+                    <Table striped highlightOnHover stickyHeader>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>Fahrer</Table.Th>
+                          <Table.Th>Kart</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {settings.values.drivers.length === 0 && (
+                          <Table.Tr>
+                            <Table.Td colSpan={1} ta="center" component={Stack}>
+                              <Text fz="h4">
+                                Es wurden keine Fahrer ausgewählt!
+                              </Text>
+                              <Button
+                                leftSection={<IconHelmet />}
+                                w="fit-content"
+                                mx="auto"
+                                onClick={() => stack.open("drivers")}
+                              >
+                                Fahrer hinzufügen
+                              </Button>
+                            </Table.Td>
+                          </Table.Tr>
+                        )}
+                        {settings.values?.drivers.map((driver) => (
+                          <Table.Tr key={driver.uuid}>
+                            <Table.Td>
+                              {driver.firstName} {driver.lastName}
+                            </Table.Td>
+                            <Table.Td>UNDEFINED</Table.Td>
+                          </Table.Tr>
+                        ))}
+                      </Table.Tbody>
+                    </Table>
+                  </Table.ScrollContainer>
+                </Tabs.Panel>
+                <Tabs.Panel value="fastestLaps">
+                  TODO_ADD_FASTEST_LAPS_CONTENT
+                </Tabs.Panel>
+                <Tabs.Panel value="stats">TODO_ADD_STATS_CONTENT</Tabs.Panel>
+              </Tabs>
             </Grid.Col>
             <Grid.Col span={{ lg: 5, base: 12 }} ta="center">
               <Card component={Stack} gap="xl" withBorder>
