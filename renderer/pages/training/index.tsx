@@ -134,6 +134,7 @@ const TrainingPage = () => {
 
   const handleAddDriver = (driver: Driver) => {
     if (settings.values.drivers.includes(driver)) {
+      // Remove driver from list
       settings.setFieldValue(
         "drivers",
         settings.values.drivers.filter((d) => d !== driver)
@@ -142,9 +143,13 @@ const TrainingPage = () => {
       settings.setFieldValue("drivers", [...settings.values.drivers, driver]);
     }
 
+    // If driver list is not empty set current driver to first driver in list
+    const updatedDrivers = settings.values.drivers.includes(driver)
+      ? settings.values.drivers.filter((d) => d !== driver)
+      : [...settings.values.drivers, driver];
     setCurrentStint((prev) => ({
       ...prev,
-      driver: settings.values.drivers[0] || undefined,
+      driver: updatedDrivers[0] || undefined,
     }));
   };
 
