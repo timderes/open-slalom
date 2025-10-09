@@ -1,4 +1,4 @@
-import Layout from "@/components/shared/Layout";
+import Layout, { APP_NAVBAR_WIDTH } from "@/components/shared/Layout";
 import {
   ActionIcon,
   Button,
@@ -262,8 +262,8 @@ const TrainingPage = () => {
           <pre>{JSON.stringify(settings.values, null, 2)}</pre>
         </Drawer>
       </Drawer.Stack>
-      <Layout currentRoute="/training">
-        <Container my="sm" fluid>
+      <Layout currentRoute="/training" disableNavbar>
+        <Container py="sm" fluid>
           <Grid>
             <Grid.Col span={12}>
               <Group>

@@ -5,7 +5,14 @@ import {
   DEFAULT_DATE_FORMAT,
   DEFAULT_TIME_FORMAT,
 } from "@/lib/constants";
-import { AppShell, Burger, Group, NavLink, Text } from "@mantine/core";
+import {
+  AppShell,
+  type AppShellProps,
+  Burger,
+  Group,
+  NavLink,
+  Text,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
 import Link from "next/link";
@@ -14,7 +21,11 @@ import Controls from "../layout/Controls";
 import NetworkStatus from "../layout/NetworkStatus";
 import OsStatus from "../layout/OsStatus";
 
-type LayoutProps = { currentRoute: string } & React.PropsWithChildren;
+type LayoutProps = {
+  currentRoute: string;
+  disableNavbar: boolean;
+} & AppShellProps &
+  React.PropsWithChildren;
 
 export const APP_HEADER_HEIGHT = 60; // px
 export const APP_FOOTER_HEIGHT = 60; // px
@@ -28,7 +39,12 @@ const CURRENT_DATE = new Date().toLocaleDateString("de", {
 /**
  * Default layout for the app. With header, footer, navbar and aside sections.
  */
-const Layout = ({ currentRoute, children }: LayoutProps) => {
+const Layout = ({
+  currentRoute,
+  disableNavbar,
+  children,
+  ...props
+}: LayoutProps) => {
   const [CURRENT_TIME, setCurrentTime] = useState<string | null>(null);
 
   const [opened, { toggle }] = useDisclosure();
@@ -58,14 +74,20 @@ const Layout = ({ currentRoute, children }: LayoutProps) => {
       navbar={{
         width: APP_NAVBAR_WIDTH,
         breakpoint: "sm",
-        collapsed: { mobile: !opened, desktop: opened },
+        collapsed: {
+          mobile: disableNavbar ? true : !opened,
+          desktop: disableNavbar ? true : opened,
+        },
       }}
       padding={0}
+      {...props}
     >
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between">
           <Group>
-            <Burger opened={opened} onClick={toggle} size="sm" />
+            {disableNavbar ? null : (
+              <Burger opened={opened} onClick={toggle} size="sm" />
+            )}
             {APP_NAME}
           </Group>
           <Controls />
