@@ -1,4 +1,4 @@
-import Layout, { APP_NAVBAR_WIDTH } from "@/components/shared/Layout";
+import Layout from "@/components/shared/Layout";
 import {
   ActionIcon,
   Button,
@@ -20,7 +20,7 @@ import {
   Tooltip,
   useDrawersStack,
 } from "@mantine/core";
-import { useDisclosure, useInterval } from "@mantine/hooks";
+import { useInterval } from "@mantine/hooks";
 import { useStopwatch } from "react-use-precision-timer";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
