@@ -11,7 +11,6 @@ import {
   Group,
   NumberInput,
   SegmentedControl,
-  SimpleGrid,
   Stack,
   Table,
   Tabs,
@@ -39,7 +38,10 @@ import {
   IconUserPlus,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { TIME_PENALTIES_JKS } from "@/lib/constants";
+import {
+  DEFAULT_STOPWATCH_INTERVAL,
+  TIME_PENALTIES_JKS,
+} from "@/lib/constants";
 import { useForm } from "@mantine/form";
 import { v4 as uuidv4 } from "uuid";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -86,7 +88,8 @@ const TrainingPage = () => {
         ...prev,
         time: stopwatch.getElapsedRunningTime(),
       })),
-    50 // TODO: Magic value. Add settings slider for this
+    // TODO: Let the user configure this value in settings
+    DEFAULT_STOPWATCH_INTERVAL
   );
 
   useEffect(() => {
@@ -163,7 +166,6 @@ const TrainingPage = () => {
   };
 
   const handleUpdateCurrentDriver = () => {
-    // TODO: Save current stint before updating current driver
     settings.setFieldValue("drivers", (prevDrivers) =>
       prevDrivers.map((driver) =>
         driver.uuid === currentStint.driver?.uuid
@@ -324,7 +326,7 @@ const TrainingPage = () => {
                 data={["JKS", "SKS"]}
                 value={settings.values.mode}
                 onChange={(value) =>
-                  settings.setFieldValue("mode", value as "JKS" | "SKS")
+                  settings.setFieldValue("mode", value as SlalomType)
                 }
               />
             </Stack>
@@ -384,9 +386,7 @@ const TrainingPage = () => {
                 </Group>
               </Group>
             </Grid.Col>
-
             <Grid.Col
-              // bg="pink"
               span={{ lg: 7, base: 12 }}
               order={{ lg: 0, base: 1 }}
               mb="md"
@@ -604,11 +604,10 @@ const TrainingPage = () => {
                             lap.cones !== 0 || lap.gates !== 0;
 
                           return (
-                            <Table.Tr key={index}>
+                            <Table.Tr key={lap.timestamp}>
                               <Table.Td>
                                 <Group gap={5}>
                                   {index + 1}
-
                                   {LAP_HAS_PENALTIES && (
                                     <IconAlertSquareRounded
                                       color="red"
