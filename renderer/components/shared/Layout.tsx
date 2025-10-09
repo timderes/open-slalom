@@ -7,8 +7,12 @@ import {
 } from "@/lib/constants";
 import { AppShell, Burger, Group, NavLink, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Controls from "../layout/Controls";
+import NetworkStatus from "../layout/NetworkStatus";
+import OsStatus from "../layout/OsStatus";
 
 type LayoutProps = { currentRoute: string } & React.PropsWithChildren;
 
@@ -59,9 +63,12 @@ const Layout = ({ currentRoute, children }: LayoutProps) => {
       padding={0}
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} size="sm" />
-          {APP_NAME}
+        <Group h="100%" px="md" justify="space-between">
+          <Group>
+            <Burger opened={opened} onClick={toggle} size="sm" />
+            {APP_NAME}
+          </Group>
+          <Controls />
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
@@ -78,6 +85,8 @@ const Layout = ({ currentRoute, children }: LayoutProps) => {
       <AppShell.Main>{children}</AppShell.Main>
       <AppShell.Footer p="md" component={Group}>
         <Text>{APP_VERSION}</Text>
+        <NetworkStatus />
+        <OsStatus />
         <Text ms="auto">
           {CURRENT_DATE} {CURRENT_TIME}
         </Text>

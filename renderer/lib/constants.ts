@@ -2,6 +2,7 @@
  * App-wide constants that can be used throughout the app.
  */
 
+import type { TooltipProps } from "@mantine/core";
 import pkg from "../../package.json";
 
 export const APP_NAME = pkg.productName;
@@ -17,6 +18,11 @@ export const DEFAULT_TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "2-digit",
   minute: "2-digit",
   second: "2-digit",
+};
+
+export const DEFAULT_TOOLTIP_PROPS: Omit<TooltipProps, "label"> = {
+  position: "bottom",
+  withArrow: true,
 };
 
 export const APP_ROUTES = [
