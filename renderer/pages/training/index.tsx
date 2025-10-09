@@ -284,8 +284,15 @@ const TrainingPage = () => {
                     withArrow
                     position="bottom"
                     onClick={() => stack.open("settings")}
+                    disabled={stopwatch.isRunning()}
                   >
-                    <ActionIcon variant="default" w="fit-content">
+                    <ActionIcon
+                      variant="default"
+                      w="fit-content"
+                      disabled={
+                        currentStint.laps.length > 0 || stopwatch.isRunning()
+                      }
+                    >
                       <IconSettings />
                     </ActionIcon>
                   </Tooltip>
