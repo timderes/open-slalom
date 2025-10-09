@@ -13,4 +13,9 @@ type Driver = {
   updatedAt: number; // Unix timestamp
 };
 
-type DriverWithTrainingData = Driver & TrainingData;
+/**
+ * Extends the default driver profile with an array of laps.
+ */
+type DriverWithStints = Driver & {
+  stints: { laps: Lap[] }[];
+};

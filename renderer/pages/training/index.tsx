@@ -46,6 +46,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import database from "@/lib/database";
 import { useRouter } from "next/router";
 import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
 
 const TrainingPage = () => {
   const router = useRouter();
@@ -61,11 +62,14 @@ const TrainingPage = () => {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
+    onValuesChange: () => {
+      settings.setFieldValue("updatedAt", Date.now());
+    },
   });
   const [currentStint, setCurrentStint] = useState<{
     currentDriverIndex: number;
     currentLap: number;
-    driver: Driver;
+    driver: DriverWithStints | undefined;
     laps: Lap[];
     time: number;
   }>({
@@ -136,7 +140,7 @@ const TrainingPage = () => {
     }
   };
 
-  const handleAddDriver = (driver: Driver) => {
+  const handleAddDriver = (driver: DriverWithStints) => {
     if (settings.values.drivers.includes(driver)) {
       // Remove driver from list
       settings.setFieldValue(
@@ -160,7 +164,20 @@ const TrainingPage = () => {
 
   const handleUpdateCurrentDriver = () => {
     // TODO: Save current stint before updating current driver
-
+    settings.setFieldValue("drivers", (prevDrivers) =>
+      prevDrivers.map((driver) =>
+        driver.uuid === currentStint.driver?.uuid
+          ? {
+              ...driver,
+              stints: [
+                ...(driver.stints ?? []),
+                { laps: [...currentStint.laps] },
+              ],
+              updatedAt: Date.now(),
+            }
+          : driver
+      )
+    );
     // Update current driver index
     setCurrentStint((prev) => ({
       currentDriverIndex:
@@ -175,8 +192,7 @@ const TrainingPage = () => {
     }));
   };
 
-  const handleSkipDriver = () => {
-    // TODO: Maybe add modal to confirm skipping driver if they already have laps in this stint?
+  const updateCurrentStateToNextDriver = () => {
     setCurrentStint((prev) => ({
       currentDriverIndex:
         (prev.currentDriverIndex + 1) % settings.values.drivers.length,
@@ -188,6 +204,28 @@ const TrainingPage = () => {
       laps: [],
       time: 0,
     }));
+  };
+
+  const handleSkipDriver = () => {
+    // If the stopwatch for the driver started, ask for confirmation to skip them
+    if (currentStint.time !== 0) {
+      modals.openConfirmModal({
+        title: "Fahrer wirklich überspringen?",
+        centered: true,
+        children: (
+          <Text>
+            Die Stoppuhr für den aktuellen Fahrer wurde gestartet! Möchten Sie
+            den Fahrer wirklich überspringen? Nicht abgeschlossene Stints werden
+            verworfen.
+          </Text>
+        ),
+        labels: { confirm: "Fahrer überspringen", cancel: "Abbrechen" },
+        confirmProps: { color: "red" },
+        onConfirm: () => updateCurrentStateToNextDriver(),
+      });
+    } else {
+      updateCurrentStateToNextDriver();
+    }
   };
 
   const handleStopTraining = () => {
@@ -202,8 +240,17 @@ const TrainingPage = () => {
       ),
       labels: { confirm: "Training beenden", cancel: "Abbrechen" },
       onConfirm: () => {
-        // TODO: Save training and driver data
-        router.push("/");
+        database.trainings
+          .add(settings.values)
+          .then(() => {
+            router.push("/");
+          })
+          .catch((error) => {
+            notifications.show({
+              title: "Fehler: Training konnte nicht gespeichert werden",
+              message: error?.message || "Unbekannter Fehler",
+            });
+          });
       },
       confirmProps: { color: "red" },
     });
@@ -226,12 +273,25 @@ const TrainingPage = () => {
                 </Text>
                 <ActionIcon
                   color={
-                    settings.values.drivers.includes(driver) ? "red" : "blue"
+                    settings.values.drivers.some((d) => d.uuid === driver.uuid)
+                      ? "red"
+                      : "blue"
                   }
                   ms="auto"
-                  onClick={() => handleAddDriver(driver)}
+                  onClick={() => {
+                    // Check if driver already was added to the training before and then preserve their stints
+                    const existing = settings.values.drivers.find(
+                      (d) => d.uuid === driver.uuid
+                    );
+                    handleAddDriver({
+                      ...driver,
+                      stints: existing ? existing.stints : [],
+                    });
+                  }}
                 >
-                  {settings.values.drivers.includes(driver) ? (
+                  {settings.values.drivers.some(
+                    (d) => d.uuid === driver.uuid
+                  ) ? (
                     <IconUserMinus />
                   ) : (
                     <IconUserPlus />
@@ -341,6 +401,7 @@ const TrainingPage = () => {
                         currentStint.laps.length !==
                           settings.values.lapsPerStint
                       }
+                      onClick={() => handleUpdateCurrentDriver()}
                     >
                       Nächster Fahrer
                     </Button>
