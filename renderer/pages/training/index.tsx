@@ -451,7 +451,7 @@ const TrainingPage = () => {
                   <ButtonGroup>
                     <Button
                       leftSection={<IconFlag />}
-                      disabled={stopwatch.isRunning()}
+                      disabled={stopwatch.isRunning() || !currentStint.driver}
                       onClick={() => handleStopwatchStart()}
                     >
                       Start
