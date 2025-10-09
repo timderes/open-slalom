@@ -1,5 +1,5 @@
 import { DEFAULT_TOOLTIP_PROPS } from "@/lib/constants";
-import { ActionIcon, Group, Tooltip } from "@mantine/core";
+import { ActionIcon, Group, Text, Tooltip } from "@mantine/core";
 import { useFullscreen } from "@mantine/hooks";
 import {
   IconMinus,
@@ -7,6 +7,7 @@ import {
   IconWindowMinimize,
   IconX,
 } from "@tabler/icons-react";
+import { modals } from "@mantine/modals";
 
 /**
  * Returns a group of window control buttons (minimize, maximize, close).
@@ -21,7 +22,16 @@ const Controls = () => {
    * Closes the app. In development mode, the app will be relaunched for easier debugging.
    */
   const handleCloseApp = () => {
-    window.ipc.send("app-quit", null);
+    modals.openConfirmModal({
+      title: "App wirklich schließen?",
+      centered: true,
+      children: <Text>Alle ungespeicherten Daten gehen verloren!</Text>,
+      labels: { confirm: "App schließen", cancel: "Abbrechen" },
+      confirmProps: { color: "red" },
+      onConfirm: () => {
+        window.ipc.send("app-quit", null);
+      },
+    });
   };
 
   /**
