@@ -242,6 +242,23 @@ const TrainingPage = () => {
       ),
       labels: { confirm: "Training beenden", cancel: "Abbrechen" },
       onConfirm: () => {
+        // If no drivers or no laps were recorded, do not save the training
+        if (
+          settings.values.drivers.length === 0 ||
+          currentStint.driver.stints.length === 0
+        ) {
+          notifications.show({
+            autoClose: 10000, // 10 seconds
+            color: "red",
+            title: "Training wurde nicht gespeichert!",
+            message:
+              "Es wurden keine Fahrer oder keine Rundenzeiten erfasst. Das Training wurde verworfen und nicht gespeichert.",
+          });
+          router.push("/");
+          return;
+        }
+
+        // Save training with drivers that have at least one stint with laps
         database.trainings
           .add(settings.values)
           .then(() => {
@@ -249,7 +266,7 @@ const TrainingPage = () => {
           })
           .catch((error) => {
             notifications.show({
-              title: "Fehler: Training konnte nicht gespeichert werden",
+              title: "Training konnte nicht gespeichert werden",
               message: error?.message || "Unbekannter Fehler",
             });
           });
