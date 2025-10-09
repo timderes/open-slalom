@@ -1,5 +1,5 @@
 import path from "path";
-import { app, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
 import { writeFile } from "fs";
@@ -38,8 +38,21 @@ app.on("window-all-closed", () => {
   app.quit();
 });
 
-ipcMain.on("message", async (event, arg) => {
-  event.reply("message", `${arg} World!`);
+ipcMain.on("app-quit", () => {
+  // In development, relaunch the app for easier debugging
+  if (!isProd) {
+    app.relaunch();
+  }
+
+  app.quit();
+});
+
+ipcMain.on("app-minimize-window", () => {
+  const window = BrowserWindow.getFocusedWindow();
+
+  if (window) {
+    window.minimize();
+  }
 });
 
 ipcMain.on(
