@@ -45,6 +45,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useLiveQuery } from "dexie-react-hooks";
 import database from "@/lib/database";
 import { useRouter } from "next/router";
+import { modals } from "@mantine/modals";
 
 const TrainingPage = () => {
   const router = useRouter();
@@ -190,10 +191,24 @@ const TrainingPage = () => {
   };
 
   const handleStopTraining = () => {
-    // TODO: Maybe add modal to confirm ending training if there are ongoing laps
-    // TODO: Save training and driver data
-    router.push("/");
+    modals.openConfirmModal({
+      title: "Training beenden?",
+      centered: true,
+      children: (
+        <Text>
+          Möchten Sie das Training wirklich beenden? Nicht abgeschlossene Stints
+          werden nicht gespeichert!
+        </Text>
+      ),
+      labels: { confirm: "Training beenden", cancel: "Abbrechen" },
+      onConfirm: () => {
+        // TODO: Save training and driver data
+        router.push("/");
+      },
+      confirmProps: { color: "red" },
+    });
   };
+
   return (
     <>
       <Drawer.Stack>
