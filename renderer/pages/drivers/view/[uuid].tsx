@@ -2,6 +2,7 @@ import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
 import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
 import database from "@/lib/database";
+import translateSex from "@/lib/misc/translateSex";
 import {
   ActionIcon,
   Button,
@@ -76,7 +77,7 @@ const DriverViewPage = () => {
                 <Text opacity={0.7}>Geburtstag</Text>
               </Stack>
               <Stack ta="center" gap={0}>
-                <Text fw="bold">{driver.sex}</Text>
+                <Text fw="bold">{translateSex(driver.sex)}</Text>
                 <Text opacity={0.7}>Geschlecht</Text>
               </Stack>
               <Stack ta="center" gap={0}>
