@@ -23,7 +23,7 @@ import OsStatus from "../layout/OsStatus";
 
 type LayoutProps = {
   currentRoute: string;
-  disableNavbar: boolean;
+  disableNavbar?: boolean;
 } & AppShellProps &
   React.PropsWithChildren;
 
@@ -41,7 +41,7 @@ const CURRENT_DATE = new Date().toLocaleDateString("de", {
  */
 const Layout = ({
   currentRoute,
-  disableNavbar,
+  disableNavbar = false,
   children,
   ...props
 }: LayoutProps) => {
