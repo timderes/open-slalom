@@ -1,40 +1,46 @@
-import calculateDriverAge from "./calculateDriverAge";
-/**
- * Returns JKS driver class based on birth date.
- */
-const getJksDriverClass = ({
-  birthDate,
-}: {
-  birthDate: Driver["birthDate"];
-}) => {
-  const age = calculateDriverAge(birthDate);
+import { calculateDriverAgeBasedOfBirthYear } from "./calculateDriverAge";
+import { CLASS_AGE_TABLE } from "../constants";
 
-  if (age < 8) return 0;
-  if (age < 10) return 1;
-  if (age < 12) return 2;
-  if (age < 14) return 3;
-  if (age < 16) return 4;
-  if (age < 19) return 5;
-  if (age < 24) return 6;
-  return 7;
+type DriverBirthDate = {
+  birthDate: Driver["birthDate"];
 };
 
-/*
- * Returns SKS driver class based on birth date.
- *
- * TODO: Verify these age ranges!
- */
-const getSksDriverClass = ({
-  birthDate,
+const getClassByAge = ({
+  age,
+  classTable,
 }: {
-  birthDate: Driver["birthDate"];
+  age: number;
+  classTable: Record<string, { min: number; max: number | null }>;
 }) => {
-  const age = calculateDriverAge(birthDate);
-
-  if (age < 12) return 1;
-  if (age < 15) return 2;
-  if (age < 18) return 3;
-  return 4;
+  for (const [classKey, range] of Object.entries(classTable) as [
+    string,
+    { min: number; max: number | null }
+  ][]) {
+    if (age >= range.min && (range.max === null || age <= range.max)) {
+      return Number(classKey);
+    }
+  }
+  return null;
 };
 
-export { getJksDriverClass, getSksDriverClass };
+const getJksClass = ({ birthDate }: DriverBirthDate): number | null => {
+  const age = calculateDriverAgeBasedOfBirthYear(birthDate);
+
+  if (!age || isNaN(age)) {
+    return null;
+  }
+
+  return getClassByAge({ age, classTable: CLASS_AGE_TABLE.JKS });
+};
+
+const getSksClass = ({ birthDate }: DriverBirthDate): number | null => {
+  const age = calculateDriverAgeBasedOfBirthYear(birthDate);
+
+  if (!age || isNaN(age)) {
+    return null;
+  }
+
+  return getClassByAge({ age, classTable: CLASS_AGE_TABLE.SKS });
+};
+
+export { getJksClass, getSksClass };

@@ -2,10 +2,7 @@ import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
 import { JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
 import database from "@/lib/database";
-import {
-  getJksDriverClass,
-  getSksDriverClass,
-} from "@/lib/misc/getDriverClass";
+import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
 import {
   Button,
   type ComboboxData,
@@ -85,11 +82,17 @@ const CreateDriverPage = () => {
   const handleBirthDateChange = (date: string) => {
     form.getInputProps("birthDate").onChange(date);
 
-    const classJKS = getJksDriverClass({ birthDate: date });
-    const classSKS = getSksDriverClass({ birthDate: date });
+    const classJKS = getJksClass({ birthDate: date });
+    const classSKS = getSksClass({ birthDate: date });
 
-    form.setFieldValue("driverClass.jks", classJKS);
-    form.setFieldValue("driverClass.sks", classSKS);
+    form.setFieldValue(
+      "driverClass.jks",
+      classJKS as Driver["driverClass"]["jks"]
+    );
+    form.setFieldValue(
+      "driverClass.sks",
+      classSKS as Driver["driverClass"]["sks"]
+    );
   };
 
   const handleCreateDriver = () => {
