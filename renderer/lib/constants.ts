@@ -52,6 +52,29 @@ export const APP_ROUTES = [
 export const JKS_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7];
 export const SKS_CLASSES = [1, 2, 3, 4];
 
+export const JKS_CLASS_AGE_RANGES = {
+  0: { min: 7, max: 7 }, // Bambini (North-Rhine Westphalia only)
+  1: { min: 8, max: 9 },
+  2: { min: 10, max: 11 },
+  3: { min: 12, max: 13 },
+  4: { min: 14, max: 15 },
+  5: { min: 16, max: 18 },
+  6: { min: 19, max: 23 },
+  7: { min: 19, max: null }, // adults / trainer class (open upper bound)
+};
+
+export const SKS_CLASS_AGE_RANGES = {
+  1: { min: 12, max: 14 },
+  2: { min: 15, max: 17 },
+  3: { min: 18, max: 20 },
+  4: { min: 21, max: 30 },
+};
+
+export const CLASS_AGE_TABLE = {
+  JKS: JKS_CLASS_AGE_RANGES,
+  SKS: SKS_CLASS_AGE_RANGES,
+};
+
 /**
  * The minimum and maximum age for drivers.
  */
