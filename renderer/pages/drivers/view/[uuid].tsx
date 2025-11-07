@@ -1,3 +1,4 @@
+import EmptyQueryResult from "@/components/shared/EmptyQueryResult";
 import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
 import Stat from "@/components/shared/Stat";
@@ -36,13 +37,10 @@ const DriverViewPage = () => {
   if (!driver) {
     return (
       <Layout currentRoute="/drivers">
-        <Container my="sm">
-          <PageHeader title="Fahrer nicht gefunden" />
-          <Text>
-            Die Daten für den Fahrer mit der UUID {uuid} konnten nicht geladen
-            werden.
-          </Text>
-        </Container>
+        <EmptyQueryResult title="Fahrer nicht gefunden">
+          Die Daten für den Fahrer mit der UUID <code>{uuid}</code> konnten
+          nicht geladen werden.
+        </EmptyQueryResult>
       </Layout>
     );
   }

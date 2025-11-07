@@ -1,3 +1,4 @@
+import EmptyQueryResult from "@/components/shared/EmptyQueryResult";
 import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
 import Stat from "@/components/shared/Stat";
@@ -8,7 +9,6 @@ import {
   Container,
   Group,
   Stack,
-  Text,
   Tooltip,
 } from "@mantine/core";
 import { IconCode } from "@tabler/icons-react";
@@ -24,13 +24,10 @@ const KartViewPage = () => {
   if (!kart) {
     return (
       <Layout currentRoute="/karts">
-        <Container my="sm">
-          <PageHeader title="Kart nicht gefunden" />
-          <Text>
-            Die Daten für das Kart mit der UUID {uuid} konnten nicht geladen
-            werden.
-          </Text>
-        </Container>
+        <EmptyQueryResult title="Kart nicht gefunden">
+          Die Daten für das Kart mit der UUID {uuid} konnten nicht geladen
+          werden.
+        </EmptyQueryResult>
       </Layout>
     );
   }
