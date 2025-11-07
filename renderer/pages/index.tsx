@@ -1,4 +1,3 @@
-import React from "react";
 import { Center, Image, Stack, Title } from "@mantine/core";
 import Layout from "@/components/shared/Layout";
 import {
