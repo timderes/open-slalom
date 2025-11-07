@@ -128,7 +128,7 @@ const TrainingPage = () => {
         ...prev.laps,
         {
           time: prev.time,
-          time_with_penalties: 0,
+          time_with_penalties: prev.time,
           timestamp: stopwatch.getStartTime(),
           cones: 0,
           gates: 0,
@@ -537,7 +537,10 @@ const TrainingPage = () => {
                               const fastestLap = allLaps.length
                                 ? allLaps.reduce(
                                     (fastest, lap) =>
-                                      lap.time < fastest.time ? lap : fastest,
+                                      lap.time_with_penalties <
+                                      fastest.time_with_penalties
+                                        ? lap
+                                        : fastest,
                                     allLaps[0]
                                   )
                                 : undefined;
@@ -545,8 +548,10 @@ const TrainingPage = () => {
                             });
 
                           driversWithFastest.sort((a, b) => {
-                            const aTime = a.fastestLap?.time ?? Infinity;
-                            const bTime = b.fastestLap?.time ?? Infinity;
+                            const aTime =
+                              a.fastestLap?.time_with_penalties ?? Infinity;
+                            const bTime =
+                              b.fastestLap?.time_with_penalties ?? Infinity;
                             return aTime - bTime;
                           });
 
@@ -769,7 +774,7 @@ const TrainingPage = () => {
                                         time_with_penalties:
                                           updatedLaps[index].time +
                                           1000 *
-                                            ((val as number) || 0) *
+                                            (val as number) *
                                             TIME_PENALTIES_JKS.HIT_CONE,
                                       };
                                       return { ...prev, laps: updatedLaps };
@@ -799,7 +804,7 @@ const TrainingPage = () => {
                                         time_with_penalties:
                                           updatedLaps[index].time +
                                           1000 *
-                                            ((val as number) || 0) *
+                                            (val as number) *
                                             TIME_PENALTIES_JKS.MISSED_GATE,
                                       };
                                       return { ...prev, laps: updatedLaps };
