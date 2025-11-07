@@ -503,7 +503,7 @@ const TrainingPage = () => {
                                 <Table.Td>
                                   {driver.firstName} {driver.lastName}
                                 </Table.Td>
-                                <Table.Td>UNDEFINED</Table.Td>
+                                <Table.Td>N/A</Table.Td>
                               </Table.Tr>
                             ))}
                           </Table.Tbody>
@@ -521,11 +521,11 @@ const TrainingPage = () => {
                           "Position",
                           "Fahrer",
                           "Kart",
-                          "Strafen",
                           "Rundenzeit",
-                          "Diff. (Bestzeit)",
-                          "Diff. (Nächster)",
+                          "Diff.",
+                          "Strafen",
                           "Zeitpunkt",
+                          "Runden",
                         ],
                         body: (() => {
                           // compute fastest lap per driver and sort ascending (best time first)
@@ -559,7 +559,7 @@ const TrainingPage = () => {
                             ({ driver, fastestLap }, idx) => {
                               const pos = `${idx + 1}.`;
                               const name = `${driver.firstName} ${driver.lastName}`;
-                              const kart = (driver as any).kart ?? "UNDEFINED";
+                              const kart = (driver as any).kart ?? "N/A";
                               const cones = fastestLap?.cones ?? 0;
                               const gates = fastestLap?.gates ?? 0;
                               const penalties =
@@ -587,33 +587,25 @@ const TrainingPage = () => {
                                       )}`
                                   : "N/A";
 
-                              const prevTime =
-                                driversWithFastest[idx - 1]?.fastestLap?.time;
-                              const diffToPrev =
-                                fastestLap !== undefined
-                                  ? idx === 0 || prevTime === undefined
-                                    ? "-"
-                                    : `+${convertTimeToString(
-                                        fastestLap.time_with_penalties -
-                                          prevTime
-                                      )}`
-                                  : "N/A";
-
                               const date = fastestLap
                                 ? new Date(fastestLap.timestamp)
                                     .toTimeString()
                                     .split(" ")[0]
                                 : "N/A";
 
+                              const totalRounds = (driver.stints ?? []).flatMap(
+                                (stint) => stint.laps ?? []
+                              ).length;
+
                               return [
                                 pos,
                                 name,
                                 kart,
-                                penalties,
                                 timeStr,
                                 diffToBest,
-                                diffToPrev,
+                                penalties,
                                 date,
+                                totalRounds,
                               ];
                             }
                           );
