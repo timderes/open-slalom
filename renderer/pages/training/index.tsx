@@ -27,7 +27,7 @@ import {
   IconBugFilled,
   IconClockOff,
   IconFlag,
-  IconGraph,
+  // IconGraph,
   IconHelmet,
   IconList,
   IconListNumbers,
@@ -49,6 +49,7 @@ import database from "@/lib/database";
 import { useRouter } from "next/router";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import ScrollableTable from "@/components/shared/SortableTable";
 
 const TrainingPage = () => {
   const router = useRouter();
@@ -127,6 +128,7 @@ const TrainingPage = () => {
         ...prev.laps,
         {
           time: prev.time,
+          time_with_penalties: 0,
           timestamp: stopwatch.getStartTime(),
           cones: 0,
           gates: 0,
@@ -144,21 +146,16 @@ const TrainingPage = () => {
   };
 
   const handleAddDriver = (driver: DriverWithStints) => {
-    if (settings.values.drivers.includes(driver)) {
-      // Remove driver from list
-      settings.setFieldValue(
-        "drivers",
-        settings.values.drivers.filter((d) => d !== driver)
-      );
-    } else {
-      settings.setFieldValue("drivers", [...settings.values.drivers, driver]);
-    }
-
-    // If driver list is not empty set current driver to first driver in list
-    const updatedDrivers = settings.values.drivers.includes(driver)
-      ? settings.values.drivers.filter((d) => d !== driver)
+    // Use uuid comparison to determine whether the driver is already added,
+    // avoiding duplicate entries when different object references are used.
+    const exists = settings.values.drivers.some((d) => d.uuid === driver.uuid);
+    const updatedDrivers = exists
+      ? settings.values.drivers.filter((d) => d.uuid !== driver.uuid)
       : [...settings.values.drivers, driver];
 
+    settings.setFieldValue("drivers", updatedDrivers);
+
+    // If driver list is not empty set current driver to the one at the current index
     setCurrentStint((prev) => ({
       ...prev,
       driver: updatedDrivers[prev.currentDriverIndex] || undefined,
@@ -457,12 +454,14 @@ const TrainingPage = () => {
                     >
                       Schnellste Runden
                     </Tabs.Tab>
+                    {/*
                     <Tabs.Tab
                       value="stats"
                       leftSection={<IconGraph size={16} />}
                     >
                       Statistiken
                     </Tabs.Tab>
+                    */}
                   </Tabs.List>
                   <Tabs.Panel value="starterList" my="lg">
                     {settings.values.drivers.length === 0 ? (
@@ -513,11 +512,115 @@ const TrainingPage = () => {
                     )}
                   </Tabs.Panel>
                   <Tabs.Panel value="fastestLaps" my="lg">
-                    TODO_ADD_FASTEST_LAPS_CONTENT
+                    <ScrollableTable
+                      striped
+                      highlightOnHover
+                      withRowBorders={false}
+                      data={{
+                        head: [
+                          "Position",
+                          "Fahrer",
+                          "Kart",
+                          "Strafen",
+                          "Rundenzeit",
+                          "Diff. (Bestzeit)",
+                          "Diff. (Nächster)",
+                          "Zeitpunkt",
+                        ],
+                        body: (() => {
+                          // compute fastest lap per driver and sort ascending (best time first)
+                          const driversWithFastest =
+                            settings.values.drivers.map((driver) => {
+                              const allLaps = (driver.stints ?? []).flatMap(
+                                (stint) => stint.laps ?? []
+                              );
+                              const fastestLap = allLaps.length
+                                ? allLaps.reduce(
+                                    (fastest, lap) =>
+                                      lap.time < fastest.time ? lap : fastest,
+                                    allLaps[0]
+                                  )
+                                : undefined;
+                              return { driver, fastestLap };
+                            });
+
+                          driversWithFastest.sort((a, b) => {
+                            const aTime = a.fastestLap?.time ?? Infinity;
+                            const bTime = b.fastestLap?.time ?? Infinity;
+                            return aTime - bTime;
+                          });
+
+                          return driversWithFastest.map(
+                            ({ driver, fastestLap }, idx) => {
+                              const pos = `${idx + 1}.`;
+                              const name = `${driver.firstName} ${driver.lastName}`;
+                              const kart = (driver as any).kart ?? "UNDEFINED";
+                              const cones = fastestLap?.cones ?? 0;
+                              const gates = fastestLap?.gates ?? 0;
+                              const penalties =
+                                fastestLap !== undefined
+                                  ? `${cones}P ${gates}T (+${
+                                      cones * TIME_PENALTIES_JKS.HIT_CONE +
+                                      gates * TIME_PENALTIES_JKS.MISSED_GATE
+                                    }s)`
+                                  : "N/A";
+                              const timeStr = fastestLap
+                                ? convertTimeToString(
+                                    fastestLap.time_with_penalties
+                                  )
+                                : "N/A";
+
+                              const bestTime =
+                                driversWithFastest[0]?.fastestLap?.time;
+                              const diffToBest =
+                                fastestLap !== undefined
+                                  ? idx === 0 || bestTime === undefined
+                                    ? "-"
+                                    : `+${convertTimeToString(
+                                        fastestLap.time_with_penalties -
+                                          bestTime
+                                      )}`
+                                  : "N/A";
+
+                              const prevTime =
+                                driversWithFastest[idx - 1]?.fastestLap?.time;
+                              const diffToPrev =
+                                fastestLap !== undefined
+                                  ? idx === 0 || prevTime === undefined
+                                    ? "-"
+                                    : `+${convertTimeToString(
+                                        fastestLap.time_with_penalties -
+                                          prevTime
+                                      )}`
+                                  : "N/A";
+
+                              const date = fastestLap
+                                ? new Date(fastestLap.timestamp)
+                                    .toTimeString()
+                                    .split(" ")[0]
+                                : "N/A";
+
+                              return [
+                                pos,
+                                name,
+                                kart,
+                                penalties,
+                                timeStr,
+                                diffToBest,
+                                diffToPrev,
+                                date,
+                              ];
+                            }
+                          );
+                        })(),
+                      }}
+                    />
                   </Tabs.Panel>
+                  {/*
                   <Tabs.Panel value="stats" my="lg">
                     TODO_ADD_STATS_CONTENT
                   </Tabs.Panel>
+                  */}
                 </Tabs>
               </Stack>
             </Grid.Col>
@@ -662,6 +765,12 @@ const TrainingPage = () => {
                                       updatedLaps[index] = {
                                         ...updatedLaps[index],
                                         cones: (val as number) || 0,
+                                        // TODO: ADD SKS SUPPORT
+                                        time_with_penalties:
+                                          updatedLaps[index].time +
+                                          1000 *
+                                            ((val as number) || 0) *
+                                            TIME_PENALTIES_JKS.HIT_CONE,
                                       };
                                       return { ...prev, laps: updatedLaps };
                                     })
@@ -686,6 +795,12 @@ const TrainingPage = () => {
                                       updatedLaps[index] = {
                                         ...updatedLaps[index],
                                         gates: (val as number) || 0,
+                                        // TODO: ADD SKS SUPPORT
+                                        time_with_penalties:
+                                          updatedLaps[index].time +
+                                          1000 *
+                                            ((val as number) || 0) *
+                                            TIME_PENALTIES_JKS.MISSED_GATE,
                                       };
                                       return { ...prev, laps: updatedLaps };
                                     })
