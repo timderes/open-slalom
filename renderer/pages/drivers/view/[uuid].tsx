@@ -1,5 +1,6 @@
 import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
+import Stat from "@/components/shared/Stat";
 import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
 import database from "@/lib/database";
 import translateSex from "@/lib/misc/translateSex";
@@ -67,31 +68,17 @@ const DriverViewPage = () => {
           </Group>
           <Card withBorder>
             <Group flex={{ xs: "flex-row" }} grow>
-              <Stack ta="center" gap={0}>
-                <Text fw="bold">
-                  {new Date(driver.birthDate).toLocaleDateString(
-                    "de",
-                    DEFAULT_DATE_FORMAT
-                  )}
-                </Text>
-                <Text opacity={0.7}>Geburtstag</Text>
-              </Stack>
-              <Stack ta="center" gap={0}>
-                <Text fw="bold">{translateSex(driver.sex)}</Text>
-                <Text opacity={0.7}>Geschlecht</Text>
-              </Stack>
-              <Stack ta="center" gap={0}>
-                <Text fw="bold">K{driver.driverClass.jks}</Text>
-                <Text opacity={0.7}>JKS</Text>
-              </Stack>
-              <Stack ta="center" gap={0}>
-                <Text fw="bold">K{driver.driverClass.sks}</Text>
-                <Text opacity={0.7}>SKS</Text>
-              </Stack>
-              <Stack ta="center" gap={0}>
-                <Text fw="bold">{trainings?.length || 0}</Text>
-                <Text opacity={0.7}>Trainings</Text>
-              </Stack>
+              <Stat
+                label="Geburtstag"
+                value={new Date(driver.birthDate).toLocaleDateString(
+                  "de",
+                  DEFAULT_DATE_FORMAT
+                )}
+              />
+              <Stat label="Geschlecht" value={translateSex(driver.sex)} />
+              <Stat label="JKS" value={`K${driver.driverClass.jks}`} />
+              <Stat label="SKS" value={`K${driver.driverClass.sks}`} />
+              <Stat label="Trainings" value={trainings?.length || 0} />
             </Group>
           </Card>
           <Divider label="Trainings" labelPosition="left" />
