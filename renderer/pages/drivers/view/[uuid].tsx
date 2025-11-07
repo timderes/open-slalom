@@ -7,12 +7,10 @@ import translateSex from "@/lib/misc/translateSex";
 import {
   ActionIcon,
   Button,
-  ButtonGroup,
   Card,
   Container,
   Divider,
   Group,
-  SimpleGrid,
   Stack,
   Table,
   Text,

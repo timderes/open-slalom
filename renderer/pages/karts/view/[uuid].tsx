@@ -1,24 +1,17 @@
 import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
 import Stat from "@/components/shared/Stat";
-import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
 import database from "@/lib/database";
-import translateSex from "@/lib/misc/translateSex";
 import {
   ActionIcon,
-  Button,
-  ButtonGroup,
   Card,
   Container,
-  Divider,
   Group,
-  SimpleGrid,
   Stack,
-  Table,
   Text,
   Tooltip,
 } from "@mantine/core";
-import { IconCode, IconSearch } from "@tabler/icons-react";
+import { IconCode } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
 
