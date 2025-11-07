@@ -1,5 +1,5 @@
 import Layout from "@/components/shared/Layout";
-import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
+import { DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from "@/lib/constants";
 import database from "@/lib/database";
 import calculateDriverAge from "@/lib/misc/calculateDriverAge";
 import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
@@ -8,64 +8,74 @@ import {
   ButtonGroup,
   Container,
   Group,
+  Stack,
   Table,
   Text,
+  Tooltip,
 } from "@mantine/core";
-import { IconPencil, IconTrash, IconUserSearch } from "@tabler/icons-react";
+import {
+  IconGenderFemale,
+  IconGenderMale,
+  IconGenderTransgender,
+  IconHelmet,
+  IconPencil,
+  IconTrash,
+  IconUserSearch,
+} from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
 import { modals } from "@mantine/modals";
 import PageHeader from "@/components/shared/PageHeader";
+import ScrollableTable from "@/components/shared/SortableTable";
 
 const DriversPage = () => {
   const router = useRouter();
-  const drivers = useLiveQuery(() => database.drivers.toArray());
+  const drivers = useLiveQuery(() => database.drivers.toArray(), [])?.sort(
+    (a, b) => {
+      // Sort by last name, then first name
+      if (a.lastName.toLowerCase() < b.lastName.toLowerCase()) return -1;
+      if (a.lastName.toLowerCase() > b.lastName.toLowerCase()) return 1;
+      if (a.firstName.toLowerCase() < b.firstName.toLowerCase()) return -1;
+      if (a.firstName.toLowerCase() > b.firstName.toLowerCase()) return 1;
+      return 0;
+    }
+  );
 
-  const rows = drivers?.map((driver) => (
-    <Table.Tr key={driver.uuid}>
-      <Table.Td>
-        {driver.firstName} {driver.lastName}
-      </Table.Td>
-      <Table.Td>
-        {new Date(driver.birthDate).toLocaleDateString("de", {
-          ...DEFAULT_DATE_FORMAT,
-          month: "long",
-        })}{" "}
-        ({calculateDriverAge(driver.birthDate)} Jahre)
-      </Table.Td>
-      <Table.Td>K{getJksClass({ birthDate: driver.birthDate })}</Table.Td>
-      <Table.Td>K{getSksClass({ birthDate: driver.birthDate })}</Table.Td>
-      <Table.Td>
-        <ButtonGroup>
-          <Button onClick={() => router.push(`/drivers/view/${driver.uuid}`)}>
-            <IconUserSearch />
-          </Button>
-          <Button disabled>
-            <IconPencil />
-          </Button>
-          <Button
-            variant="filled"
-            bg="red"
-            onClick={() => handleDeleteDriver(driver)}
-          >
-            <IconTrash />
-          </Button>
-        </ButtonGroup>
-      </Table.Td>
-    </Table.Tr>
-  ));
+  const tableActions = (uuid: Driver["uuid"]) => {
+    return (
+      <ButtonGroup ms="auto" w="fit-content" key={uuid}>
+        <Button onClick={() => router.push(`/drivers/view/${uuid}`)}>
+          <IconUserSearch />
+        </Button>
+        <Button onClick={() => router.push(`/drivers/edit/${uuid}`)}>
+          <IconPencil />
+        </Button>
+        <Button
+          variant="filled"
+          bg="red"
+          onClick={() => handleDeleteDriver(uuid)}
+        >
+          <IconTrash />
+        </Button>
+      </ButtonGroup>
+    );
+  };
 
-  const handleDeleteDriver = (driver: Driver) => {
+  const handleDeleteDriver = (uuid: Driver["uuid"]) => {
+    const driver = drivers.find((d) => d.uuid === uuid);
+    if (!driver) return;
+
     modals.openConfirmModal({
       title: `Das Profil von ${driver.firstName} löschen?`,
       children: (
         <Text>
           Alle Ergebnisse und Daten von {driver.firstName} werden gelöscht. Das
-          kann nicht rückgänig gemacht werden!
+          kann nicht rückgängig gemacht werden!
         </Text>
       ),
       onConfirm: () => database.drivers.delete(driver.uuid),
       labels: { confirm: "Löschen", cancel: "Abbrechen" },
+      confirmProps: { color: "red" },
       centered: true,
     });
   };
@@ -73,32 +83,53 @@ const DriversPage = () => {
   return (
     <Layout currentRoute="/drivers">
       <Container my="sm">
-        <PageHeader title="Fahrer" />
-        <Group>
-          <Button
-            onClick={() => router.push("/drivers/create")}
-            variant="filled"
-            w="fit-content"
-          >
-            Fahrer anlegen
-          </Button>
-        </Group>
-        {!drivers || drivers.length === 0 ? (
-          <p>Es sind noch keine Fahrer angelegt.</p>
-        ) : (
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Geburtsdatum</Table.Th>
-                <Table.Th>JKS</Table.Th>
-                <Table.Th>SKS</Table.Th>
-                <Table.Th>{/* Actions */}</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-        )}
+        <Stack>
+          <Group justify="space-between">
+            <PageHeader title="Fahrer" />
+            <Button
+              leftSection={<IconHelmet />}
+              onClick={() => router.push("/drivers/create")}
+              variant="filled"
+              w="fit-content"
+            >
+              Fahrer anlegen
+            </Button>
+          </Group>
+          <ScrollableTable
+            striped
+            highlightOnHover
+            withRowBorders={false}
+            data={{
+              head: ["Name", "", "Geburtsdatum", "JKS", "SKS"],
+              body: drivers
+                ? drivers.map((driver) => [
+                    `${driver.firstName} ${driver.lastName}`,
+                    driver.sex === "male" ? (
+                      <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
+                        <IconGenderMale />
+                      </Tooltip>
+                    ) : driver.sex === "female" ? (
+                      <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
+                        <IconGenderFemale />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
+                        <IconGenderTransgender />
+                      </Tooltip>
+                    ),
+                    `${new Date(driver.birthDate).toLocaleDateString("de", {
+                      ...DEFAULT_DATE_FORMAT,
+                      month: "long",
+                    })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
+                    `K${getJksClass({ birthDate: driver.birthDate })}`,
+                    `K${getSksClass({ birthDate: driver.birthDate })}`,
+                    tableActions(driver.uuid),
+                  ])
+                : [],
+              caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
+            }}
+          />
+        </Stack>
       </Container>
     </Layout>
   );
