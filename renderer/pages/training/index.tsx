@@ -42,6 +42,7 @@ import {
   DEFAULT_STOPWATCH_INTERVAL,
   TIME_PENALTIES_JKS,
 } from "@/lib/constants";
+import { getAppSettings } from "@/lib/database/utils/appSettings";
 import { useForm } from "@mantine/form";
 import { v4 as uuidv4 } from "uuid";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -56,6 +57,7 @@ const TrainingPage = () => {
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
   const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const stopwatch = useStopwatch();
+  const appSettings = useLiveQuery(() => getAppSettings(), []);
   const settings = useForm<Training>({
     initialValues: {
       lapsPerStint: 3,
@@ -89,8 +91,7 @@ const TrainingPage = () => {
         ...prev,
         time: stopwatch.getElapsedRunningTime(),
       })),
-    // TODO: Let the user configure this value in settings
-    DEFAULT_STOPWATCH_INTERVAL
+    appSettings?.stopwatchInterval ?? DEFAULT_STOPWATCH_INTERVAL
   );
 
   useEffect(() => {
