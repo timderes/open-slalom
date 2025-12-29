@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import database from "../index";
 import { DEFAULT_STOPWATCH_INTERVAL } from "../../constants";
 

@@ -187,7 +187,10 @@ const SettingsPage = () => {
             label="Aktualisierungsintervall (ms)"
             description="Wie oft die Stoppuhr aktualisiert wird. Standard: 50ms"
             value={stopwatchInterval}
-            onChange={(value) => setStopwatchInterval(Number(value) || DEFAULT_STOPWATCH_INTERVAL)}
+            onChange={(value) => {
+              const numValue = typeof value === 'number' ? value : Number(value);
+              setStopwatchInterval(isNaN(numValue) ? DEFAULT_STOPWATCH_INTERVAL : numValue);
+            }}
             min={10}
             max={1000}
             step={10}
