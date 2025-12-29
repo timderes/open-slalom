@@ -56,7 +56,7 @@ const SettingsPage = () => {
     } catch (error) {
       notifications.show({
         title: "Fehler beim Speichern",
-        message: error?.message || "Unbekannter Fehler",
+        message: error instanceof Error ? error.message : String(error),
         color: "red",
       });
     } finally {
@@ -87,7 +87,7 @@ const SettingsPage = () => {
         } catch (error) {
           notifications.show({
             title: "Fehler beim Zurücksetzen",
-            message: error?.message || "Unbekannter Fehler",
+            message: error instanceof Error ? error.message : String(error),
             color: "red",
           });
         }
