@@ -1,8 +1,9 @@
-import database from "..";
+import getDatabase from "../getDatabase";
 
 const clearDatabase = async () => {
-  await database.delete();
-  await database.open();
+  const db = await getDatabase();
+  await db.delete();
+  await db.open();
 };
 
 export default clearDatabase;

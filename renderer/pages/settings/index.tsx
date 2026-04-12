@@ -1,7 +1,7 @@
 import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
-import database from "@/lib/database";
 import clearDatabase from "@/lib/database/utils/clearDatabase";
+import { useEffect, useState } from "react";
 import {
   Button,
   Code,
@@ -18,9 +18,36 @@ import {
   IconDatabaseImport,
   IconDatabaseMinus,
 } from "@tabler/icons-react";
-import { exportDB, importInto } from "dexie-export-import";
 
+// This page uses some hacky stuff to dynamically import the database
+// and dexie-export-import only on the client side, because both rely on
+// browser APIs that are not available during server-side rendering.
+//
+// This allows us to keep the database logic separate from the UI and
+// only load it when needed, without breaking SSR or causing hydration issues.
+//
+// DON'T LIKE HOW THE CODE LOOKS HERE, BUT IT WORKS...
 const SettingsPage = () => {
+  const [dbVerno, setDbVerno] = useState<number | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const getDatabase = (await import("@/lib/database/getDatabase"))
+          .default;
+        const db = await getDatabase();
+        if (mounted) setDbVerno((db as any).verno ?? null);
+      } catch (err) {
+        // ignore (no DB in non-electron/server environments)
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const handleDeleteDatabase = () => {
     modals.openConfirmModal({
       title: "Datenbank wirklich löschen?",
@@ -54,15 +81,23 @@ const SettingsPage = () => {
 
   const handleDatabaseExport = async () => {
     try {
-      const blob = await exportDB(database, {});
+      const getDatabase = (await import("@/lib/database/getDatabase")).default;
+      const db = await getDatabase();
+      const { exportDB } = await import("dexie-export-import");
+      const blob = await exportDB(db, {});
       const fileName = `msf-training-db-backup-${new Date()
         .toISOString()
         .replace(/[:.]/g, "-")}.json`;
 
       const bufferData = await blob.arrayBuffer();
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && (window as any).ipc?.send) {
         window.ipc.send("save-file", { fileName, bufferData });
+        notifications.show({
+          title: "Export gestartet",
+          message: "Bitte Speicherort und Dateiname auswählen.",
+          color: "green",
+        });
       } else {
         console.error("IPC not available. Export failed.");
         notifications.show({
@@ -117,11 +152,15 @@ const SettingsPage = () => {
               type: "application/json",
             });
 
+            // import dexie-export-import dynamically (client-only)
+            const { importInto } = await import("dexie-export-import");
+            const getDatabase = (await import("@/lib/database/getDatabase"))
+              .default;
+            const db = await getDatabase();
+
             // First attempt: import and clear tables before import
             try {
-              await importInto(database, blob, {
-                clearTablesBeforeImport: true,
-              });
+              await importInto(db, blob, { clearTablesBeforeImport: true });
             } catch (err) {
               // If that fails, try importing without clearing tables (less destructive)
               console.warn(
@@ -129,9 +168,7 @@ const SettingsPage = () => {
                 err,
               );
               try {
-                await importInto(database, blob, {
-                  clearTablesBeforeImport: false,
-                });
+                await importInto(db, blob, { clearTablesBeforeImport: false });
               } catch (err2) {
                 console.error("Import failed in both modes:", err2);
                 notifications.show({
@@ -180,7 +217,7 @@ const SettingsPage = () => {
             Trainings und die Karts. Das löschen der Datenbank kann nicht
             rückgängig gemacht werden!
           </Text>
-          <Code>Datenbank Version: {database.verno}</Code>
+          <Code>Datenbank Version: {dbVerno}</Code>
           <Group>
             <Button
               leftSection={<IconDatabaseImport />}
