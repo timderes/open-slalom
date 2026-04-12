@@ -105,12 +105,11 @@ const DriverEditPage = () => {
     });
   };
 
-  const handleBirthDateChange = (date: Date | null) => {
-    const iso = date ? date.toISOString().slice(0, 10) : "";
-    form.setFieldValue("birthDate", iso);
+  const handleBirthDateChange = (date: string) => {
+    form.getInputProps("birthDate").onChange(date);
 
-    const classJKS = getJksClass({ birthDate: iso });
-    const classSKS = getSksClass({ birthDate: iso });
+    const classJKS = getJksClass({ birthDate: date });
+    const classSKS = getSksClass({ birthDate: date });
 
     form.setFieldValue(
       "driverClass.jks",
@@ -181,7 +180,7 @@ const DriverEditPage = () => {
                         ? new Date(form.values.birthDate)
                         : null
                     }
-                    onChange={handleBirthDateChange}
+                    onChange={(e) => handleBirthDateChange(e)}
                     label="Geburtsdatum"
                     placeholder="Geburtsdatum"
                     key={form.key("birthDate")}
