@@ -107,7 +107,7 @@ const CreateDriverPage = () => {
       centered: true,
       children: (
         <Text>
-          Bereits eingetragende Informationen werden nicht gespeichert!
+          Bereits eingetragene Informationen werden nicht gespeichert!
         </Text>
       ),
       labels: { confirm: "Ja", cancel: "Nein" },
