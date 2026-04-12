@@ -29,9 +29,9 @@ const DriverViewPage = () => {
   const trainings = useLiveQuery(() =>
     database.trainings
       .filter((training) =>
-        training.drivers.some((driver) => driver.uuid === uuid.toString())
+        training.drivers.some((driver) => driver.uuid === uuid.toString()),
       )
-      .toArray()
+      .toArray(),
   );
 
   if (!driver) {
@@ -68,7 +68,7 @@ const DriverViewPage = () => {
                 label="Geburtstag"
                 value={new Date(driver.birthDate).toLocaleDateString(
                   "de",
-                  DEFAULT_DATE_FORMAT
+                  DEFAULT_DATE_FORMAT,
                 )}
               />
               <Stat label="Geschlecht" value={translateSex(driver.sex)} />
@@ -93,12 +93,17 @@ const DriverViewPage = () => {
                     <Table.Td>
                       {new Date(training.createdAt).toLocaleDateString(
                         "de",
-                        DEFAULT_DATE_FORMAT
+                        DEFAULT_DATE_FORMAT,
                       )}
                     </Table.Td>
                     <Table.Td>{training.mode}</Table.Td>
                     <Table.Td>
-                      <Button size="xs" disabled>
+                      <Button
+                        size="xs"
+                        onClick={() =>
+                          router.push(`/training/${training.uuid}/view`)
+                        }
+                      >
                         <IconSearch />
                       </Button>
                     </Table.Td>
