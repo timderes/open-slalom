@@ -161,6 +161,7 @@ const TrainingViewPage = () => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>#</Table.Th>
+                <Table.Th>Klasse</Table.Th>
                 <Table.Th>Fahrer</Table.Th>
                 <Table.Th>Bestzeit</Table.Th>
                 <Table.Th>Abstand</Table.Th>
@@ -174,9 +175,14 @@ const TrainingViewPage = () => {
                 <Table.Tr key={driver.uuid}>
                   <Table.Td>{index + 1}.</Table.Td>
                   <Table.Td>
+                    K
+                    {training.mode === "JKS"
+                      ? (driver.driverClass?.jks ?? 7)
+                      : (driver.driverClass?.sks ?? 5)}
+                  </Table.Td>
+                  <Table.Td>
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
-
                   <Table.Td>
                     <Badge ff="monospace" size="lg">
                       {convertTimeToString(
