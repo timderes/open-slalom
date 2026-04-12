@@ -17,7 +17,7 @@ import {
   IconDatabaseImport,
   IconDatabaseMinus,
 } from "@tabler/icons-react";
-import { exportDB, importDB } from "dexie-export-import";
+import { exportDB, importInto } from "dexie-export-import";
 
 const SettingsPage = () => {
   const handleDeleteDatabase = () => {
@@ -63,33 +63,33 @@ const SettingsPage = () => {
       ),
       labels: { confirm: "Importieren", cancel: "Abbrechen" },
       onConfirm: () => {
+        if (typeof window === "undefined") {
+          console.error("IPC not available. Import failed.");
+          return;
+        }
+
+        window.ipc.once("open-file", async (bufferData) => {
+          if (!bufferData) {
+            return;
+          }
+
+          try {
+            const blob = new Blob([new Uint8Array(bufferData as number[])], {
+              type: "application/json",
+            });
+
+            await importInto(database, blob, { clearTablesBeforeImport: true });
+            console.log("Imported database successfully!");
+          } catch (err) {
+            console.error("Failed to import database:", err);
+          }
+        });
+
         window.ipc.send("open-file", {
           title: "Datenbank importieren",
           filters: [{ name: "JSON", extensions: ["json"] }],
           buttonLabel: "Importieren",
         } as Electron.OpenDialogOptions);
-
-        window.ipc.on("open-file", (bufferData: Buffer) => {
-          // TODO: handle the imported file
-          console.info("Received file data:", bufferData);
-        });
-
-        database.delete();
-
-        if (typeof window !== "undefined") {
-          window.ipc.send("open-file", null);
-          window.ipc.on("open-file", (bufferData) => {
-            if (!bufferData) return;
-            const blob = new Blob([new Uint8Array(bufferData as number[])], {
-              type: "application/json",
-            });
-            importDB(blob)
-              .then(() => console.log("Imported database successfully!"))
-              .catch((err) => console.error("Failed to import database:", err));
-          });
-        } else {
-          console.error("IPC not available. Import failed.");
-        }
       },
     });
   };
