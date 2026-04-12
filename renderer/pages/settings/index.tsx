@@ -17,7 +17,7 @@ import {
   IconDatabaseImport,
   IconDatabaseMinus,
 } from "@tabler/icons-react";
-// import { exportDB, importDB } from "dexie-export-import";
+import { exportDB, importDB } from "dexie-export-import";
 
 const SettingsPage = () => {
   const handleDeleteDatabase = () => {
@@ -36,7 +36,6 @@ const SettingsPage = () => {
   };
 
   const handleDatabaseExport = () => {
-    /*
     exportDB(database, {}).then((blob) => {
       const fileName = `msf-training-db-backup-${new Date()
         .toISOString()
@@ -49,7 +48,7 @@ const SettingsPage = () => {
           console.error("IPC not available. Export failed.");
         }
       });
-    });*/
+    });
     return;
   };
 
@@ -74,9 +73,7 @@ const SettingsPage = () => {
           // TODO: handle the imported file
           console.info("Received file data:", bufferData);
         });
-      },
 
-      /*
         database.delete();
 
         if (typeof window !== "undefined") {
@@ -92,7 +89,8 @@ const SettingsPage = () => {
           });
         } else {
           console.error("IPC not available. Import failed.");
-        }*/
+        }
+      },
     });
   };
 
@@ -112,14 +110,12 @@ const SettingsPage = () => {
             <Button
               leftSection={<IconDatabaseImport />}
               onClick={() => handleDatabaseImport()}
-              disabled
             >
               Datenbank importieren
             </Button>
             <Button
               leftSection={<IconDatabaseExport />}
               onClick={() => handleDatabaseExport()}
-              disabled
             >
               Exportieren
             </Button>
@@ -128,7 +124,6 @@ const SettingsPage = () => {
               leftSection={<IconDatabaseMinus />}
               color="red"
               onClick={() => handleDeleteDatabase()}
-              disabled
             >
               Löschen
             </Button>
