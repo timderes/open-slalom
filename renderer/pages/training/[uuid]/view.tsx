@@ -210,6 +210,66 @@ const TrainingViewPage = () => {
               ))}
             </Table.Tbody>
           </Table>
+
+          {/* Tables for each driver with all Laps + penalties and timestamps */}
+          {sortiedDrivers.map((driver) => {
+            const rows = driver.stints.flatMap((stint, stintIndex) =>
+              stint.laps.map((lap, lapIndex) => {
+                const overallLap =
+                  stintIndex * training.lapsPerStint + lapIndex + 1;
+                const penaltyMs = Math.max(
+                  0,
+                  lap.time_with_penalties - lap.time,
+                );
+
+                return (
+                  <Table.Tr key={`${driver.uuid}-${stintIndex}-${lapIndex}`}>
+                    <Table.Td>{overallLap}</Table.Td>
+                    <Table.Td>{stintIndex + 1}</Table.Td>
+                    <Table.Td>{lapIndex + 1}</Table.Td>
+                    <Table.Td>
+                      <Badge ff="monospace">
+                        {convertTimeToString(lap.time_with_penalties)}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>{lap.cones}</Table.Td>
+                    <Table.Td>{lap.gates}</Table.Td>
+                    {/*<Table.Td>{convertTimeToString(penaltyMs)}</Table.Td>*/}
+                    <Table.Td>
+                      {new Date(lap.timestamp).toLocaleTimeString("de", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              }),
+            );
+
+            return (
+              <div key={driver.uuid}>
+                <Title order={4} mt="md">
+                  {driver.firstName} {driver.lastName} — Runden
+                </Title>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>#</Table.Th>
+                      <Table.Th>Stint</Table.Th>
+                      <Table.Th>Runde</Table.Th>
+                      <Table.Th>Zeit</Table.Th>
+                      <Table.Th>Pylonen-Fehler</Table.Th>
+                      <Table.Th>Tor-Fehler</Table.Th>
+                      {/*<Table.Th>Strafzeit</Table.Th>*/}
+                      <Table.Th>Zeitpunkt</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>{rows}</Table.Tbody>
+                </Table>
+              </div>
+            );
+          })}
         </Stack>
       </Container>
     </Layout>
