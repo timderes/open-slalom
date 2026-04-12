@@ -184,13 +184,17 @@ const TrainingViewPage = () => {
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
                   <Table.Td>
-                    <Badge ff="monospace" size="lg">
+                    <Text
+                      ff="monospace"
+                      fw="bold"
+                      c={index === 0 ? "grape" : ""}
+                    >
                       {convertTimeToString(
                         getBestLapTime(driver) !== null
                           ? getBestLapTime(driver)
                           : 0,
                       )}
-                    </Badge>
+                    </Text>
                   </Table.Td>
                   <Table.Td>
                     +
