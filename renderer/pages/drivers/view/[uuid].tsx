@@ -17,7 +17,7 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
-import { IconCode, IconSearch } from "@tabler/icons-react";
+import { IconCode, IconPencil, IconSearch } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
 
@@ -51,13 +51,21 @@ const DriverViewPage = () => {
         <Stack>
           <Group align="center">
             <PageHeader title={driver.firstName + " " + driver.lastName} />
-            <Tooltip label={`UUID: ${driver.uuid}`} withArrow position="bottom">
+            <Tooltip
+              label={`Das Profil von ${driver.firstName} bearbeiten`}
+              withArrow
+              position="bottom"
+            >
               <ActionIcon
-                c="gray"
-                variant="transparent"
                 ms="auto"
                 w="fit-content"
+                onClick={() => router.push(`/drivers/edit/${uuid}`)}
               >
+                <IconPencil />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={`UUID: ${driver.uuid}`} withArrow position="bottom">
+              <ActionIcon c="gray" variant="transparent" w="fit-content">
                 <IconCode />
               </ActionIcon>
             </Tooltip>
