@@ -50,7 +50,7 @@ export const APP_ROUTES = [
 
 // JKS class 0 only exists in North Rhine-Westphalia
 export const JKS_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7];
-export const SKS_CLASSES = [1, 2, 3, 4];
+export const SKS_CLASSES = [1, 2, 3, 4, 5];
 
 export const JKS_CLASS_AGE_RANGES = {
   0: { min: 7, max: 7 }, // Bambini (North-Rhine Westphalia only)
@@ -68,6 +68,7 @@ export const SKS_CLASS_AGE_RANGES = {
   2: { min: 15, max: 17 },
   3: { min: 18, max: 20 },
   4: { min: 21, max: 30 },
+  5: { min: 31, max: null }, // adults / trainer class
 };
 
 export const CLASS_AGE_TABLE = {
