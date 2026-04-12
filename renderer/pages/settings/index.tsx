@@ -12,6 +12,7 @@ import {
   Text,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
 import {
   IconDatabaseExport,
   IconDatabaseImport,
@@ -31,25 +32,53 @@ const SettingsPage = () => {
       ),
       labels: { confirm: "Löschen", cancel: "Abbrechen" },
       confirmProps: { color: "red" },
-      onConfirm: () => clearDatabase(),
+      onConfirm: async () => {
+        try {
+          await clearDatabase();
+          notifications.show({
+            title: "Datenbank gelöscht",
+            message: "Alle gespeicherten Daten wurden entfernt.",
+            color: "green",
+          });
+        } catch (err) {
+          console.error("Failed to clear database:", err);
+          notifications.show({
+            title: "Löschen fehlgeschlagen",
+            message: "Die Datenbank konnte nicht gelöscht werden.",
+            color: "red",
+          });
+        }
+      },
     });
   };
 
-  const handleDatabaseExport = () => {
-    exportDB(database, {}).then((blob) => {
+  const handleDatabaseExport = async () => {
+    try {
+      const blob = await exportDB(database, {});
       const fileName = `msf-training-db-backup-${new Date()
         .toISOString()
         .replace(/[:.]/g, "-")}.json`;
 
-      blob.arrayBuffer().then((bufferData) => {
-        if (typeof window !== "undefined") {
-          window.ipc.send("save-file", { fileName, bufferData });
-        } else {
-          console.error("IPC not available. Export failed.");
-        }
+      const bufferData = await blob.arrayBuffer();
+
+      if (typeof window !== "undefined") {
+        window.ipc.send("save-file", { fileName, bufferData });
+      } else {
+        console.error("IPC not available. Export failed.");
+        notifications.show({
+          title: "Export fehlgeschlagen",
+          message: "IPC ist nicht verfügbar.",
+          color: "red",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to export database:", err);
+      notifications.show({
+        title: "Export fehlgeschlagen",
+        message: "Die Datenbank konnte nicht exportiert werden.",
+        color: "red",
       });
-    });
-    return;
+    }
   };
 
   const handleDatabaseImport = () => {
@@ -65,11 +94,21 @@ const SettingsPage = () => {
       onConfirm: () => {
         if (typeof window === "undefined") {
           console.error("IPC not available. Import failed.");
+          notifications.show({
+            title: "Import fehlgeschlagen",
+            message: "IPC ist nicht verfügbar.",
+            color: "red",
+          });
           return;
         }
 
         window.ipc.once("open-file", async (bufferData) => {
           if (!bufferData) {
+            notifications.show({
+              title: "Import abgebrochen",
+              message: "Es wurde keine Datei ausgewählt.",
+              color: "yellow",
+            });
             return;
           }
 
@@ -78,10 +117,46 @@ const SettingsPage = () => {
               type: "application/json",
             });
 
-            await importInto(database, blob, { clearTablesBeforeImport: true });
+            // First attempt: import and clear tables before import
+            try {
+              await importInto(database, blob, {
+                clearTablesBeforeImport: true,
+              });
+            } catch (err) {
+              // If that fails, try importing without clearing tables (less destructive)
+              console.warn(
+                "Import with clearing failed, attempting without clearing:",
+                err,
+              );
+              try {
+                await importInto(database, blob, {
+                  clearTablesBeforeImport: false,
+                });
+              } catch (err2) {
+                console.error("Import failed in both modes:", err2);
+                notifications.show({
+                  title: "Import fehlgeschlagen",
+                  message:
+                    "Der Import ist fehlgeschlagen. Ist die Datei ein gültiger Datenbank-Export?",
+                  color: "red",
+                });
+                return;
+              }
+            }
+
             console.log("Imported database successfully!");
+            notifications.show({
+              title: "Import erfolgreich",
+              message: "Die Datenbank wurde erfolgreich importiert.",
+              color: "green",
+            });
           } catch (err) {
             console.error("Failed to import database:", err);
+            notifications.show({
+              title: "Import fehlgeschlagen",
+              message: "Die Datei konnte nicht importiert werden.",
+              color: "red",
+            });
           }
         });
 
