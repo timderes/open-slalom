@@ -43,18 +43,18 @@ const CreateDriverPage = () => {
     validate: {
       firstName: hasLength(
         { min: 2, max: 99 },
-        "Dieses Feld darf nicht leer sein."
+        "Dieses Feld darf nicht leer sein.",
       ),
       lastName: hasLength(
         { min: 2, max: 99 },
-        "Dieses Feld darf nicht leer sein."
+        "Dieses Feld darf nicht leer sein.",
       ),
       birthDate: (value) => {
         const age = calculateDriverAge(value);
         return (
           isInRange(
             { min: MIN_DRIVER_AGE, max: MAX_DRIVER_AGE },
-            `Ungültiges Geburtsdatum. Fahrer müssen zwischen ${MIN_DRIVER_AGE} und ${MAX_DRIVER_AGE} Jahre alt sein.`
+            `Ungültiges Geburtsdatum. Fahrer müssen zwischen ${MIN_DRIVER_AGE} und ${MAX_DRIVER_AGE} Jahre alt sein.`,
           )(age) || isNotEmpty("Dieses Feld darf nicht leer sein.")(value)
         );
       },
@@ -71,11 +71,11 @@ const CreateDriverPage = () => {
 
     form.setFieldValue(
       "driverClass.jks",
-      classJKS as Driver["driverClass"]["jks"]
+      classJKS as Driver["driverClass"]["jks"],
     );
     form.setFieldValue(
       "driverClass.sks",
-      classSKS as Driver["driverClass"]["sks"]
+      classSKS as Driver["driverClass"]["sks"],
     );
   };
 
@@ -127,7 +127,7 @@ const CreateDriverPage = () => {
                 // Focus first invalid field
                 const getFirstErrorField = Object.keys(errors)[0];
                 form.getInputProps(getFirstErrorField).onFocus();
-              }
+              },
             )}
           >
             <Stack>
