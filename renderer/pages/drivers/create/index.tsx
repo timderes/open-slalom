@@ -1,6 +1,6 @@
 import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
-import { JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
+import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
 import database from "@/lib/database";
 import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
 import {
@@ -25,22 +25,6 @@ import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from "@/lib/constants";
 import calculateDriverAge from "@/lib/misc/calculateDriverAge";
 
 const CreateDriverPage = () => {
-  const sexOptions: ComboboxData = [
-    // See Driver.d.ts for more information
-    {
-      label: "Männlich",
-      value: "male",
-    },
-    {
-      label: "Weiblich",
-      value: "female",
-    },
-    {
-      label: "Divers",
-      value: "other",
-    },
-  ];
-
   const router = useRouter();
   const form = useForm<Driver>({
     initialValues: {
@@ -173,7 +157,7 @@ const CreateDriverPage = () => {
                 />
                 <NativeSelect
                   label="Geschlecht"
-                  data={sexOptions}
+                  data={GENDER_OPTIONS}
                   key={form.key("sex")}
                   {...form.getInputProps("sex")}
                 />
