@@ -9,6 +9,7 @@ import {
   Drawer,
   Grid,
   Group,
+  Kbd,
   NumberInput,
   SegmentedControl,
   Stack,
@@ -19,7 +20,7 @@ import {
   Tooltip,
   useDrawersStack,
 } from "@mantine/core";
-import { useInterval } from "@mantine/hooks";
+import { useHotkeys, useInterval } from "@mantine/hooks";
 import { useStopwatch } from "react-use-precision-timer";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
@@ -83,6 +84,17 @@ const TrainingPage = () => {
     time: 0,
   });
 
+  // TODO: Currently the hotkeys bypass the checks eg. if a driver is selected
+  // TODO: Make these configurable in settings
+  useHotkeys([
+    ["Q", () => handleStopwatchStart()],
+    ["W", () => handleStopwatchLap()],
+    ["E", () => handleStopwatchReset()],
+    ["CTRL+S", () => handleUpdateCurrentDriver()],
+    ["CTRL+D", () => handleSkipDriver()],
+    ["ESC", () => handleStopTraining()],
+  ]);
+
   const interval = useInterval(
     () =>
       setCurrentStint((prev) => ({
@@ -90,7 +102,7 @@ const TrainingPage = () => {
         time: stopwatch.getElapsedRunningTime(),
       })),
     // TODO: Let the user configure this value in settings
-    DEFAULT_STOPWATCH_INTERVAL
+    DEFAULT_STOPWATCH_INTERVAL,
   );
 
   useEffect(() => {
@@ -174,8 +186,8 @@ const TrainingPage = () => {
               ],
               updatedAt: Date.now(),
             }
-          : driver
-      )
+          : driver,
+      ),
     );
     // Update current driver index
     setCurrentStint((prev) => ({
@@ -297,7 +309,7 @@ const TrainingPage = () => {
                   onClick={() => {
                     // Check if driver already was added to the training before and then preserve their stints
                     const existing = settings.values.drivers.find(
-                      (d) => d.uuid === driver.uuid
+                      (d) => d.uuid === driver.uuid,
                     );
                     handleAddDriver({
                       ...driver,
@@ -306,7 +318,7 @@ const TrainingPage = () => {
                   }}
                 >
                   {settings.values.drivers.some(
-                    (d) => d.uuid === driver.uuid
+                    (d) => d.uuid === driver.uuid,
                   ) ? (
                     <IconUserMinus />
                   ) : (
@@ -417,7 +429,10 @@ const TrainingPage = () => {
                       }
                       onClick={() => handleUpdateCurrentDriver()}
                     >
-                      Nächster Fahrer
+                      Nächster Fahrer{" "}
+                      <Kbd size="xs" ms="xs">
+                        STRG+S
+                      </Kbd>
                     </Button>
                     <Button
                       color="red"
@@ -428,7 +443,10 @@ const TrainingPage = () => {
                       }
                       onClick={() => handleSkipDriver()}
                     >
-                      Fahrer überspringen
+                      Fahrer überspringen{" "}
+                      <Kbd size="xs" ms="xs">
+                        STRG+D
+                      </Kbd>
                     </Button>
                     <Button
                       color="red"
@@ -436,7 +454,10 @@ const TrainingPage = () => {
                       disabled={stopwatch.isRunning()}
                       onClick={() => handleStopTraining()}
                     >
-                      Training beenden
+                      Training beenden{" "}
+                      <Kbd size="xs" ms="xs">
+                        ESC
+                      </Kbd>
                     </Button>
                   </Group>
                 </Card>
@@ -532,7 +553,7 @@ const TrainingPage = () => {
                           const driversWithFastest =
                             settings.values.drivers.map((driver) => {
                               const allLaps = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? []
+                                (stint) => stint.laps ?? [],
                               );
                               const fastestLap = allLaps.length
                                 ? allLaps.reduce(
@@ -541,7 +562,7 @@ const TrainingPage = () => {
                                       fastest.time_with_penalties
                                         ? lap
                                         : fastest,
-                                    allLaps[0]
+                                    allLaps[0],
                                   )
                                 : undefined;
                               return { driver, fastestLap };
@@ -571,7 +592,7 @@ const TrainingPage = () => {
                                   : "N/A";
                               const timeStr = fastestLap
                                 ? convertTimeToString(
-                                    fastestLap.time_with_penalties
+                                    fastestLap.time_with_penalties,
                                   )
                                 : "N/A";
 
@@ -583,7 +604,7 @@ const TrainingPage = () => {
                                     ? "-"
                                     : `+${convertTimeToString(
                                         fastestLap.time_with_penalties -
-                                          bestTime
+                                          bestTime,
                                       )}`
                                   : "N/A";
 
@@ -594,7 +615,7 @@ const TrainingPage = () => {
                                 : "N/A";
 
                               const totalRounds = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? []
+                                (stint) => stint.laps ?? [],
                               ).length;
 
                               return [
@@ -607,7 +628,7 @@ const TrainingPage = () => {
                                 date,
                                 totalRounds,
                               ];
-                            }
+                            },
                           );
                         })(),
                       }}
@@ -654,7 +675,10 @@ const TrainingPage = () => {
                       disabled={stopwatch.isRunning() || !currentStint.driver}
                       onClick={() => handleStopwatchStart()}
                     >
-                      Start
+                      Start{" "}
+                      <Kbd size="xs" ms="xs">
+                        Q
+                      </Kbd>
                     </Button>
                     <Button
                       disabled={
@@ -663,7 +687,10 @@ const TrainingPage = () => {
                       }
                       onClick={() => handleStopwatchLap()}
                     >
-                      {IS_FINAL_LAP_IN_THIS_STINT ? "Stop" : "Runde"}
+                      {IS_FINAL_LAP_IN_THIS_STINT ? "Stop" : "Runde"}{" "}
+                      <Kbd size="xs" ms="xs">
+                        W
+                      </Kbd>
                     </Button>
                   </ButtonGroup>
                   <Button
@@ -672,7 +699,10 @@ const TrainingPage = () => {
                     bg="red"
                     onClick={() => handleStopwatchReset()}
                   >
-                    Stint löschen
+                    Stint löschen{" "}
+                    <Kbd size="xs" ms="xs">
+                      E
+                    </Kbd>
                   </Button>
                 </Group>
                 <Divider
@@ -691,8 +721,8 @@ const TrainingPage = () => {
                     {convertTimeToString(
                       currentStint.laps.reduce(
                         (total, lap) => total + lap.time,
-                        0
-                      )
+                        0,
+                      ),
                     )}{" "}
                     &mdash; &#x00D8;{" "}
                     {currentStint.laps.length === 0
@@ -700,8 +730,8 @@ const TrainingPage = () => {
                       : convertTimeToString(
                           currentStint.laps.reduce(
                             (total, lap) => total + lap.time,
-                            0
-                          ) / currentStint.laps.length
+                            0,
+                          ) / currentStint.laps.length,
                         )}
                   </Text>
                   <Table.ScrollContainer minWidth="auto" maxHeight={300}>
