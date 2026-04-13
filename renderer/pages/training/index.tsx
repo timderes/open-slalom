@@ -447,7 +447,7 @@ const TrainingPage = () => {
           <Grid>
             <Grid.Col span={12}>
               <Group>
-                <Title>Training</Title>
+                <Title>{settings.values.mode}-Training</Title>
                 <Group ms="auto">
                   <Tooltip
                     label="Fahrer"
