@@ -216,7 +216,10 @@ const TrainingPage = () => {
   };
 
   const handleStopwatchReset = () => {
-    const hasProgress = currentStint.laps.length > 0 || currentStint.time !== 0;
+    const hasProgress =
+      currentStint.laps.length > 0 ||
+      stopwatch.getElapsedRunningTime() > 0 ||
+      isRunning;
 
     if (hasProgress) {
       modals.openConfirmModal({
