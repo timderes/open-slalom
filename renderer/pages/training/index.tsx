@@ -115,30 +115,41 @@ const TrainingPage = () => {
       message,
     });
 
-  const disabledReason: Record<string, string | undefined> = {
-    start: isRunning
-      ? "Stoppuhr läuft"
-      : !hasDriver
-        ? "Bitte zuerst einen Fahrer auswählen."
-        : isFinished
-          ? "Rundenlimit erreicht"
-          : undefined,
-    lap: !isRunning
-      ? "Stoppuhr nicht gestartet"
-      : isFinished
-        ? "Rundenlimit erreicht"
-        : undefined,
-    update: isRunning
-      ? "Stoppuhr läuft"
-      : !isFinished
-        ? "Stint unvollständig"
-        : undefined,
-    skip: isRunning
-      ? "Stoppuhr läuft"
-      : !hasDrivers
-        ? "Keine Fahrer ausgewählt"
-        : undefined,
-    stop: isRunning ? "Stoppuhr läuft" : undefined,
+  /**
+   * Returns the tooltip reason for why a button is disabled, based on the current conditions.
+   * If there is no reason (button should not be disabled), returns undefined.
+   */
+  const getDisabledReason = (
+    key: "start" | "lap" | "update" | "skip" | "stop",
+  ): string | undefined => {
+    switch (key) {
+      case "start":
+        if (isRunning) return "Stoppuhr läuft";
+        if (!hasDriver) return "Bitte zuerst einen Fahrer auswählen.";
+        if (isFinished) return "Rundenlimit erreicht";
+        return undefined;
+
+      case "lap":
+        if (!isRunning) return "Stoppuhr nicht gestartet";
+        if (isFinished) return "Rundenlimit erreicht";
+        return undefined;
+
+      case "update":
+        if (isRunning) return "Stoppuhr läuft";
+        if (!isFinished) return "Stint unvollständig";
+        return undefined;
+
+      case "skip":
+        if (isRunning) return "Stoppuhr läuft";
+        if (!hasDrivers) return "Keine Fahrer ausgewählt";
+        return undefined;
+
+      case "stop":
+        return isRunning ? "Stoppuhr läuft" : undefined;
+
+      default:
+        return undefined;
+    }
   };
 
   // =========================
@@ -535,8 +546,8 @@ const TrainingPage = () => {
                 <Card withBorder>
                   <Group grow>
                     <Tooltip
-                      label={disabledReason.update}
-                      disabled={!disabledReason.update}
+                      label={getDisabledReason("update")}
+                      disabled={!getDisabledReason("update")}
                       withArrow
                     >
                       <div style={{ display: "inline-block" }}>
@@ -554,8 +565,8 @@ const TrainingPage = () => {
                     </Tooltip>
 
                     <Tooltip
-                      label={disabledReason.skip}
-                      disabled={!disabledReason.skip}
+                      label={getDisabledReason("skip")}
+                      disabled={!getDisabledReason("skip")}
                       withArrow
                     >
                       <div style={{ display: "inline-block" }}>
@@ -574,8 +585,8 @@ const TrainingPage = () => {
                     </Tooltip>
 
                     <Tooltip
-                      label={disabledReason.stop}
-                      disabled={!disabledReason.stop}
+                      label={getDisabledReason("stop")}
+                      disabled={!getDisabledReason("stop")}
                       withArrow
                     >
                       <div style={{ display: "inline-block" }}>
@@ -804,8 +815,8 @@ const TrainingPage = () => {
                 <Group grow>
                   <ButtonGroup>
                     <Tooltip
-                      label={disabledReason.start}
-                      disabled={!disabledReason.start}
+                      label={getDisabledReason("start")}
+                      disabled={!getDisabledReason("start")}
                       withArrow
                     >
                       <div style={{ display: "inline-block" }}>
@@ -823,8 +834,8 @@ const TrainingPage = () => {
                     </Tooltip>
 
                     <Tooltip
-                      label={disabledReason.lap}
-                      disabled={!disabledReason.lap}
+                      label={getDisabledReason("lap")}
+                      disabled={!getDisabledReason("lap")}
                       withArrow
                     >
                       <div style={{ display: "inline-block" }}>
