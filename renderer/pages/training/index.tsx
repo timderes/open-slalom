@@ -90,6 +90,9 @@ const TrainingPage = () => {
   // =========================
   const hasDriver = !!currentStint.driver;
   const hasDrivers = settings.values.drivers.length > 0;
+  const trainingHasFinishedStints = settings.values.drivers.some(
+    (driver) => (driver.stints?.length ?? 0) > 0,
+  );
   const isRunning = stopwatch.isRunning();
   const isFinished = currentStint.laps.length === settings.values.lapsPerStint;
 
@@ -341,8 +344,12 @@ const TrainingPage = () => {
       ),
       labels: { confirm: "Training beenden", cancel: "Abbrechen" },
       onConfirm: () => {
-        if (!hasDrivers) {
-          notifyError("Kein Training", "Keine Fahrer vorhanden.");
+        // Without drivers or finished stints there is no point in saving the training
+        if (!hasDrivers || !trainingHasFinishedStints) {
+          notifyError(
+            "Das Training wurde nicht gespeichert",
+            "Trainings ohne Fahrer oder abgeschlossene Stints werden nicht gespeichert.",
+          );
           router.push("/");
           return;
         }
@@ -440,6 +447,20 @@ const TrainingPage = () => {
           <pre>{JSON.stringify(currentStint, null, 2)}</pre>
           <Divider label="FORM" />
           <pre>{JSON.stringify(settings.values, null, 2)}</pre>
+          <Divider label="CONDITIONS" />
+          <pre>
+            {JSON.stringify(
+              {
+                hasDriver: hasDriver,
+                hasDrivers: hasDrivers,
+                isRunning: isRunning,
+                isFinished: isFinished,
+                trainingHasFinishedStints: trainingHasFinishedStints,
+              },
+              null,
+              2,
+            )}
+          </pre>
         </Drawer>
       </Drawer.Stack>
       <Layout currentRoute="/training" disableNavbar>
