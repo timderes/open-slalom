@@ -346,7 +346,16 @@ const TrainingPage = () => {
   const handleSkipDriver = () => {
     if (!hasDrivers) return;
 
-    if (currentStint.time !== 0) {
+    // Can't skip if there is an active stint with progress, as this would lead
+    // to lost data without confirmation
+    //
+    // The button is also disabled, this is code can only be reached through hotkey
+    if (isRunning) {
+      return;
+    }
+
+    // Warn the user about lost data when skipping a driver with progress in their current stint
+    if (currentStint.laps.length === settings.values.lapsPerStint) {
       modals.openConfirmModal({
         title: "Fahrer wirklich überspringen?",
         centered: true,
@@ -361,6 +370,7 @@ const TrainingPage = () => {
         onConfirm: () => updateCurrentStateToNextDriver(),
       });
     } else {
+      // No significant progress, skip immediately
       updateCurrentStateToNextDriver();
     }
   };
