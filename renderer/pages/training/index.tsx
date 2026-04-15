@@ -224,8 +224,8 @@ const TrainingPage = () => {
         centered: true,
         children: (
           <Text>
-            Alle Runden und die laufende Zeit gehen verloren. Dies kann nicht
-            rückgängig gemacht werden.
+            Alle Runden gehen verloren. Dies kann nicht rückgängig gemacht
+            werden.
           </Text>
         ),
         labels: { confirm: "Stint löschen", cancel: "Abbrechen" },
@@ -348,7 +348,10 @@ const TrainingPage = () => {
         title: "Fahrer wirklich überspringen?",
         centered: true,
         children: (
-          <Text>Laufende Zeit geht verloren. Wirklich überspringen?</Text>
+          <Text>
+            Alle Runden des aktuellen Fahrers gehen verloren. Wirklich
+            überspringen?
+          </Text>
         ),
         labels: { confirm: "Fahrer überspringen", cancel: "Abbrechen" },
         confirmProps: { color: "red" },
