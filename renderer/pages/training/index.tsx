@@ -307,7 +307,10 @@ const TrainingPage = () => {
     }
 
     if (!isFinished) {
-      notifyError("Stint unvollständig", "Bitte alle Runden fahren.");
+      notifyError(
+        "Stint unvollständig",
+        "Es müssen alle Runden beendet werden, bevor zum nächsten Fahrer gewechselt werden kann.",
+      );
       return;
     }
 
