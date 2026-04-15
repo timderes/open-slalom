@@ -358,7 +358,7 @@ const TrainingPage = () => {
     }
 
     // Warn the user about lost data when skipping a driver with progress in their current stint
-    if (currentStint.laps.length === settings.values.lapsPerStint) {
+    if (currentStint.laps.length > 0) {
       modals.openConfirmModal({
         title: "Fahrer wirklich überspringen?",
         centered: true,
