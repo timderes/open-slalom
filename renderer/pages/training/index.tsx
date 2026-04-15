@@ -116,20 +116,28 @@ const TrainingPage = () => {
     });
 
   const disabledReason: Record<string, string | undefined> = {
-    start: !hasDriver ? "Bitte zuerst einen Fahrer auswählen." : undefined,
+    start: isRunning
+      ? "Stoppuhr läuft"
+      : !hasDriver
+        ? "Bitte zuerst einen Fahrer auswählen."
+        : isFinished
+          ? "Rundenlimit erreicht"
+          : undefined,
     lap: !isRunning
       ? "Stoppuhr nicht gestartet"
       : isFinished
         ? "Rundenlimit erreicht"
         : undefined,
-    update: !hasDriver
-      ? "Kein Fahrer aktiv"
+    update: isRunning
+      ? "Stoppuhr läuft"
       : !isFinished
         ? "Stint unvollständig"
-        : isRunning
-          ? "Stoppuhr läuft"
-          : undefined,
-    skip: !hasDrivers ? "Keine Fahrer ausgewählt" : undefined,
+        : undefined,
+    skip: isRunning
+      ? "Stoppuhr läuft"
+      : !hasDrivers
+        ? "Keine Fahrer ausgewählt"
+        : undefined,
     stop: isRunning ? "Stoppuhr läuft" : undefined,
   };
 
