@@ -9,6 +9,7 @@ import {
   Drawer,
   Grid,
   Group,
+  Kbd,
   NumberInput,
   SegmentedControl,
   Stack,
@@ -19,16 +20,17 @@ import {
   Tooltip,
   useDrawersStack,
 } from "@mantine/core";
-import { useInterval } from "@mantine/hooks";
+import { useHotkeys, useInterval } from "@mantine/hooks";
 import { useStopwatch } from "react-use-precision-timer";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
+  IconAlertCircleFilled,
   IconAlertSquareRounded,
   IconBugFilled,
   IconClockOff,
   IconFlag,
-  // IconGraph,
   IconHelmet,
+  IconInfoCircleFilled,
   IconList,
   IconListNumbers,
   IconRotate360,
@@ -83,6 +85,85 @@ const TrainingPage = () => {
     time: 0,
   });
 
+  // =========================
+  // CONDITIONS
+  // =========================
+  const hasDriver = !!currentStint.driver;
+  const hasDrivers = settings.values.drivers.length > 0;
+  const trainingHasFinishedStints = settings.values.drivers.some(
+    (driver) => (driver.stints?.length ?? 0) > 0,
+  );
+  const isRunning = stopwatch.isRunning();
+  const isFinished = currentStint.laps.length === settings.values.lapsPerStint;
+
+  // =========================
+  // NOTIFICATIONS
+  // =========================
+  const notifyError = (title: string, message: string) =>
+    notifications.show({
+      color: "red",
+      icon: <IconAlertCircleFilled />,
+      title,
+      message,
+    });
+
+  const notifyInfo = (title: string, message: string) =>
+    notifications.show({
+      color: "blue",
+      icon: <IconInfoCircleFilled />,
+      title,
+      message,
+    });
+
+  /**
+   * Returns the tooltip reason for why a button is disabled, based on the current conditions.
+   * If there is no reason (button should not be disabled), returns undefined.
+   */
+  const getDisabledReason = (
+    key: "start" | "lap" | "update" | "skip" | "stop",
+  ): string | undefined => {
+    switch (key) {
+      case "start":
+        if (isRunning) return "Stoppuhr läuft";
+        if (!hasDriver) return "Bitte zuerst einen Fahrer auswählen.";
+        if (isFinished) return "Rundenlimit erreicht";
+        return undefined;
+
+      case "lap":
+        if (!isRunning) return "Stoppuhr nicht gestartet";
+        if (isFinished) return "Rundenlimit erreicht";
+        return undefined;
+
+      case "update":
+        if (isRunning) return "Stoppuhr läuft";
+        if (!isFinished) return "Stint unvollständig";
+        return undefined;
+
+      case "skip":
+        if (isRunning) return "Stoppuhr läuft";
+        if (!hasDrivers) return "Keine Fahrer ausgewählt";
+        return undefined;
+
+      case "stop":
+        return isRunning ? "Stoppuhr läuft" : undefined;
+
+      default:
+        return undefined;
+    }
+  };
+
+  // =========================
+  // HOTKEYS
+  // =========================
+  useHotkeys([
+    ["Q", () => handleStopwatchStart()],
+    ["W", () => handleStopwatchLap()],
+    ["E", () => handleStopwatchReset()],
+    ["CTRL+S", () => handleUpdateCurrentDriver()],
+    ["CTRL+D", () => handleSkipDriver()],
+    ["ESC", () => handleStopTraining()],
+  ]);
+
   const interval = useInterval(
     () =>
       setCurrentStint((prev) => ({
@@ -90,7 +171,7 @@ const TrainingPage = () => {
         time: stopwatch.getElapsedRunningTime(),
       })),
     // TODO: Let the user configure this value in settings
-    DEFAULT_STOPWATCH_INTERVAL
+    DEFAULT_STOPWATCH_INTERVAL,
   );
 
   useEffect(() => {
@@ -108,17 +189,76 @@ const TrainingPage = () => {
     currentStint.currentLap === settings.values.lapsPerStint;
 
   const handleStopwatchStart = () => {
+    if (!hasDriver) {
+      notifyError("Kein Fahrer", "Bitte zuerst einen Fahrer auswählen.");
+      return;
+    }
+
+    if (stopwatch.isRunning()) {
+      notifyError(
+        "Stoppuhr läuft bereits",
+        "Die Stoppuhr ist bereits gestartet.",
+      );
+      return;
+    }
+
+    if (isFinished) {
+      notifyError(
+        "Der Stint ist abgeschlossen",
+        "Der Fahrer hat bereits alle Runden gefahren. Bitte nächsten Fahrer auswählen oder Stint zurücksetzen.",
+      );
+      return;
+    }
+
     // Stop the watch to reset the elapsed time and then start it again
     stopwatch.stop();
     stopwatch.start();
   };
 
   const handleStopwatchReset = () => {
+    const hasProgress =
+      currentStint.laps.length > 0 ||
+      stopwatch.getElapsedRunningTime() > 0 ||
+      isRunning;
+
+    if (hasProgress) {
+      modals.openConfirmModal({
+        title: "Stint wirklich löschen?",
+        centered: true,
+        children: (
+          <Text>
+            Alle Runden gehen verloren. Dies kann nicht rückgängig gemacht
+            werden.
+          </Text>
+        ),
+        labels: { confirm: "Stint löschen", cancel: "Abbrechen" },
+        confirmProps: { color: "red" },
+        onConfirm: () => {
+          stopwatch.stop();
+          setCurrentStint((prev) => ({
+            ...prev,
+            laps: [],
+            time: 0,
+            currentLap: 1,
+          }));
+          notifyInfo("Stint gelöscht", "Alle Runden wurden zurückgesetzt.");
+        },
+      });
+      return;
+    }
+
+    // no progress — reset immediately
     stopwatch.stop();
     setCurrentStint((prev) => ({ ...prev, laps: [], time: 0, currentLap: 1 }));
+    notifyInfo("Stint gelöscht", "Alle Runden wurden zurückgesetzt.");
   };
 
   const handleStopwatchLap = () => {
+    if (!isRunning) {
+      notifyError("Stoppuhr nicht gestartet", "Bitte zuerst Start drücken.");
+      return;
+    }
+
     setCurrentStint((prev) => ({
       ...prev,
       currentLap: IS_FINAL_LAP_IN_THIS_STINT
@@ -139,6 +279,7 @@ const TrainingPage = () => {
     //  Stop restarting the stopwatch when this was the final lap in this stint
     if (IS_FINAL_LAP_IN_THIS_STINT) {
       stopwatch.stop();
+      notifyInfo("Stint beendet", "Alle Runden abgeschlossen.");
     } else {
       stopwatch.stop();
       stopwatch.start();
@@ -163,32 +304,32 @@ const TrainingPage = () => {
   };
 
   const handleUpdateCurrentDriver = () => {
+    if (!hasDriver) {
+      notifyError("Kein Fahrer", "Es ist kein Fahrer aktiv.");
+      return;
+    }
+
+    if (!isFinished) {
+      notifyError(
+        "Stint unvollständig",
+        "Es müssen alle Runden beendet werden, bevor zum nächsten Fahrer gewechselt werden kann.",
+      );
+      return;
+    }
+
     settings.setFieldValue("drivers", (prevDrivers) =>
       prevDrivers.map((driver) =>
         driver.uuid === currentStint.driver?.uuid
           ? {
               ...driver,
-              stints: [
-                ...(driver.stints ?? []),
-                { laps: [...currentStint.laps] },
-              ],
+              stints: [...(driver.stints ?? []), { laps: currentStint.laps }],
               updatedAt: Date.now(),
             }
-          : driver
-      )
+          : driver,
+      ),
     );
-    // Update current driver index
-    setCurrentStint((prev) => ({
-      currentDriverIndex:
-        (prev.currentDriverIndex + 1) % settings.values.drivers.length,
-      currentLap: 1,
-      driver:
-        settings.values.drivers[
-          (prev.currentDriverIndex + 1) % settings.values.drivers.length
-        ],
-      laps: [],
-      time: 0,
-    }));
+
+    updateCurrentStateToNextDriver();
   };
 
   const updateCurrentStateToNextDriver = () => {
@@ -206,16 +347,25 @@ const TrainingPage = () => {
   };
 
   const handleSkipDriver = () => {
-    // If the stopwatch for the driver started, ask for confirmation to skip them
-    if (currentStint.time !== 0) {
+    if (!hasDrivers) return;
+
+    // Can't skip if there is an active stint with progress, as this would lead
+    // to lost data without confirmation
+    //
+    // The button is also disabled, this is code can only be reached through hotkey
+    if (isRunning) {
+      return;
+    }
+
+    // Warn the user about lost data when skipping a driver with progress in their current stint
+    if (currentStint.laps.length > 0) {
       modals.openConfirmModal({
         title: "Fahrer wirklich überspringen?",
         centered: true,
         children: (
           <Text>
-            Die Stoppuhr für den aktuellen Fahrer wurde gestartet! Möchten Sie
-            den Fahrer wirklich überspringen? Nicht abgeschlossene Stints werden
-            verworfen.
+            Alle Runden des aktuellen Fahrers gehen verloren. Wirklich
+            überspringen?
           </Text>
         ),
         labels: { confirm: "Fahrer überspringen", cancel: "Abbrechen" },
@@ -223,6 +373,7 @@ const TrainingPage = () => {
         onConfirm: () => updateCurrentStateToNextDriver(),
       });
     } else {
+      // No significant progress, skip immediately
       updateCurrentStateToNextDriver();
     }
   };
@@ -239,34 +390,34 @@ const TrainingPage = () => {
       ),
       labels: { confirm: "Training beenden", cancel: "Abbrechen" },
       onConfirm: () => {
-        // If no drivers or no laps were recorded, do not save the training
-        if (
-          settings.values.drivers.length === 0 ||
-          currentStint.driver.stints.length === 0
-        ) {
-          notifications.show({
-            autoClose: 10000, // 10 seconds
-            color: "red",
-            title: "Training wurde nicht gespeichert!",
-            message:
-              "Es wurden keine Fahrer oder keine Rundenzeiten erfasst. Das Training wurde verworfen und nicht gespeichert.",
-          });
+        // Without drivers or finished stints there is no point in saving the training
+        if (!hasDrivers || !trainingHasFinishedStints) {
+          notifyError(
+            "Das Training wurde nicht gespeichert",
+            "Trainings ohne Fahrer oder abgeschlossene Stints werden nicht gespeichert.",
+          );
           router.push("/");
           return;
         }
 
-        // Save training with drivers that have at least one stint with laps
         database.trainings
           .add(settings.values)
-          .then(() => {
-            router.push("/");
-          })
-          .catch((error) => {
-            notifications.show({
-              title: "Training konnte nicht gespeichert werden",
-              message: error?.message || "Unbekannter Fehler",
-            });
-          });
+          .then(() =>
+            router
+              .push("/")
+              .then(() =>
+                notifyInfo(
+                  "Training gespeichert",
+                  "Das Training wurde erfolgreich gespeichert.",
+                ),
+              ),
+          )
+          .catch((error) =>
+            notifyError(
+              "Training konnte nicht gespeichert werden",
+              error?.message || "Unbekannter Fehler",
+            ),
+          );
       },
       confirmProps: { color: "red" },
     });
@@ -297,7 +448,7 @@ const TrainingPage = () => {
                   onClick={() => {
                     // Check if driver already was added to the training before and then preserve their stints
                     const existing = settings.values.drivers.find(
-                      (d) => d.uuid === driver.uuid
+                      (d) => d.uuid === driver.uuid,
                     );
                     handleAddDriver({
                       ...driver,
@@ -306,7 +457,7 @@ const TrainingPage = () => {
                   }}
                 >
                   {settings.values.drivers.some(
-                    (d) => d.uuid === driver.uuid
+                    (d) => d.uuid === driver.uuid,
                   ) ? (
                     <IconUserMinus />
                   ) : (
@@ -351,6 +502,20 @@ const TrainingPage = () => {
           <pre>{JSON.stringify(currentStint, null, 2)}</pre>
           <Divider label="FORM" />
           <pre>{JSON.stringify(settings.values, null, 2)}</pre>
+          <Divider label="CONDITIONS" />
+          <pre>
+            {JSON.stringify(
+              {
+                hasDriver: hasDriver,
+                hasDrivers: hasDrivers,
+                isRunning: isRunning,
+                isFinished: isFinished,
+                trainingHasFinishedStints: trainingHasFinishedStints,
+              },
+              null,
+              2,
+            )}
+          </pre>
         </Drawer>
       </Drawer.Stack>
       <Layout currentRoute="/training" disableNavbar>
@@ -358,7 +523,7 @@ const TrainingPage = () => {
           <Grid>
             <Grid.Col span={12}>
               <Group>
-                <Title>Training</Title>
+                <Title>{settings.values.mode}-Training</Title>
                 <Group ms="auto">
                   <Tooltip
                     label="Fahrer"
@@ -408,36 +573,64 @@ const TrainingPage = () => {
               <Stack>
                 <Card withBorder>
                   <Group grow>
-                    <Button
-                      size="compact-md"
-                      disabled={
-                        stopwatch.isRunning() ||
-                        currentStint.laps.length !==
-                          settings.values.lapsPerStint
-                      }
-                      onClick={() => handleUpdateCurrentDriver()}
+                    <Tooltip
+                      label={getDisabledReason("update")}
+                      disabled={!getDisabledReason("update")}
+                      withArrow
                     >
-                      Nächster Fahrer
-                    </Button>
-                    <Button
-                      color="red"
-                      size="compact-md"
-                      disabled={
-                        stopwatch.isRunning() ||
-                        settings.values.drivers.length === 0
-                      }
-                      onClick={() => handleSkipDriver()}
+                      <div style={{ display: "inline-block" }}>
+                        <Button
+                          size="compact-md"
+                          disabled={isRunning || !isFinished}
+                          onClick={() => handleUpdateCurrentDriver()}
+                        >
+                          Nächster Fahrer{" "}
+                          <Kbd size="xs" ms="xs">
+                            STRG+S
+                          </Kbd>
+                        </Button>
+                      </div>
+                    </Tooltip>
+
+                    <Tooltip
+                      label={getDisabledReason("skip")}
+                      disabled={!getDisabledReason("skip")}
+                      withArrow
                     >
-                      Fahrer überspringen
-                    </Button>
-                    <Button
-                      color="red"
-                      size="compact-md"
-                      disabled={stopwatch.isRunning()}
-                      onClick={() => handleStopTraining()}
+                      <div style={{ display: "inline-block" }}>
+                        <Button
+                          color="red"
+                          size="compact-md"
+                          disabled={isRunning || !hasDrivers}
+                          onClick={() => handleSkipDriver()}
+                        >
+                          Fahrer überspringen{" "}
+                          <Kbd size="xs" ms="xs">
+                            STRG+D
+                          </Kbd>
+                        </Button>
+                      </div>
+                    </Tooltip>
+
+                    <Tooltip
+                      label={getDisabledReason("stop")}
+                      disabled={!getDisabledReason("stop")}
+                      withArrow
                     >
-                      Training beenden
-                    </Button>
+                      <div style={{ display: "inline-block" }}>
+                        <Button
+                          color="red"
+                          size="compact-md"
+                          disabled={isRunning}
+                          onClick={() => handleStopTraining()}
+                        >
+                          Training beenden{" "}
+                          <Kbd size="xs" ms="xs">
+                            ESC
+                          </Kbd>
+                        </Button>
+                      </div>
+                    </Tooltip>
                   </Group>
                 </Card>
                 <Tabs defaultValue="starterList" variant="outline">
@@ -532,7 +725,7 @@ const TrainingPage = () => {
                           const driversWithFastest =
                             settings.values.drivers.map((driver) => {
                               const allLaps = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? []
+                                (stint) => stint.laps ?? [],
                               );
                               const fastestLap = allLaps.length
                                 ? allLaps.reduce(
@@ -541,7 +734,7 @@ const TrainingPage = () => {
                                       fastest.time_with_penalties
                                         ? lap
                                         : fastest,
-                                    allLaps[0]
+                                    allLaps[0],
                                   )
                                 : undefined;
                               return { driver, fastestLap };
@@ -571,7 +764,7 @@ const TrainingPage = () => {
                                   : "N/A";
                               const timeStr = fastestLap
                                 ? convertTimeToString(
-                                    fastestLap.time_with_penalties
+                                    fastestLap.time_with_penalties,
                                   )
                                 : "N/A";
 
@@ -583,7 +776,7 @@ const TrainingPage = () => {
                                     ? "-"
                                     : `+${convertTimeToString(
                                         fastestLap.time_with_penalties -
-                                          bestTime
+                                          bestTime,
                                       )}`
                                   : "N/A";
 
@@ -594,7 +787,7 @@ const TrainingPage = () => {
                                 : "N/A";
 
                               const totalRounds = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? []
+                                (stint) => stint.laps ?? [],
                               ).length;
 
                               return [
@@ -607,7 +800,7 @@ const TrainingPage = () => {
                                 date,
                                 totalRounds,
                               ];
-                            }
+                            },
                           );
                         })(),
                       }}
@@ -649,31 +842,56 @@ const TrainingPage = () => {
                 </Stack>
                 <Group grow>
                   <ButtonGroup>
-                    <Button
-                      leftSection={<IconFlag />}
-                      disabled={stopwatch.isRunning() || !currentStint.driver}
-                      onClick={() => handleStopwatchStart()}
+                    <Tooltip
+                      label={getDisabledReason("start")}
+                      disabled={!getDisabledReason("start")}
+                      withArrow
                     >
-                      Start
-                    </Button>
-                    <Button
-                      disabled={
-                        settings.values.lapsPerStint ===
-                          currentStint.laps.length || !stopwatch.isRunning()
-                      }
-                      onClick={() => handleStopwatchLap()}
+                      <div style={{ display: "inline-block" }}>
+                        <Button
+                          leftSection={<IconFlag />}
+                          disabled={isRunning || !hasDriver || isFinished}
+                          onClick={() => handleStopwatchStart()}
+                        >
+                          Start{" "}
+                          <Kbd size="xs" ms="xs">
+                            Q
+                          </Kbd>
+                        </Button>
+                      </div>
+                    </Tooltip>
+
+                    <Tooltip
+                      label={getDisabledReason("lap")}
+                      disabled={!getDisabledReason("lap")}
+                      withArrow
                     >
-                      {IS_FINAL_LAP_IN_THIS_STINT ? "Stop" : "Runde"}
-                    </Button>
+                      <div style={{ display: "inline-block" }}>
+                        <Button
+                          disabled={isFinished || !isRunning}
+                          onClick={() => handleStopwatchLap()}
+                        >
+                          {IS_FINAL_LAP_IN_THIS_STINT ? "Stop" : "Runde"}{" "}
+                          <Kbd size="xs" ms="xs">
+                            W
+                          </Kbd>
+                        </Button>
+                      </div>
+                    </Tooltip>
                   </ButtonGroup>
-                  <Button
-                    leftSection={<IconClockOff />}
-                    w="fit-content"
-                    bg="red"
-                    onClick={() => handleStopwatchReset()}
-                  >
-                    Stint löschen
-                  </Button>
+                  <div style={{ display: "inline-block" }}>
+                    <Button
+                      leftSection={<IconClockOff />}
+                      w="fit-content"
+                      bg="red"
+                      onClick={() => handleStopwatchReset()}
+                    >
+                      Stint löschen{" "}
+                      <Kbd size="xs" ms="xs">
+                        E
+                      </Kbd>
+                    </Button>
+                  </div>
                 </Group>
                 <Divider
                   tt="uppercase"
@@ -691,8 +909,8 @@ const TrainingPage = () => {
                     {convertTimeToString(
                       currentStint.laps.reduce(
                         (total, lap) => total + lap.time,
-                        0
-                      )
+                        0,
+                      ),
                     )}{" "}
                     &mdash; &#x00D8;{" "}
                     {currentStint.laps.length === 0
@@ -700,8 +918,8 @@ const TrainingPage = () => {
                       : convertTimeToString(
                           currentStint.laps.reduce(
                             (total, lap) => total + lap.time,
-                            0
-                          ) / currentStint.laps.length
+                            0,
+                          ) / currentStint.laps.length,
                         )}
                   </Text>
                   <Table.ScrollContainer minWidth="auto" maxHeight={300}>
