@@ -402,7 +402,16 @@ const TrainingPage = () => {
 
         database.trainings
           .add(settings.values)
-          .then(() => router.push("/"))
+          .then(() =>
+            router
+              .push("/")
+              .then(() =>
+                notifyInfo(
+                  "Training gespeichert",
+                  "Das Training wurde erfolgreich gespeichert.",
+                ),
+              ),
+          )
           .catch((error) =>
             notifyError(
               "Training konnte nicht gespeichert werden",
