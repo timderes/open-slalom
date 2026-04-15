@@ -183,6 +183,14 @@ const TrainingPage = () => {
       return;
     }
 
+    if (isFinished) {
+      notifyError(
+        "Der Stint ist abgeschlossen",
+        "Der Fahrer hat bereits alle Runden gefahren. Bitte nächsten Fahrer auswählen oder Stint zurücksetzen.",
+      );
+      return;
+    }
+
     // Stop the watch to reset the elapsed time and then start it again
     stopwatch.stop();
     stopwatch.start();
@@ -795,7 +803,7 @@ const TrainingPage = () => {
                       <div style={{ display: "inline-block" }}>
                         <Button
                           leftSection={<IconFlag />}
-                          disabled={isRunning || !hasDriver}
+                          disabled={isRunning || !hasDriver || isFinished}
                           onClick={() => handleStopwatchStart()}
                         >
                           Start{" "}
