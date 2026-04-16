@@ -4,6 +4,8 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 
+import "../styles/globals.css";
+
 import "dayjs/locale/de";
 
 import type { AppProps } from "next/app";

@@ -1,0 +1,21 @@
+@media print {
+
+    /* 
+        Ensure colors (especially backgrounds like Mantine Badge, UI components, etc.)
+        are preserved when printing.
+  
+        Browsers often strip or simplify colors in print mode to save ink,
+        which can make elements unreadable or lose their styling.
+
+        `print-color-adjust: exact` forces the browser to render colors
+        as they appear on screen.
+    */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}

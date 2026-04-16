@@ -8,6 +8,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
+import PrintButton from "../ui/PrintButton";
 
 /**
  * Returns a group of window control buttons (minimize, maximize, close).
@@ -43,6 +44,7 @@ const Controls = () => {
 
   return (
     <Group>
+      <PrintButton />
       <Tooltip label="Minimieren" {...DEFAULT_TOOLTIP_PROPS}>
         <ActionIcon
           c="inherit"

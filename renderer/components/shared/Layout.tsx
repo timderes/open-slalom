@@ -82,7 +82,7 @@ const Layout = ({
       padding={0}
       {...props}
     >
-      <AppShell.Header>
+      <AppShell.Header className="no-print">
         <Group h="100%" px="md" justify="space-between">
           <Group>
             {disableNavbar ? null : (
@@ -93,7 +93,7 @@ const Layout = ({
           <Controls />
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="md" className="no-print">
         {APP_ROUTES.map((route) => (
           <NavLink
             active={currentRoute === route.path}
@@ -105,7 +105,7 @@ const Layout = ({
         ))}
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-      <AppShell.Footer p="md" component={Group}>
+      <AppShell.Footer p="md" component={Group} className="no-print">
         <Text>{APP_VERSION}</Text>
         <NetworkStatus />
         <OsStatus />
