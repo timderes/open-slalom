@@ -4,6 +4,7 @@ import {
   Button,
   ButtonGroup,
   Card,
+  Checkbox,
   Container,
   Divider,
   Drawer,
@@ -272,6 +273,7 @@ const TrainingPage = () => {
           timestamp: stopwatch.getStartTime(),
           cones: 0,
           gates: 0,
+          isInvalid: false,
         },
       ],
     }));
@@ -931,6 +933,7 @@ const TrainingPage = () => {
                           <Table.Th>Zeitstrafe</Table.Th>
                           <Table.Th>Pylonen</Table.Th>
                           <Table.Th>Tore</Table.Th>
+                          <Table.Th>Ungültig</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
@@ -1016,6 +1019,21 @@ const TrainingPage = () => {
                                           1000 *
                                             (val as number) *
                                             TIME_PENALTIES_JKS.MISSED_GATE,
+                                      };
+                                      return { ...prev, laps: updatedLaps };
+                                    })
+                                  }
+                                />
+                              </Table.Td>
+                              <Table.Td>
+                                <Checkbox
+                                  onClick={() =>
+                                    setCurrentStint((prev) => {
+                                      const updatedLaps = [...prev.laps];
+                                      updatedLaps[index] = {
+                                        ...updatedLaps[index],
+                                        isInvalid:
+                                          !updatedLaps[index].isInvalid,
                                       };
                                       return { ...prev, laps: updatedLaps };
                                     })
