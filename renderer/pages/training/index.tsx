@@ -574,58 +574,50 @@ const TrainingPage = () => {
                       disabled={!getDisabledReason("update")}
                       withArrow
                     >
-                      <div style={{ display: "inline-block" }}>
-                        <Button
-                          size="compact-md"
-                          disabled={isRunning || !isFinished}
-                          onClick={() => handleUpdateCurrentDriver()}
-                        >
-                          Nächster Fahrer{" "}
-                          <Kbd size="xs" ms="xs">
-                            STRG+S
-                          </Kbd>
-                        </Button>
-                      </div>
+                      <Button
+                        size="compact-md"
+                        disabled={isRunning || !isFinished}
+                        onClick={() => handleUpdateCurrentDriver()}
+                      >
+                        Nächster Fahrer{" "}
+                        <Kbd size="xs" ms="xs">
+                          STRG+S
+                        </Kbd>
+                      </Button>
                     </Tooltip>
-
                     <Tooltip
                       label={getDisabledReason("skip")}
                       disabled={!getDisabledReason("skip")}
                       withArrow
                     >
-                      <div style={{ display: "inline-block" }}>
-                        <Button
-                          color="red"
-                          size="compact-md"
-                          disabled={isRunning || !hasDrivers}
-                          onClick={() => handleSkipDriver()}
-                        >
-                          Fahrer überspringen{" "}
-                          <Kbd size="xs" ms="xs">
-                            STRG+D
-                          </Kbd>
-                        </Button>
-                      </div>
+                      <Button
+                        color="red"
+                        size="compact-md"
+                        disabled={isRunning || !hasDrivers}
+                        onClick={() => handleSkipDriver()}
+                      >
+                        Fahrer überspringen{" "}
+                        <Kbd size="xs" ms="xs">
+                          STRG+D
+                        </Kbd>
+                      </Button>
                     </Tooltip>
-
                     <Tooltip
                       label={getDisabledReason("stop")}
                       disabled={!getDisabledReason("stop")}
                       withArrow
                     >
-                      <div style={{ display: "inline-block" }}>
-                        <Button
-                          color="red"
-                          size="compact-md"
-                          disabled={isRunning}
-                          onClick={() => handleStopTraining()}
-                        >
-                          Training beenden{" "}
-                          <Kbd size="xs" ms="xs">
-                            ESC
-                          </Kbd>
-                        </Button>
-                      </div>
+                      <Button
+                        color="red"
+                        size="compact-md"
+                        disabled={isRunning}
+                        onClick={() => handleStopTraining()}
+                      >
+                        Training beenden{" "}
+                        <Kbd size="xs" ms="xs">
+                          ESC
+                        </Kbd>
+                      </Button>
                     </Tooltip>
                   </Group>
                 </Card>
