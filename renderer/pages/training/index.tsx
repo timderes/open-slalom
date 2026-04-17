@@ -41,6 +41,7 @@ import useTraining from "@/hooks/useTraining";
 import {
   getAverageLap,
   getDriverRanking,
+  getLapPenaltySeconds,
   getTotalLapTime,
 } from "@/lib/training/selectors";
 
@@ -362,9 +363,11 @@ const TrainingPage = () => {
                               const penalties =
                                 fastestLap !== undefined
                                   ? `${cones}P ${gates}T (+${
-                                      cones * timePenalties.HIT_CONE +
-                                       gates * timePenalties.MISSED_GATE
-                                    }s)`
+                                      getLapPenaltySeconds(
+                                        fastestLap,
+                                        timePenalties,
+                                      )
+                                     }s)`
                                   : "N/A";
                               const timeStr = fastestLap
                                 ? convertTimeToString(
@@ -552,9 +555,7 @@ const TrainingPage = () => {
                               <Table.Td>
                                 {LAP_HAS_PENALTIES && (
                                   <Text c="red" fw="bold">
-                                    +
-                                     {lap.cones * timePenalties.HIT_CONE +
-                                       lap.gates * timePenalties.MISSED_GATE}
+                                    +{getLapPenaltySeconds(lap, timePenalties)}
                                     s
                                   </Text>
                                 )}

@@ -4,6 +4,11 @@ type DriverRankingEntry = {
   fastestLapTime?: number;
 };
 
+type TimePenalties = {
+  HIT_CONE: number;
+  MISSED_GATE: number;
+};
+
 export const getValidLaps = (laps: Lap[]) => laps.filter((lap) => !lap.isInvalid);
 
 export const getFastestLap = (laps: Lap[]) => {
@@ -117,3 +122,6 @@ export const getDiffToPrevious = (
 
 export const getFastestLapTimestamp = (driver: DriverWithStints) =>
   getDriverFastestLap(driver)?.timestamp;
+
+export const getLapPenaltySeconds = (lap: Lap, penalties: TimePenalties) =>
+  lap.cones * penalties.HIT_CONE + lap.gates * penalties.MISSED_GATE;
