@@ -164,7 +164,9 @@ export const trainingReducer = (
         cones: action.payload.cones,
         time_with_penalties:
           updatedLaps[action.payload.index].time +
-          1000 * action.payload.cones * penalties.HIT_CONE,
+          1000 *
+            (action.payload.cones * penalties.HIT_CONE +
+              updatedLaps[action.payload.index].gates * penalties.MISSED_GATE),
       };
 
       return {
@@ -184,7 +186,9 @@ export const trainingReducer = (
         gates: action.payload.gates,
         time_with_penalties:
           updatedLaps[action.payload.index].time +
-          1000 * action.payload.gates * penalties.MISSED_GATE,
+          1000 *
+            (updatedLaps[action.payload.index].cones * penalties.HIT_CONE +
+              action.payload.gates * penalties.MISSED_GATE),
       };
 
       return {

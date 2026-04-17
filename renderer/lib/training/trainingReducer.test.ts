@@ -158,4 +158,28 @@ describe("trainingReducer", () => {
 
     expect(next.laps[0].time_with_penalties).toBe(11000);
   });
+
+  it("keeps existing gate penalties when cone penalties are updated", () => {
+    const next = trainingReducer(
+      {
+        ...createRunningState("JKS"),
+        laps: [
+          {
+            time: 5000,
+            time_with_penalties: 5000,
+            timestamp: 1,
+            cones: 0,
+            gates: 1,
+            isInvalid: false,
+          },
+        ],
+      },
+      {
+        type: "UPDATE_LAP_CONES",
+        payload: { index: 0, cones: 2 },
+      },
+    );
+
+    expect(next.laps[0].time_with_penalties).toBe(19000);
+  });
 });
