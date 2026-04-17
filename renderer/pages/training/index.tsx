@@ -72,13 +72,7 @@ const TrainingPage = () => {
       settings.setFieldValue("updatedAt", Date.now());
     },
   });
-  const [currentStint, setCurrentStint] = useState<{
-    currentDriverIndex: number;
-    currentLap: number;
-    driver: DriverWithStints | undefined;
-    laps: Lap[];
-    time: number;
-  }>({
+  const [currentStint, setCurrentStint] = useState<Stint>({
     currentDriverIndex: 0,
     currentLap: 1,
     driver: settings.values.drivers[0] || undefined,
