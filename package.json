@@ -3,7 +3,7 @@
   "name": "msf-training",
   "productName": "MSF Training",
   "description": "Tools for organizing and managing Kartslalom training sessions by MSF Plettenberg 1930 e.V. im DMV.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Tim Deres",
   "main": "app/background.js",
   "scripts": {
