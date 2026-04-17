@@ -643,14 +643,6 @@ const TrainingPage = () => {
                     >
                       Schnellste Runden
                     </Tabs.Tab>
-                    {/*
-                    <Tabs.Tab
-                      value="stats"
-                      leftSection={<IconGraph size={16} />}
-                    >
-                      Statistiken
-                    </Tabs.Tab>
-                    */}
                   </Tabs.List>
                   <Tabs.Panel value="starterList" my="lg">
                     {settings.values.drivers.length === 0 ? (
@@ -802,11 +794,6 @@ const TrainingPage = () => {
                       }}
                     />
                   </Tabs.Panel>
-                  {/*
-                  <Tabs.Panel value="stats" my="lg">
-                    TODO_ADD_STATS_CONTENT
-                  </Tabs.Panel>
-                  */}
                 </Tabs>
               </Stack>
             </Grid.Col>
