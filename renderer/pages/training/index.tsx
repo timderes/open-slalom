@@ -25,6 +25,10 @@ import { useHotkeys, useInterval } from "@mantine/hooks";
 import { useStopwatch } from "react-use-precision-timer";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
+  trainingReducer,
+  type TrainingAction,
+} from "@/lib/training/trainingReducer";
+import {
   IconAlertCircleFilled,
   IconAlertSquareRounded,
   IconBugFilled,
@@ -147,6 +151,32 @@ const TrainingPage = () => {
     }
   };
 
+  const applyCurrentStintReducerAction = (action: TrainingAction) => {
+    setCurrentStint((prev) => {
+      const nextState = trainingReducer(
+        {
+          drivers: settings.values.drivers,
+          currentDriverIndex: prev.currentDriverIndex,
+          currentDriver: prev.driver,
+          laps: prev.laps,
+          currentLap: prev.currentLap,
+          lapsPerStint: settings.values.lapsPerStint,
+          time: prev.time,
+          isRunning,
+        },
+        action,
+      );
+
+      return {
+        currentDriverIndex: nextState.currentDriverIndex,
+        currentLap: nextState.currentLap,
+        driver: nextState.currentDriver,
+        laps: nextState.laps,
+        time: nextState.time,
+      };
+    });
+  };
+
   // =========================
   // HOTKEYS
   // =========================
@@ -230,12 +260,7 @@ const TrainingPage = () => {
         confirmProps: { color: "red" },
         onConfirm: () => {
           stopwatch.stop();
-          setCurrentStint((prev) => ({
-            ...prev,
-            laps: [],
-            time: 0,
-            currentLap: 1,
-          }));
+          applyCurrentStintReducerAction({ type: "RESET" });
           notifyInfo("Stint gelöscht", "Alle Runden wurden zurückgesetzt.");
         },
       });
@@ -244,7 +269,7 @@ const TrainingPage = () => {
 
     // no progress — reset immediately
     stopwatch.stop();
-    setCurrentStint((prev) => ({ ...prev, laps: [], time: 0, currentLap: 1 }));
+    applyCurrentStintReducerAction({ type: "RESET" });
     notifyInfo("Stint gelöscht", "Alle Runden wurden zurückgesetzt.");
   };
 
