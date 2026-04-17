@@ -38,6 +38,11 @@ import {
 } from "@tabler/icons-react";
 import ScrollableTable from "@/components/shared/SortableTable";
 import useTraining from "@/hooks/useTraining";
+import {
+  getAverageLap,
+  getDriverRanking,
+  getTotalLapTime,
+} from "@/lib/training/selectors";
 
 const TrainingPage = () => {
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
@@ -341,35 +346,14 @@ const TrainingPage = () => {
                           "Runden",
                         ],
                         body: (() => {
-                          // compute fastest lap per driver and sort ascending (best time first)
-                          const driversWithFastest =
-                            settings.values.drivers.map((driver) => {
-                              const allLaps = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? [],
-                              );
-                              const fastestLap = allLaps.length
-                                ? allLaps.reduce(
-                                    (fastest, lap) =>
-                                      lap.time_with_penalties <
-                                      fastest.time_with_penalties
-                                        ? lap
-                                        : fastest,
-                                    allLaps[0],
-                                  )
-                                : undefined;
-                              return { driver, fastestLap };
-                            });
-
-                          driversWithFastest.sort((a, b) => {
-                            const aTime =
-                              a.fastestLap?.time_with_penalties ?? Infinity;
-                            const bTime =
-                              b.fastestLap?.time_with_penalties ?? Infinity;
-                            return aTime - bTime;
-                          });
+                          const driversWithFastest = getDriverRanking(
+                            settings.values.drivers,
+                          );
+                          const bestTime =
+                            driversWithFastest[0]?.fastestLapTime;
 
                           return driversWithFastest.map(
-                            ({ driver, fastestLap }, idx) => {
+                            ({ driver, fastestLap, fastestLapTime }, idx) => {
                               const pos = `${idx + 1}.`;
                               const name = `${driver.firstName} ${driver.lastName}`;
                               const kart = (driver as any).kart ?? "N/A";
@@ -388,15 +372,12 @@ const TrainingPage = () => {
                                   )
                                 : "N/A";
 
-                              const bestTime =
-                                driversWithFastest[0]?.fastestLap?.time;
                               const diffToBest =
-                                fastestLap !== undefined
+                                fastestLapTime !== undefined
                                   ? idx === 0 || bestTime === undefined
                                     ? "-"
                                     : `+${convertTimeToString(
-                                        fastestLap.time_with_penalties -
-                                          bestTime,
+                                        fastestLapTime - bestTime,
                                       )}`
                                   : "N/A";
 
@@ -519,24 +500,20 @@ const TrainingPage = () => {
                   labelPosition="left"
                 />
                 <Stack ta="left">
-                  <Text opacity={0.7}>
-                    Gesamtzeit:{" "}
-                    {convertTimeToString(
-                      currentStint.laps.reduce(
-                        (total, lap) => total + lap.time,
-                        0,
-                      ),
-                    )}{" "}
-                    &mdash; &#x00D8;{" "}
-                    {currentStint.laps.length === 0
-                      ? "N/A"
-                      : convertTimeToString(
-                          currentStint.laps.reduce(
-                            (total, lap) => total + lap.time,
-                            0,
-                          ) / currentStint.laps.length,
-                        )}
-                  </Text>
+                  {(() => {
+                    const totalValidLapTime = getTotalLapTime(currentStint.laps);
+                    const averageValidLap = getAverageLap(currentStint.laps);
+
+                    return (
+                      <Text opacity={0.7}>
+                        Gesamtzeit: {convertTimeToString(totalValidLapTime)}{" "}
+                        &mdash; &#x00D8;{" "}
+                        {averageValidLap === undefined
+                          ? "N/A"
+                          : convertTimeToString(averageValidLap)}
+                      </Text>
+                    );
+                  })()}
                   <Table.ScrollContainer minWidth="auto" maxHeight={300}>
                     <Table striped highlightOnHover stickyHeader>
                       <Table.Thead>

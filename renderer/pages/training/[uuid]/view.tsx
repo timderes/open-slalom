@@ -2,6 +2,13 @@ import Layout from "@/components/shared/Layout";
 import database from "@/lib/database";
 import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
+  getDiffToBest,
+  getDiffToPrevious,
+  getDriverFastestLap,
+  getDriverRanking,
+  getFastestLapTimestamp,
+} from "@/lib/training/selectors";
+import {
   Badge,
   Code,
   Container,
@@ -45,87 +52,9 @@ const TrainingViewPage = () => {
     );
   }
 
-  const getBestLapTime = (driver: DriverWithStints) => {
-    let bestLapTime: number | null = null;
-
-    driver.stints.forEach((stint) => {
-      stint.laps.forEach((lap) => {
-        if (bestLapTime === null || lap.time_with_penalties < bestLapTime) {
-          bestLapTime = lap.time_with_penalties;
-        }
-      });
-    });
-
-    return bestLapTime;
-  };
-
-  const sortDriversByBestLapTime = (drivers: DriverWithStints[]) => {
-    return drivers.sort((a, b) => {
-      const bestLapA = getBestLapTime(a);
-      const bestLapB = getBestLapTime(b);
-
-      if (bestLapA === null && bestLapB === null) return 0;
-      if (bestLapA === null) return 1;
-      if (bestLapB === null) return -1;
-      return bestLapA - bestLapB;
-    });
-  };
-
-  const getDifferenceToBestLap = (driver: DriverWithStints) => {
-    const bestLapTime = getBestLapTime(driver);
-    if (bestLapTime === null) return null;
-    const bestLapTimeInTraining = Math.min(
-      ...training.drivers.map((d) => {
-        const bestLap = getBestLapTime(d);
-        return bestLap !== null ? bestLap : Infinity;
-      }),
-    );
-    return bestLapTime - bestLapTimeInTraining;
-  };
-
-  /**
-   * Returns the time difference to the driver directly ahead in the sorted list.
-   * For the first driver, this will return 0.
-   */
-  const getDifferenceToNextDriver = (driver: DriverWithStints) => {
-    const sortedDrivers = sortDriversByBestLapTime(training.drivers);
-    const index = sortedDrivers.findIndex((d) => d.uuid === driver.uuid);
-    if (index === -1) return null;
-    if (index === 0) return 0; // No driver ahead, so difference is 0
-    const bestLapTime = getBestLapTime(driver);
-    const bestLapTimeOfNextDriver = getBestLapTime(sortedDrivers[index - 1]);
-    if (bestLapTime === null || bestLapTimeOfNextDriver === null) return null;
-    return bestLapTime - bestLapTimeOfNextDriver;
-  };
-
-  const sortiedDrivers = training
-    ? sortDriversByBestLapTime(training.drivers)
-    : [];
-
-  const getTimestampForFastestLap = (driver: DriverWithStints) => {
-    let fastestLapTime: number | null = null;
-    let fastestLapTimestamp: number | null = null;
-
-    driver.stints.forEach((stint) => {
-      stint.laps.forEach((lap) => {
-        if (
-          fastestLapTime === null ||
-          lap.time_with_penalties < fastestLapTime
-        ) {
-          fastestLapTime = lap.time_with_penalties;
-          fastestLapTimestamp = lap.timestamp;
-        }
-      });
-    });
-
-    return fastestLapTimestamp
-      ? new Date(fastestLapTimestamp).toLocaleTimeString("de", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-      : "N/A";
-  };
+  const sortiedDrivers = getDriverRanking(training.drivers).map(
+    (entry) => entry.driver,
+  );
 
   return (
     <Layout currentRoute="/training/[uuid]/view">
@@ -171,53 +100,66 @@ const TrainingViewPage = () => {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {sortiedDrivers.map((driver, index) => (
-                <Table.Tr key={driver.uuid}>
-                  <Table.Td>{index + 1}.</Table.Td>
-                  <Table.Td>
-                    K
-                    {training.mode === "JKS"
-                      ? (driver.driverClass?.jks ?? 7)
-                      : (driver.driverClass?.sks ?? 5)}
-                  </Table.Td>
-                  <Table.Td>
-                    {driver.firstName} {driver.lastName}
-                  </Table.Td>
-                  <Table.Td>
-                    <Text
-                      ff="monospace"
-                      fw="bold"
-                      c={index === 0 ? "grape" : ""}
-                    >
-                      {convertTimeToString(
-                        getBestLapTime(driver) !== null
-                          ? getBestLapTime(driver)
-                          : 0,
-                      )}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    +
-                    {convertTimeToString(
-                      getDifferenceToBestLap(driver) !== null
-                        ? getDifferenceToBestLap(driver)
-                        : 0,
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    +
-                    {convertTimeToString(
-                      getDifferenceToNextDriver(driver) !== null
-                        ? getDifferenceToNextDriver(driver)
-                        : 0,
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    {driver.stints.length * training.lapsPerStint}
-                  </Table.Td>
-                  <Table.Td>{getTimestampForFastestLap(driver)}</Table.Td>
-                </Table.Tr>
-              ))}
+              {sortiedDrivers.map((driver, index) => {
+                const fastestLap = getDriverFastestLap(driver);
+                const diffToBest = getDiffToBest(driver, training.drivers);
+                const diffToPrevious = getDiffToPrevious(
+                  driver,
+                  training.drivers,
+                );
+                const fastestLapTimestamp = getFastestLapTimestamp(driver);
+
+                return (
+                  <Table.Tr key={driver.uuid}>
+                    <Table.Td>{index + 1}.</Table.Td>
+                    <Table.Td>
+                      K
+                      {training.mode === "JKS"
+                        ? (driver.driverClass?.jks ?? 7)
+                        : (driver.driverClass?.sks ?? 5)}
+                    </Table.Td>
+                    <Table.Td>
+                      {driver.firstName} {driver.lastName}
+                    </Table.Td>
+                    <Table.Td>
+                      <Text
+                        ff="monospace"
+                        fw="bold"
+                        c={index === 0 ? "grape" : ""}
+                      >
+                        {fastestLap
+                          ? convertTimeToString(fastestLap.time_with_penalties)
+                          : "N/A"}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      {diffToBest !== undefined
+                        ? `+${convertTimeToString(diffToBest)}`
+                        : "N/A"}
+                    </Table.Td>
+                    <Table.Td>
+                      {diffToPrevious !== undefined
+                        ? `+${convertTimeToString(diffToPrevious)}`
+                        : "N/A"}
+                    </Table.Td>
+                    <Table.Td>
+                      {driver.stints.length * training.lapsPerStint}
+                    </Table.Td>
+                    <Table.Td>
+                      {fastestLapTimestamp
+                        ? new Date(fastestLapTimestamp).toLocaleTimeString(
+                            "de",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            },
+                          )
+                        : "N/A"}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
             </Table.Tbody>
           </Table>
 
