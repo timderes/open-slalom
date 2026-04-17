@@ -6,6 +6,7 @@ import {
   getDriverFastestLap,
   getDriverRanking,
   getFastestLap,
+  getLapPenaltySeconds,
   getValidLaps,
 } from "./selectors";
 
@@ -111,5 +112,23 @@ describe("training selectors", () => {
     expect(getDiffToPrevious(driverA, drivers)).toBe(0);
     expect(getDiffToPrevious(driverB, drivers)).toBe(100);
     expect(getDiffToPrevious(driverC, drivers)).toBeUndefined();
+  });
+
+  it("calculates lap penalty seconds from cones and gates", () => {
+    const lap = createLap({ cones: 2, gates: 1 });
+
+    expect(
+      getLapPenaltySeconds(lap, {
+        HIT_CONE: 2,
+        MISSED_GATE: 10,
+      }),
+    ).toBe(14);
+
+    expect(
+      getLapPenaltySeconds(lap, {
+        HIT_CONE: 3,
+        MISSED_GATE: 10,
+      }),
+    ).toBe(16);
   });
 });
