@@ -46,7 +46,7 @@ import {
 } from "@/lib/training/selectors";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { TrainingState } from "@/lib/training/trainingReducer";
+import type { TrainingState } from "@/lib/training/trainingReducer";
 import { useLocalStorage } from "@mantine/hooks";
 
 const TrainingPage = () => {
