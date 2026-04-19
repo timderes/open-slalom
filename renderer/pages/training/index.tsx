@@ -44,6 +44,10 @@ import {
   getLapPenaltySeconds,
   getTotalLapTime,
 } from "@/lib/training/selectors";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { TrainingState } from "@/lib/training/trainingReducer";
+import { useLocalStorage } from "@mantine/hooks";
 
 const TrainingPage = () => {
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
@@ -64,6 +68,19 @@ const TrainingPage = () => {
     trainingHasFinishedStints,
     isFinalLapInThisStint,
   } = conditions;
+  const router = useRouter();
+  const [restoreBackup] = useLocalStorage<Partial<TrainingState> | undefined>({
+    key: "training-backup",
+    defaultValue: undefined,
+  });
+
+  useEffect(() => {
+    if (!router.query.restoreBackup) return;
+
+    if (restoreBackup) {
+      actions.restoreBackup(restoreBackup);
+    }
+  }, [restoreBackup]);
 
   return (
     <>
@@ -153,6 +170,7 @@ const TrainingPage = () => {
                 isRunning: isRunning,
                 isFinished: isFinished,
                 trainingHasFinishedStints: trainingHasFinishedStints,
+                query: router.query,
               },
               null,
               2,
@@ -187,9 +205,7 @@ const TrainingPage = () => {
                     <ActionIcon
                       variant="default"
                       w="fit-content"
-                      disabled={
-                        currentStint.laps.length > 0 || isRunning
-                      }
+                      disabled={currentStint.laps.length > 0 || isRunning}
                     >
                       <IconSettings />
                     </ActionIcon>
@@ -362,12 +378,10 @@ const TrainingPage = () => {
                               const gates = fastestLap?.gates ?? 0;
                               const penalties =
                                 fastestLap !== undefined
-                                  ? `${cones}P ${gates}T (+${
-                                      getLapPenaltySeconds(
-                                        fastestLap,
-                                        timePenalties,
-                                      )
-                                     }s)`
+                                  ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
+                                      fastestLap,
+                                      timePenalties,
+                                    )}s)`
                                   : "N/A";
                               const timeStr = fastestLap
                                 ? convertTimeToString(
@@ -504,7 +518,9 @@ const TrainingPage = () => {
                 />
                 <Stack ta="left">
                   {(() => {
-                    const totalValidLapTime = getTotalLapTime(currentStint.laps);
+                    const totalValidLapTime = getTotalLapTime(
+                      currentStint.laps,
+                    );
                     const averageValidLap = getAverageLap(currentStint.laps);
 
                     return (
@@ -555,8 +571,7 @@ const TrainingPage = () => {
                               <Table.Td>
                                 {LAP_HAS_PENALTIES && (
                                   <Text c="red" fw="bold">
-                                    +{getLapPenaltySeconds(lap, timePenalties)}
-                                    s
+                                    +{getLapPenaltySeconds(lap, timePenalties)}s
                                   </Text>
                                 )}
                               </Table.Td>
@@ -591,7 +606,9 @@ const TrainingPage = () => {
                               </Table.Td>
                               <Table.Td>
                                 <Checkbox
-                                  onClick={() => actions.toggleLapInvalid(index)}
+                                  onClick={() =>
+                                    actions.toggleLapInvalid(index)
+                                  }
                                 />
                               </Table.Td>
                             </Table.Tr>

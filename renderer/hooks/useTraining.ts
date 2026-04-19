@@ -16,6 +16,7 @@ import database from "@/lib/database";
 import {
   initialState,
   trainingReducer,
+  TrainingState,
   type TrainingAction,
 } from "@/lib/training/trainingReducer";
 
@@ -48,7 +49,8 @@ const useTraining = () => {
   const hasDrivers = settings.values.drivers.length > 0;
   const isRunning = stopwatch.isRunning();
   const isFinished = state.laps.length === settings.values.lapsPerStint;
-  const isFinalLapInThisStint = state.currentLap === settings.values.lapsPerStint;
+  const isFinalLapInThisStint =
+    state.currentLap === settings.values.lapsPerStint;
   const trainingHasFinishedStints = settings.values.drivers.some(
     (driver) => (driver.stints?.length ?? 0) > 0,
   );
@@ -139,7 +141,9 @@ const useTraining = () => {
 
   const handleStopwatchReset = () => {
     const hasProgress =
-      state.laps.length > 0 || stopwatch.getElapsedRunningTime() > 0 || isRunning;
+      state.laps.length > 0 ||
+      stopwatch.getElapsedRunningTime() > 0 ||
+      isRunning;
 
     if (hasProgress) {
       modals.openConfirmModal({
@@ -191,6 +195,24 @@ const useTraining = () => {
   };
 
   const updateCurrentStateToNextDriver = () => {
+    // Before going to the next driver, make a safety backup of the current state
+    // in the local storage to prevent data loss in case of a crash or accidental refresh
+    //
+    // This backup can be used to restore the state and recover the training progress up
+    // to the last completed stint
+    const backup = JSON.stringify(state);
+    const backupSizeInBytes = new Blob([backup]).size;
+
+    // Chrome `localStorage` has a limit of 5 MB per origin, but to be safe we use 4.5 MB
+    if (backupSizeInBytes < 4.5 * 1024 * 1024) {
+      localStorage.setItem("training-backup", JSON.stringify(state));
+    } else {
+      notifyError(
+        "Sicherheitsbackup nicht möglich",
+        "Die Trainingsdaten sind größer als 4,5 MB. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen.",
+      );
+    }
+
     applyAction({ type: "SKIP" });
   };
 
@@ -281,6 +303,32 @@ const useTraining = () => {
       },
       confirmProps: { color: "red" },
     });
+  };
+
+  const handleRestoreTraining = (backup: Partial<TrainingState>) => {
+    if (!backup || !Array.isArray(backup.drivers)) {
+      notifyError(
+        "Wiederherstellung fehlgeschlagen",
+        "Ungültiges Backup des Trainings. Bitte versuchen Sie es erneut.",
+      );
+      return;
+    }
+
+    // restore form values used elsewhere in the UI
+    settings.setFieldValue("drivers", backup.drivers);
+    if (typeof backup.lapsPerStint === "number") {
+      settings.setFieldValue("lapsPerStint", backup.lapsPerStint);
+    }
+    if (backup.mode) {
+      settings.setFieldValue("mode", backup.mode);
+    }
+
+    // restore reducer state (stopwatch will remain stopped)
+    applyAction({ type: "RESTORE", payload: backup });
+    notifyInfo(
+      "Backup geladen",
+      "Das Training wurde erfolgreich aus dem Backup wiederhergestellt.",
+    );
   };
 
   const updateLapCones = (index: number, value: number | string) => {
@@ -385,6 +433,7 @@ const useTraining = () => {
       updateLapCones,
       updateLapGates,
       toggleLapInvalid,
+      restoreBackup: handleRestoreTraining,
     },
   };
 };

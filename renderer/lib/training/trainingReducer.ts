@@ -30,7 +30,8 @@ export type TrainingAction =
   | { type: "SET_MODE"; payload: SlalomType }
   | { type: "UPDATE_LAP_CONES"; payload: { index: number; cones: number } }
   | { type: "UPDATE_LAP_GATES"; payload: { index: number; gates: number } }
-  | { type: "TOGGLE_LAP_INVALID"; payload: { index: number } };
+  | { type: "TOGGLE_LAP_INVALID"; payload: { index: number } }
+  | { type: "RESTORE"; payload: Partial<TrainingState> };
 
 // =========================
 // INITIAL STATE
@@ -209,6 +210,27 @@ export const trainingReducer = (
       return {
         ...state,
         laps: updatedLaps,
+      };
+    }
+
+    case "RESTORE": {
+      const payload = action.payload;
+      const drivers = payload.drivers ?? state.drivers;
+      const currentDriverIndex =
+        payload.currentDriverIndex ?? state.currentDriverIndex;
+      const currentDriver =
+        payload.currentDriver ?? drivers[currentDriverIndex];
+
+      return {
+        drivers,
+        currentDriverIndex,
+        currentDriver,
+        laps: payload.laps ?? state.laps,
+        currentLap: payload.currentLap ?? state.currentLap,
+        lapsPerStint: payload.lapsPerStint ?? state.lapsPerStint,
+        mode: payload.mode ?? state.mode,
+        time: payload.time ?? 0,
+        isRunning: false,
       };
     }
 

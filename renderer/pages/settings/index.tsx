@@ -17,7 +17,10 @@ import {
   IconDatabaseExport,
   IconDatabaseImport,
   IconDatabaseMinus,
+  IconRestore,
 } from "@tabler/icons-react";
+import { useLocalStorage } from "@mantine/hooks";
+import { useRouter } from "next/router";
 
 // This page uses some hacky stuff to dynamically import the database
 // and dexie-export-import only on the client side, because both rely on
@@ -29,6 +32,11 @@ import {
 // DON'T LIKE HOW THE CODE LOOKS HERE, BUT IT WORKS...
 const SettingsPage = () => {
   const [dbVerno, setDbVerno] = useState<number | null>(null);
+  const router = useRouter();
+  const [restorableTrainings] = useLocalStorage<Training | undefined>({
+    key: "training-backup",
+    defaultValue: undefined,
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -206,6 +214,27 @@ const SettingsPage = () => {
     });
   };
 
+  const handleRestoreTraining = () => {
+    modals.openConfirmModal({
+      title: "Training wiederherstellen?",
+      children: (
+        <Text>
+          Es wurde ein Backup des letzten Trainings gefunden. Möchten Sie dieses
+          wiederherstellen?
+        </Text>
+      ),
+      labels: { confirm: "Wiederherstellen", cancel: "Abbrechen" },
+      color: "red",
+      confirmProps: { color: "red" },
+      onConfirm: () => {
+        void router.push({
+          pathname: "/training",
+          query: { restoreBackup: "true" },
+        });
+      },
+    });
+  };
+
   return (
     <Layout currentRoute="/settings">
       <Container my="sm">
@@ -240,6 +269,23 @@ const SettingsPage = () => {
               Löschen
             </Button>
           </Group>
+          <Divider label="Training" labelPosition="left" />
+          <Text>
+            Hier können Sie das letzte Training wiederherstellen, falls die App
+            unerwartet geschlossen wurde oder abstürzt. Das Backup wird
+            automatisch nach jedem abgeschlossenen Stint erstellt. Es enthält
+            nur die Daten des letzten Trainings und wird mit jedem neuen
+            Training überschrieben.
+          </Text>
+          <Button
+            leftSection={<IconRestore />}
+            disabled={!restorableTrainings}
+            color="red"
+            w="fit-content"
+            onClick={() => handleRestoreTraining()}
+          >
+            Training wiederherstellen
+          </Button>
         </Stack>
       </Container>
     </Layout>
