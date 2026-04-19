@@ -15,12 +15,6 @@ if (isProd) {
 (async () => {
   await app.whenReady();
 
-  // Hide Electron's default application menu because the app uses
-  // its own custom App Shell menu
-  //
-  // This also disables built-in Chromium shortcuts (for example: Ctrl+W)
-  Menu.setApplicationMenu(null);
-
   const mainWindow = createWindow("main", {
     width: 1000,
     height: 600,
@@ -30,6 +24,12 @@ if (isProd) {
   });
 
   if (isProd) {
+    // Hide Electron's default application menu because the app uses
+    // its own custom App Shell menu
+    //
+    // This also disables built-in Chromium shortcuts (for example: Ctrl+W)
+    Menu.setApplicationMenu(null);
+
     await mainWindow.loadURL("app://./");
   } else {
     const port = process.argv[2];
