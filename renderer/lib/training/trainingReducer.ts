@@ -229,7 +229,7 @@ export const trainingReducer = (
         currentLap: payload.currentLap ?? state.currentLap,
         lapsPerStint: payload.lapsPerStint ?? state.lapsPerStint,
         mode: payload.mode ?? state.mode,
-        time: payload.time ?? 0,
+        time: payload.time ?? state.time,
         isRunning: false,
       };
     }
