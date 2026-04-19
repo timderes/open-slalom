@@ -21,6 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { useLocalStorage } from "@mantine/hooks";
 import { useRouter } from "next/router";
+import type { TrainingState } from "@/lib/training/trainingReducer";
 
 // This page uses some hacky stuff to dynamically import the database
 // and dexie-export-import only on the client side, because both rely on
@@ -33,7 +34,7 @@ import { useRouter } from "next/router";
 const SettingsPage = () => {
   const [dbVerno, setDbVerno] = useState<number | null>(null);
   const router = useRouter();
-  const [restorableTrainings] = useLocalStorage<Training | undefined>({
+  const [restorableTrainings] = useLocalStorage<TrainingState | undefined>({
     key: "training-backup",
     defaultValue: undefined,
   });
