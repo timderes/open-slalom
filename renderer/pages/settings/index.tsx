@@ -34,7 +34,7 @@ import type { TrainingState } from "@/lib/training/trainingReducer";
 const SettingsPage = () => {
   const [dbVerno, setDbVerno] = useState<number | null>(null);
   const router = useRouter();
-  const [restorableTrainings] = useLocalStorage<TrainingState | undefined>({
+  const [restorableTraining] = useLocalStorage<TrainingState | undefined>({
     key: "training-backup",
     defaultValue: undefined,
   });
@@ -280,7 +280,7 @@ const SettingsPage = () => {
           </Text>
           <Button
             leftSection={<IconRestore />}
-            disabled={!restorableTrainings}
+            disabled={!restorableTraining}
             color="red"
             w="fit-content"
             onClick={() => handleRestoreTraining()}
