@@ -195,31 +195,6 @@ const useTraining = () => {
   };
 
   const updateCurrentStateToNextDriver = () => {
-    // Before going to the next driver, make a safety backup of the current state
-    // in the local storage to prevent data loss in case of a crash or accidental refresh
-    //
-    // This backup can be used to restore the state and recover the training progress up
-    // to the last completed stint
-    const backup = JSON.stringify(state);
-    const backupSizeInBytes = new Blob([backup]).size;
-
-    // Chrome `localStorage` has a limit of 5 MB per origin, but to be safe we use 4.5 MB
-    if (backupSizeInBytes < 4.5 * 1024 * 1024) {
-      try {
-        localStorage.setItem("training-backup", backup);
-      } catch (error: unknown) {
-        notifyError(
-          "Sicherheitsbackup fehlgeschlagen",
-          `Es konnte kein Backup erstellt werden. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen. Fehler: ${error instanceof DOMException ? error.message : String(error)}`,
-        );
-      }
-    } else {
-      notifyError(
-        "Sicherheitsbackup nicht möglich",
-        "Die Trainingsdaten sind größer als 4,5 MB. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen.",
-      );
-    }
-
     applyAction({ type: "SKIP" });
   };
 
@@ -250,6 +225,31 @@ const useTraining = () => {
     );
 
     updateCurrentStateToNextDriver();
+
+    // After going to the next driver, make a safety backup of the current state
+    // in the local storage to prevent data loss in case of a crash or accidental refresh
+    //
+    // This backup can be used to restore the state and recover the training progress up
+    // to the last completed stint
+    const backup = JSON.stringify(state);
+    const backupSizeInBytes = new Blob([backup]).size;
+
+    // Chrome `localStorage` has a limit of 5 MB per origin, but to be safe we use 4.5 MB
+    if (backupSizeInBytes < 4.5 * 1024 * 1024) {
+      try {
+        localStorage.setItem("training-backup", backup);
+      } catch (error: unknown) {
+        notifyError(
+          "Sicherheitsbackup fehlgeschlagen",
+          `Es konnte kein Backup erstellt werden. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen. Fehler: ${error instanceof DOMException ? error.message : String(error)}`,
+        );
+      }
+    } else {
+      notifyError(
+        "Sicherheitsbackup nicht möglich",
+        "Die Trainingsdaten sind größer als 4,5 MB. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen.",
+      );
+    }
   };
 
   const handleSkipDriver = () => {
