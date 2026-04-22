@@ -14,6 +14,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
 import {
   IconPencil,
   IconPlus,
@@ -58,8 +59,14 @@ const TrainingsIndexPage = () => {
 
   const handleDeleteTraining = (uuid: Training["uuid"]) => {
     const training = trainings?.find((t) => t.uuid === uuid);
+
     if (!training) {
-      console.error("Training not found", uuid);
+      notifications.show({
+        title: "Training nicht gefunden",
+        message: `Das Training mit der UUID ${uuid} konnte nicht gefunden werden. Wurde es möglicherweise bereits gelöscht?`,
+        color: "red",
+      });
+
       return;
     }
 
