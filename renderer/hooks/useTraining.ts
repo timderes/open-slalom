@@ -234,8 +234,11 @@ const useTraining = () => {
     const backup = JSON.stringify(state);
     const backupSizeInBytes = new Blob([backup]).size;
 
-    // Chrome `localStorage` has a limit of 5 MB per origin, but to be safe we use 4.5 MB
-    if (backupSizeInBytes < 4.5 * 1024 * 1024) {
+    // The local storage in chromium based browsers has a limit of 5 MB per origin,
+    // but to be safe we only use 4.5 MB
+    const maxBackupStorageSize = 4.5 * 1024 * 1024;
+
+    if (backupSizeInBytes < maxBackupStorageSize) {
       try {
         localStorage.setItem("training-backup", backup);
       } catch (error: unknown) {
