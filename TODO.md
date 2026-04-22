@@ -7,7 +7,7 @@ TODOs for the upcoming releases of the app.
 ### Features
 
 - [ ] feat: While the training view, allocating a kart to a driver. Before the driver stopwatch is started, it should be possible to change the kart. After the stopwatch is started, the kart should be locked in for the running stint.
-- [ ] feat: Add a "trainings view" route where the user can see all trainings that have been created. In this view, the user can also delete trainings.
+- [x] feat: Add a "trainings view" route where the user can see all trainings that have been created. In this view, the user can also delete trainings.
 
 ### Bugs
 
