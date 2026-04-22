@@ -97,9 +97,13 @@ const TrainingsIndexPage = () => {
             highlightOnHover
             withRowBorders={false}
             data={{
-              head: ["Datum", "Modus", "Fahrer", ""],
+              head: ["Datum", "Modus", "Fahrer", ""], // the "" is needed for the actions column
               body: trainings?.map((training) => [
-                new Date(training.createdAt).toLocaleDateString(),
+                new Date(training.createdAt).toLocaleDateString("de", {
+                  minute: "2-digit",
+                  hour: "2-digit",
+                  second: "2-digit",
+                }),
                 training.mode,
                 <AvatarGroup>
                   {(training.drivers ?? []).slice(0, 7).map((driver) => (
