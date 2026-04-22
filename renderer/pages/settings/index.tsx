@@ -229,7 +229,7 @@ const SettingsPage = () => {
       confirmProps: { color: "red" },
       onConfirm: () => {
         void router.push({
-          pathname: "/training",
+          pathname: "/trainings/active",
           query: { restoreBackup: "true" },
         });
       },

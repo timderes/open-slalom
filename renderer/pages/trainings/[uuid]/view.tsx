@@ -12,7 +12,6 @@ import {
   Badge,
   Code,
   Container,
-  Group,
   Stack,
   Table,
   Text,
@@ -27,7 +26,7 @@ const TrainingViewPage = () => {
 
   if (!uuid) {
     return (
-      <Layout currentRoute="/training/[uuid]/view">
+      <Layout currentRoute="/trainings">
         <Title>Training konnte nicht geladen werden!</Title>
         <Text>
           Starten Sie die App neu und versuchen Sie das Training erneut zu
@@ -42,7 +41,7 @@ const TrainingViewPage = () => {
 
   if (!training) {
     return (
-      <Layout currentRoute="/training/[uuid]/view">
+      <Layout currentRoute="/trainings">
         <Title>Training nicht gefunden!</Title>
         <Text>
           Das Training mit der UUID <Code>{uuid}</Code> konnte nicht gefunden.
@@ -57,7 +56,7 @@ const TrainingViewPage = () => {
   );
 
   return (
-    <Layout currentRoute="/training/[uuid]/view">
+    <Layout currentRoute="/trainings">
       <Container my="lg">
         <Stack>
           <Title>

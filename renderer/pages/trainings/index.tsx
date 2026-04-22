@@ -1,0 +1,137 @@
+import Layout from "@/components/shared/Layout";
+import ScrollableTable from "@/components/shared/SortableTable";
+import database from "@/lib/database";
+import {
+  Avatar,
+  AvatarGroup,
+  Button,
+  ButtonGroup,
+  Container,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Tooltip,
+} from "@mantine/core";
+import { modals } from "@mantine/modals";
+import {
+  IconPencil,
+  IconPlus,
+  IconSearch,
+  IconTrash,
+} from "@tabler/icons-react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useRouter } from "next/router";
+
+const TrainingsIndexPage = () => {
+  const router = useRouter();
+  const trainings = useLiveQuery(() => database.trainings.toArray(), [])?.sort(
+    (a, b) => {
+      if (a.createdAt < b.createdAt) return 1;
+      if (a.createdAt > b.createdAt) return -1;
+      return 0;
+    },
+  );
+
+  const TableActions = ({ uuid }: { uuid: Training["uuid"] }) => {
+    return (
+      <ButtonGroup ms="auto" w="fit-content" key={uuid}>
+        <Button onClick={() => router.push(`/trainings/${uuid}/view`)}>
+          <IconSearch />
+        </Button>
+        <Button
+          disabled
+          //onClick={() => router.push(`/drivers/edit/${uuid}`)}
+        >
+          <IconPencil />
+        </Button>
+        <Button
+          variant="filled"
+          bg="red"
+          onClick={() => handleDeleteTraining(uuid)}
+        >
+          <IconTrash />
+        </Button>
+      </ButtonGroup>
+    );
+  };
+
+  const handleDeleteTraining = (uuid: Training["uuid"]) => {
+    const training = trainings?.find((t) => t.uuid === uuid);
+    if (!training) {
+      console.error("Training not found", uuid);
+      return;
+    }
+
+    modals.openConfirmModal({
+      title: `Training löschen?`,
+      children: (
+        <Text>
+          Das {training.mode}-Training vom{" "}
+          {new Date(training.createdAt).toLocaleDateString()} wird gelöscht. Das
+          kann nicht rückgängig gemacht werden!
+        </Text>
+      ),
+      onConfirm: () => database.trainings.delete(training.uuid),
+      labels: { confirm: "Löschen", cancel: "Abbrechen" },
+      confirmProps: { color: "red" },
+      centered: true,
+    });
+  };
+
+  return (
+    <Layout currentRoute="/trainings">
+      <Container my="sm">
+        <Stack>
+          <Group justify="space-between">
+            <Title>Trainings</Title>
+            <Button
+              onClick={() => router.push("/trainings/active")}
+              leftSection={<IconPlus />}
+            >
+              Neues Training
+            </Button>
+          </Group>
+          <ScrollableTable
+            striped
+            highlightOnHover
+            withRowBorders={false}
+            data={{
+              head: ["Datum", "Modus", "Fahrer", ""],
+              body: trainings?.map((training) => [
+                new Date(training.createdAt).toLocaleDateString(),
+                training.mode,
+                <AvatarGroup>
+                  {(training.drivers ?? []).slice(0, 7).map((driver) => (
+                    <Tooltip
+                      key={driver.uuid}
+                      label={`${driver.firstName} ${driver.lastName}`}
+                      withArrow
+                    >
+                      <Avatar
+                        name={`${driver.firstName} ${driver.lastName}`}
+                        color="initials"
+                      />
+                    </Tooltip>
+                  ))}
+                  {(training.drivers?.length ?? 0) > 7 && (
+                    <Tooltip
+                      label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
+                      withArrow
+                    >
+                      <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
+                    </Tooltip>
+                  )}
+                </AvatarGroup>,
+                <TableActions uuid={training.uuid} />,
+              ]),
+              caption: `${trainings?.length || 0} Trainings wurden gefunden`,
+            }}
+          />
+        </Stack>
+      </Container>
+    </Layout>
+  );
+};
+
+export default TrainingsIndexPage;
