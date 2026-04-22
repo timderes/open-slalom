@@ -1,5 +1,5 @@
 import path from "path";
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import serve from "electron-serve";
 import { createWindow } from "./helpers";
 import registerFileIpcHandlers from "./ipc/files";
@@ -24,6 +24,12 @@ if (isProd) {
   });
 
   if (isProd) {
+    // Hide Electron's default application menu because the app uses
+    // its own custom App Shell menu
+    //
+    // This also disables built-in Chromium shortcuts (for example: Ctrl+W)
+    Menu.setApplicationMenu(null);
+
     await mainWindow.loadURL("app://./");
   } else {
     const port = process.argv[2];
