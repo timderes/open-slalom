@@ -88,7 +88,7 @@ const Layout = ({
           <Controls />
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md" className="no-print">
+      <AppShell.Navbar className="no-print">
         {APP_ROUTES.map((route) => (
           <NavLink
             active={currentRoute === route.path}
@@ -100,7 +100,7 @@ const Layout = ({
         ))}
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-      <AppShell.Footer p="md" component={Group} className="no-print">
+      <AppShell.Footer px="md" component={Group} className="no-print">
         <Text>{APP_VERSION}</Text>
         <NetworkStatus />
         <OsStatus />
