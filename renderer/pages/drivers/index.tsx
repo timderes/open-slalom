@@ -7,10 +7,7 @@ import {
   Avatar,
   Button,
   ButtonGroup,
-  Container,
   Group,
-  Stack,
-  Table,
   Text,
   Tooltip,
 } from "@mantine/core";
@@ -28,6 +25,7 @@ import { useRouter } from "next/router";
 import { modals } from "@mantine/modals";
 import PageHeader from "@/components/shared/PageHeader";
 import ScrollableTable from "@/components/shared/SortableTable";
+import PageContent from "@/components/shared/PageContent";
 
 const DriversPage = () => {
   const router = useRouter();
@@ -83,63 +81,61 @@ const DriversPage = () => {
 
   return (
     <Layout currentRoute="/drivers">
-      <Container my="sm">
-        <Stack>
-          <Group justify="space-between">
-            <PageHeader title="Fahrer" />
-            <Button
-              leftSection={<IconHelmet />}
-              onClick={() => router.push("/drivers/create")}
-              variant="filled"
-              w="fit-content"
-            >
-              Fahrer anlegen
-            </Button>
-          </Group>
-          <ScrollableTable
-            striped
-            highlightOnHover
-            withRowBorders={false}
-            data={{
-              head: ["Name", "", "Geburtsdatum", "JKS", "SKS"],
-              body: drivers
-                ? drivers.map((driver) => [
-                    <Group gap="md">
-                      <Avatar
-                        color="initials"
-                        name={`${driver.firstName} ${driver.lastName}`}
-                      />
-                      <Text>
-                        {driver.firstName} {driver.lastName}
-                      </Text>
-                    </Group>,
-                    driver.sex === "male" ? (
-                      <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
-                        <IconGenderMale />
-                      </Tooltip>
-                    ) : driver.sex === "female" ? (
-                      <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
-                        <IconGenderFemale />
-                      </Tooltip>
-                    ) : (
-                      <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
-                        <IconGenderTransgender />
-                      </Tooltip>
-                    ),
-                    `${new Date(driver.birthDate).toLocaleDateString("de", {
-                      ...DEFAULT_DATE_FORMAT,
-                      month: "long",
-                    })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
-                    `K${getJksClass({ birthDate: driver.birthDate })}`,
-                    `K${getSksClass({ birthDate: driver.birthDate })}`,
-                    tableActions(driver.uuid),
-                  ])
-                : [],
-              caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
-            }}
-          />
-        </Stack>
-      </Container>
+      <PageContent>
+        <Group justify="space-between">
+          <PageHeader title="Fahrer" />
+          <Button
+            leftSection={<IconHelmet />}
+            onClick={() => router.push("/drivers/create")}
+            variant="filled"
+            w="fit-content"
+          >
+            Fahrer anlegen
+          </Button>
+        </Group>
+        <ScrollableTable
+          striped
+          highlightOnHover
+          withRowBorders={false}
+          data={{
+            head: ["Name", "", "Geburtsdatum", "JKS", "SKS"],
+            body: drivers
+              ? drivers.map((driver) => [
+                  <Group gap="md">
+                    <Avatar
+                      color="initials"
+                      name={`${driver.firstName} ${driver.lastName}`}
+                    />
+                    <Text>
+                      {driver.firstName} {driver.lastName}
+                    </Text>
+                  </Group>,
+                  driver.sex === "male" ? (
+                    <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
+                      <IconGenderMale />
+                    </Tooltip>
+                  ) : driver.sex === "female" ? (
+                    <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
+                      <IconGenderFemale />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
+                      <IconGenderTransgender />
+                    </Tooltip>
+                  ),
+                  `${new Date(driver.birthDate).toLocaleDateString("de", {
+                    ...DEFAULT_DATE_FORMAT,
+                    month: "long",
+                  })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
+                  `K${getJksClass({ birthDate: driver.birthDate })}`,
+                  `K${getSksClass({ birthDate: driver.birthDate })}`,
+                  tableActions(driver.uuid),
+                ])
+              : [],
+            caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
+          }}
+        />
+      </PageContent>
     </Layout>
   );
 };

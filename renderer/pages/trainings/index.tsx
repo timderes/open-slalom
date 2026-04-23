@@ -1,4 +1,5 @@
 import Layout from "@/components/shared/Layout";
+import PageContent from "@/components/shared/PageContent";
 import PageHeader from "@/components/shared/PageHeader";
 import ScrollableTable from "@/components/shared/SortableTable";
 import { DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from "@/lib/constants";
@@ -8,9 +9,7 @@ import {
   AvatarGroup,
   Button,
   ButtonGroup,
-  Container,
   Group,
-  Stack,
   Text,
   Tooltip,
 } from "@mantine/core";
@@ -89,61 +88,59 @@ const TrainingsIndexPage = () => {
 
   return (
     <Layout currentRoute="/trainings">
-      <Container my="sm">
-        <Stack>
-          <Group justify="space-between">
-            <PageHeader title="Trainings" />
-            <Button
-              onClick={() => router.push("/trainings/active")}
-              leftSection={<IconPlus />}
-            >
-              Neues Training
-            </Button>
-          </Group>
-          <ScrollableTable
-            striped
-            highlightOnHover
-            withRowBorders={false}
-            data={{
-              head: ["Datum", "Modus", "Fahrer", ""], // the "" is needed for the actions column
-              body: trainings?.map((training) => [
-                new Date(training.createdAt).toLocaleDateString("de", {
-                  ...DEFAULT_DATE_FORMAT,
-                  ...DEFAULT_TIME_FORMAT,
-                  // This removes the seconds from the time format,
-                  // as they are not needed in the table view
-                  second: undefined,
-                }),
-                training.mode,
-                <AvatarGroup>
-                  {(training.drivers ?? []).slice(0, 7).map((driver) => (
-                    <Tooltip
-                      key={driver.uuid}
-                      label={`${driver.firstName} ${driver.lastName}`}
-                      withArrow
-                    >
-                      <Avatar
-                        name={`${driver.firstName} ${driver.lastName}`}
-                        color="initials"
-                      />
-                    </Tooltip>
-                  ))}
-                  {(training.drivers?.length ?? 0) > 7 && (
-                    <Tooltip
-                      label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
-                      withArrow
-                    >
-                      <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
-                    </Tooltip>
-                  )}
-                </AvatarGroup>,
-                <TableActions uuid={training.uuid} />,
-              ]),
-              caption: `${trainings?.length || 0} Trainings wurden gefunden`,
-            }}
-          />
-        </Stack>
-      </Container>
+      <PageContent>
+        <Group justify="space-between">
+          <PageHeader title="Trainings" />
+          <Button
+            onClick={() => router.push("/trainings/active")}
+            leftSection={<IconPlus />}
+          >
+            Neues Training
+          </Button>
+        </Group>
+        <ScrollableTable
+          striped
+          highlightOnHover
+          withRowBorders={false}
+          data={{
+            head: ["Datum", "Modus", "Fahrer", ""], // the "" is needed for the actions column
+            body: trainings?.map((training) => [
+              new Date(training.createdAt).toLocaleDateString("de", {
+                ...DEFAULT_DATE_FORMAT,
+                ...DEFAULT_TIME_FORMAT,
+                // This removes the seconds from the time format,
+                // as they are not needed in the table view
+                second: undefined,
+              }),
+              training.mode,
+              <AvatarGroup>
+                {(training.drivers ?? []).slice(0, 7).map((driver) => (
+                  <Tooltip
+                    key={driver.uuid}
+                    label={`${driver.firstName} ${driver.lastName}`}
+                    withArrow
+                  >
+                    <Avatar
+                      name={`${driver.firstName} ${driver.lastName}`}
+                      color="initials"
+                    />
+                  </Tooltip>
+                ))}
+                {(training.drivers?.length ?? 0) > 7 && (
+                  <Tooltip
+                    label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
+                    withArrow
+                  >
+                    <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
+                  </Tooltip>
+                )}
+              </AvatarGroup>,
+              <TableActions uuid={training.uuid} />,
+            ]),
+            caption: `${trainings?.length || 0} Trainings wurden gefunden`,
+          }}
+        />
+      </PageContent>
     </Layout>
   );
 };

@@ -1,4 +1,5 @@
 import Layout from "@/components/shared/Layout";
+import PageContent from "@/components/shared/PageContent";
 import PageHeader from "@/components/shared/PageHeader";
 import ScrollableTable from "@/components/shared/SortableTable";
 import database from "@/lib/database";
@@ -56,39 +57,37 @@ const KartsPage = () => {
 
   return (
     <Layout currentRoute="/karts">
-      <Container my="sm">
-        <Stack>
-          <Group justify="space-between">
-            <PageHeader title="Karts" />
-            <Button
-              // leftSection={<Icon />}
-              onClick={() => router.push("/karts/create")}
-              variant="filled"
-              w="fit-content"
-            >
-              Kart anlegen
-            </Button>
-          </Group>
-          <ScrollableTable
-            striped
-            highlightOnHover
-            withRowBorders={false}
-            data={{
-              head: ["Kart", "Type", "Chassis", "Motor", ""],
-              body: karts
-                ? karts.map((kart) => [
-                    `${kart.name}`,
-                    kart.type,
-                    kart.chassis,
-                    kart.engine,
-                    tableActions(kart.uuid),
-                  ])
-                : [],
-              caption: `${karts?.length || 0} Karts wurden gefunden`,
-            }}
-          />
-        </Stack>
-      </Container>
+      <PageContent>
+        <Group justify="space-between">
+          <PageHeader title="Karts" />
+          <Button
+            // leftSection={<Icon />}
+            onClick={() => router.push("/karts/create")}
+            variant="filled"
+            w="fit-content"
+          >
+            Kart anlegen
+          </Button>
+        </Group>
+        <ScrollableTable
+          striped
+          highlightOnHover
+          withRowBorders={false}
+          data={{
+            head: ["Kart", "Type", "Chassis", "Motor", ""],
+            body: karts
+              ? karts.map((kart) => [
+                  `${kart.name}`,
+                  kart.type,
+                  kart.chassis,
+                  kart.engine,
+                  tableActions(kart.uuid),
+                ])
+              : [],
+            caption: `${karts?.length || 0} Karts wurden gefunden`,
+          }}
+        />
+      </PageContent>
     </Layout>
   );
 };

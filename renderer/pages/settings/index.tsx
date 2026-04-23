@@ -2,15 +2,7 @@ import Layout from "@/components/shared/Layout";
 import PageHeader from "@/components/shared/PageHeader";
 import clearDatabase from "@/lib/database/utils/clearDatabase";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Code,
-  Container,
-  Divider,
-  Group,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Button, Code, Divider, Group, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import {
@@ -22,6 +14,7 @@ import {
 import { useLocalStorage } from "@mantine/hooks";
 import { useRouter } from "next/router";
 import type { TrainingState } from "@/lib/training/trainingReducer";
+import PageContent from "@/components/shared/PageContent";
 
 // This page uses some hacky stuff to dynamically import the database
 // and dexie-export-import only on the client side, because both rely on
@@ -238,57 +231,55 @@ const SettingsPage = () => {
 
   return (
     <Layout currentRoute="/settings">
-      <Container my="sm">
-        <Stack>
-          <PageHeader title="Einstellungen" />
-          <Divider label="Datenbank" labelPosition="left" />
-          <Text>
-            Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle
-            Trainings und die Karts. Das löschen der Datenbank kann nicht
-            rückgängig gemacht werden!
-          </Text>
-          <Code>Datenbank Version: {dbVerno}</Code>
-          <Group>
-            <Button
-              leftSection={<IconDatabaseImport />}
-              onClick={() => handleDatabaseImport()}
-            >
-              Datenbank importieren
-            </Button>
-            <Button
-              leftSection={<IconDatabaseExport />}
-              onClick={() => handleDatabaseExport()}
-            >
-              Exportieren
-            </Button>
-
-            <Button
-              leftSection={<IconDatabaseMinus />}
-              color="red"
-              onClick={() => handleDeleteDatabase()}
-            >
-              Löschen
-            </Button>
-          </Group>
-          <Divider label="Training" labelPosition="left" />
-          <Text>
-            Hier können Sie das letzte Training wiederherstellen, falls die App
-            unerwartet geschlossen wurde oder abstürzt. Das Backup wird
-            automatisch nach jedem abgeschlossenen Stint erstellt. Es enthält
-            nur die Daten des letzten Trainings und wird mit jedem neuen
-            Training überschrieben.
-          </Text>
+      <PageContent>
+        <PageHeader title="Einstellungen" />
+        <Divider label="Datenbank" labelPosition="left" />
+        <Text>
+          Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle
+          Trainings und die Karts. Das löschen der Datenbank kann nicht
+          rückgängig gemacht werden!
+        </Text>
+        <Code>Datenbank Version: {dbVerno}</Code>
+        <Group>
           <Button
-            leftSection={<IconRestore />}
-            disabled={!restorableTraining}
-            color="red"
-            w="fit-content"
-            onClick={() => handleRestoreTraining()}
+            leftSection={<IconDatabaseImport />}
+            onClick={() => handleDatabaseImport()}
           >
-            Training wiederherstellen
+            Datenbank importieren
           </Button>
-        </Stack>
-      </Container>
+          <Button
+            leftSection={<IconDatabaseExport />}
+            onClick={() => handleDatabaseExport()}
+          >
+            Exportieren
+          </Button>
+
+          <Button
+            leftSection={<IconDatabaseMinus />}
+            color="red"
+            onClick={() => handleDeleteDatabase()}
+          >
+            Löschen
+          </Button>
+        </Group>
+        <Divider label="Training" labelPosition="left" />
+        <Text>
+          Hier können Sie das letzte Training wiederherstellen, falls die App
+          unerwartet geschlossen wurde oder abstürzt. Das Backup wird
+          automatisch nach jedem abgeschlossenen Stint erstellt. Es enthält nur
+          die Daten des letzten Trainings und wird mit jedem neuen Training
+          überschrieben.
+        </Text>
+        <Button
+          leftSection={<IconRestore />}
+          disabled={!restorableTraining}
+          color="red"
+          w="fit-content"
+          onClick={() => handleRestoreTraining()}
+        >
+          Training wiederherstellen
+        </Button>
+      </PageContent>
     </Layout>
   );
 };

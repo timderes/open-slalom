@@ -1,11 +1,11 @@
 import Layout from "@/components/shared/Layout";
+import PageContent from "@/components/shared/PageContent";
 import PageHeader from "@/components/shared/PageHeader";
 import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
 import database from "@/lib/database";
 import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
 import {
   Button,
-  Container,
   Group,
   NativeSelect,
   NumberInput,
@@ -64,10 +64,10 @@ const DriverEditPage = () => {
   if (!uuid) {
     return (
       <Layout currentRoute="/drivers">
-        <Container my="sm">
+        <PageContent>
           <Title>Ungültige Fahrer-UUID</Title>
           <Text>Die eindeutige Kennung des Fahrers ist ungültig.</Text>
-        </Container>
+        </PageContent>
       </Layout>
     );
   }
@@ -75,13 +75,13 @@ const DriverEditPage = () => {
   if (!driver) {
     return (
       <Layout currentRoute="/drivers">
-        <Container my="sm">
+        <PageContent>
           <Title>Fahrer nicht gefunden</Title>
           <Text>
             Der Fahrer mit der angegebenen UUID wurde in der Datenbank nicht
             gefunden. Ist die Datenbank aktuell?
           </Text>
-        </Container>
+        </PageContent>
       </Layout>
     );
   }
@@ -144,88 +144,78 @@ const DriverEditPage = () => {
 
   return (
     <Layout currentRoute="/drivers">
-      <Container my="sm">
-        <Container my="sm">
+      <PageContent>
+        <PageHeader title="Fahrer bearbeiten" />
+        <form
+          onSubmit={form.onSubmit(
+            () => handleEditDriver(),
+            (errors) => {
+              const getFirstErrorField = Object.keys(errors)[0];
+              form.getInputProps(getFirstErrorField).onFocus();
+            },
+          )}
+        >
           <Stack>
-            <PageHeader title="Fahrer bearbeiten" />
-            <form
-              onSubmit={form.onSubmit(
-                () => handleEditDriver(),
-                (errors) => {
-                  const getFirstErrorField = Object.keys(errors)[0];
-                  form.getInputProps(getFirstErrorField).onFocus();
-                },
-              )}
-            >
-              <Stack>
-                <Group grow>
-                  <TextInput
-                    label="Vorname"
-                    placeholder="Max"
-                    {...form.getInputProps("firstName")}
-                    key={form.key("firstName")}
-                  />
-                  <TextInput
-                    label="Nachname"
-                    placeholder="Verstappen"
-                    {...form.getInputProps("lastName")}
-                    key={form.key("lastName")}
-                  />
-                </Group>
-                <Group grow>
-                  <DateInput
-                    valueFormat="DD. MMMM YYYY"
-                    value={
-                      form.values.birthDate
-                        ? new Date(form.values.birthDate)
-                        : null
-                    }
-                    onChange={(e) => handleBirthDateChange(e)}
-                    label="Geburtsdatum"
-                    placeholder="Geburtsdatum"
-                    key={form.key("birthDate")}
-                    error={form.getInputProps("birthDate").error}
-                  />
-                  <NativeSelect
-                    label="Geschlecht"
-                    data={GENDER_OPTIONS}
-                    key={form.key("sex")}
-                    {...form.getInputProps("sex")}
-                  />
-                </Group>
-                <Group grow>
-                  <NumberInput
-                    description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                    min={Math.min(...JKS_CLASSES)}
-                    max={Math.max(...JKS_CLASSES)}
-                    label="Klasse JKS"
-                    {...form.getInputProps("driverClass.jks")}
-                    key={form.key("driverClass.jks")}
-                  />
-                  <NumberInput
-                    description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                    min={Math.min(...SKS_CLASSES)}
-                    max={Math.max(...SKS_CLASSES)}
-                    label="Klasse SKS"
-                    {...form.getInputProps("driverClass.sks")}
-                    key={form.key("driverClass.sks")}
-                  />
-                </Group>
-                <Group mt="xl">
-                  <Button type="submit">Änderungen speichern</Button>
-                  <Button
-                    ms="auto"
-                    variant="subtle"
-                    onClick={() => handleGoBack()}
-                  >
-                    Zurück
-                  </Button>
-                </Group>
-              </Stack>
-            </form>
+            <Group grow>
+              <TextInput
+                label="Vorname"
+                placeholder="Max"
+                {...form.getInputProps("firstName")}
+                key={form.key("firstName")}
+              />
+              <TextInput
+                label="Nachname"
+                placeholder="Verstappen"
+                {...form.getInputProps("lastName")}
+                key={form.key("lastName")}
+              />
+            </Group>
+            <Group grow>
+              <DateInput
+                valueFormat="DD. MMMM YYYY"
+                value={
+                  form.values.birthDate ? new Date(form.values.birthDate) : null
+                }
+                onChange={(e) => handleBirthDateChange(e)}
+                label="Geburtsdatum"
+                placeholder="Geburtsdatum"
+                key={form.key("birthDate")}
+                error={form.getInputProps("birthDate").error}
+              />
+              <NativeSelect
+                label="Geschlecht"
+                data={GENDER_OPTIONS}
+                key={form.key("sex")}
+                {...form.getInputProps("sex")}
+              />
+            </Group>
+            <Group grow>
+              <NumberInput
+                description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
+                min={Math.min(...JKS_CLASSES)}
+                max={Math.max(...JKS_CLASSES)}
+                label="Klasse JKS"
+                {...form.getInputProps("driverClass.jks")}
+                key={form.key("driverClass.jks")}
+              />
+              <NumberInput
+                description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
+                min={Math.min(...SKS_CLASSES)}
+                max={Math.max(...SKS_CLASSES)}
+                label="Klasse SKS"
+                {...form.getInputProps("driverClass.sks")}
+                key={form.key("driverClass.sks")}
+              />
+            </Group>
+            <Group mt="xl">
+              <Button type="submit">Änderungen speichern</Button>
+              <Button ms="auto" variant="subtle" onClick={() => handleGoBack()}>
+                Zurück
+              </Button>
+            </Group>
           </Stack>
-        </Container>
-      </Container>
+        </form>
+      </PageContent>
     </Layout>
   );
 };

@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from "@/lib/constants";
 import calculateDriverAge from "@/lib/misc/calculateDriverAge";
+import PageContent from "@/components/shared/PageContent";
 
 const CreateDriverPage = () => {
   const router = useRouter();
@@ -117,83 +118,77 @@ const CreateDriverPage = () => {
 
   return (
     <Layout currentRoute="/drivers">
-      <Container my="sm">
-        <Stack>
-          <PageHeader title="Fahrer anlegen" />
-          <form
-            onSubmit={form.onSubmit(
-              () => handleCreateDriver(),
-              (errors) => {
-                // Focus first invalid field
-                const getFirstErrorField = Object.keys(errors)[0];
-                form.getInputProps(getFirstErrorField).onFocus();
-              },
-            )}
-          >
-            <Stack>
-              <Group grow>
-                <TextInput
-                  label="Vorname"
-                  placeholder="Max"
-                  {...form.getInputProps("firstName")}
-                  key={form.key("firstName")}
-                />
-                <TextInput
-                  label="Nachname"
-                  placeholder="Verstappen"
-                  {...form.getInputProps("lastName")}
-                  key={form.key("lastName")}
-                />
-              </Group>
-              <Group grow>
-                <DateInput
-                  valueFormat="DD. MMMM YYYY"
-                  value={form.values.birthDate}
-                  onChange={(e) => handleBirthDateChange(e)}
-                  label="Geburtsdatum"
-                  placeholder="Geburtsdatum"
-                  key={form.key("birthDate")}
-                  error={form.getInputProps("birthDate").error}
-                />
-                <NativeSelect
-                  label="Geschlecht"
-                  data={GENDER_OPTIONS}
-                  key={form.key("sex")}
-                  {...form.getInputProps("sex")}
-                />
-              </Group>
-              <Group grow>
-                <NumberInput
-                  description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                  min={Math.min(...JKS_CLASSES)}
-                  max={Math.max(...JKS_CLASSES)}
-                  label="Klasse JKS"
-                  {...form.getInputProps("driverClass.jks")}
-                  key={form.key("driverClass.jks")}
-                />
-                <NumberInput
-                  description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                  min={Math.min(...SKS_CLASSES)}
-                  max={Math.max(...SKS_CLASSES)}
-                  label="Klasse SKS"
-                  {...form.getInputProps("driverClass.sks")}
-                  key={form.key("driverClass.sks")}
-                />
-              </Group>
-              <Group mt="xl">
-                <Button type="submit">Fahrer erstellen</Button>
-                <Button
-                  ms="auto"
-                  variant="subtle"
-                  onClick={() => handleGoBack()}
-                >
-                  Zurück
-                </Button>
-              </Group>
-            </Stack>
-          </form>
-        </Stack>
-      </Container>
+      <PageContent>
+        <PageHeader title="Fahrer anlegen" />
+        <form
+          onSubmit={form.onSubmit(
+            () => handleCreateDriver(),
+            (errors) => {
+              // Focus first invalid field
+              const getFirstErrorField = Object.keys(errors)[0];
+              form.getInputProps(getFirstErrorField).onFocus();
+            },
+          )}
+        >
+          <Stack>
+            <Group grow>
+              <TextInput
+                label="Vorname"
+                placeholder="Max"
+                {...form.getInputProps("firstName")}
+                key={form.key("firstName")}
+              />
+              <TextInput
+                label="Nachname"
+                placeholder="Verstappen"
+                {...form.getInputProps("lastName")}
+                key={form.key("lastName")}
+              />
+            </Group>
+            <Group grow>
+              <DateInput
+                valueFormat="DD. MMMM YYYY"
+                value={form.values.birthDate}
+                onChange={(e) => handleBirthDateChange(e)}
+                label="Geburtsdatum"
+                placeholder="Geburtsdatum"
+                key={form.key("birthDate")}
+                error={form.getInputProps("birthDate").error}
+              />
+              <NativeSelect
+                label="Geschlecht"
+                data={GENDER_OPTIONS}
+                key={form.key("sex")}
+                {...form.getInputProps("sex")}
+              />
+            </Group>
+            <Group grow>
+              <NumberInput
+                description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
+                min={Math.min(...JKS_CLASSES)}
+                max={Math.max(...JKS_CLASSES)}
+                label="Klasse JKS"
+                {...form.getInputProps("driverClass.jks")}
+                key={form.key("driverClass.jks")}
+              />
+              <NumberInput
+                description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
+                min={Math.min(...SKS_CLASSES)}
+                max={Math.max(...SKS_CLASSES)}
+                label="Klasse SKS"
+                {...form.getInputProps("driverClass.sks")}
+                key={form.key("driverClass.sks")}
+              />
+            </Group>
+            <Group mt="xl">
+              <Button type="submit">Fahrer erstellen</Button>
+              <Button ms="auto" variant="subtle" onClick={() => handleGoBack()}>
+                Zurück
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </PageContent>
     </Layout>
   );
 };

@@ -1,9 +1,9 @@
 import Layout from "@/components/shared/Layout";
+import PageContent from "@/components/shared/PageContent";
 import PageHeader from "@/components/shared/PageHeader";
 import database from "@/lib/database";
 import {
   Button,
-  Container,
   Group,
   SegmentedControl,
   Stack,
@@ -82,64 +82,58 @@ const CreateKartPage = () => {
 
   return (
     <Layout currentRoute="/karts">
-      <Container my="sm">
-        <Stack>
-          <PageHeader title="Kart anlegen" />
-          <form
-            onSubmit={form.onSubmit(
-              () => handleCreateKart(),
-              (errors) => {
-                // Focus first invalid field
-                const getFirstErrorField = Object.keys(errors)[0];
-                form.getInputProps(getFirstErrorField).onFocus();
-              }
-            )}
-          >
-            <Stack>
-              <Group grow align="end">
-                <TextInput
-                  label="Kart"
-                  placeholder="Jugendkart #1"
-                  {...form.getInputProps("name")}
-                  key={form.key("name")}
-                />
-                <SegmentedControl
-                  color="blue"
-                  data={["JKS", "SKS"]}
-                  value={form.values.type}
-                  onChange={(value) =>
-                    form.setFieldValue("type", value as SlalomType)
-                  }
-                />
-              </Group>
-              <Group grow>
-                <TextInput
-                  label="Motor"
-                  placeholder="Honda GX-200"
-                  {...form.getInputProps("engine")}
-                  key={form.key("engine")}
-                />
-                <TextInput
-                  label="Chassis"
-                  placeholder="Mach1"
-                  {...form.getInputProps("chassis")}
-                  key={form.key("chassis")}
-                />
-              </Group>
-              <Group mt="xl">
-                <Button type="submit">Kart erstellen</Button>
-                <Button
-                  ms="auto"
-                  variant="subtle"
-                  onClick={() => handleGoBack()}
-                >
-                  Zurück
-                </Button>
-              </Group>
-            </Stack>
-          </form>
-        </Stack>
-      </Container>
+      <PageContent>
+        <PageHeader title="Kart anlegen" />
+        <form
+          onSubmit={form.onSubmit(
+            () => handleCreateKart(),
+            (errors) => {
+              // Focus first invalid field
+              const getFirstErrorField = Object.keys(errors)[0];
+              form.getInputProps(getFirstErrorField).onFocus();
+            },
+          )}
+        >
+          <Stack>
+            <Group grow align="end">
+              <TextInput
+                label="Kart"
+                placeholder="Jugendkart #1"
+                {...form.getInputProps("name")}
+                key={form.key("name")}
+              />
+              <SegmentedControl
+                color="blue"
+                data={["JKS", "SKS"]}
+                value={form.values.type}
+                onChange={(value) =>
+                  form.setFieldValue("type", value as SlalomType)
+                }
+              />
+            </Group>
+            <Group grow>
+              <TextInput
+                label="Motor"
+                placeholder="Honda GX-200"
+                {...form.getInputProps("engine")}
+                key={form.key("engine")}
+              />
+              <TextInput
+                label="Chassis"
+                placeholder="Mach1"
+                {...form.getInputProps("chassis")}
+                key={form.key("chassis")}
+              />
+            </Group>
+            <Group mt="xl">
+              <Button type="submit">Kart erstellen</Button>
+              <Button ms="auto" variant="subtle" onClick={() => handleGoBack()}>
+                Zurück
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </PageContent>
     </Layout>
   );
 };
