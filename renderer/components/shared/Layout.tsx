@@ -13,7 +13,7 @@ import {
   NavLink,
   Text,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useInterval } from "@mantine/hooks";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -32,7 +32,7 @@ export const APP_FOOTER_HEIGHT = 60; // px
 export const APP_NAVBAR_WIDTH = 200; // px
 export const APP_ASIDE_WIDTH = 300; // px
 
-const CURRENT_DATE = new Date().toLocaleDateString("de", {
+const currentDate = new Date().toLocaleDateString("de", {
   ...DEFAULT_DATE_FORMAT,
 });
 
@@ -45,27 +45,22 @@ const Layout = ({
   children,
   ...props
 }: LayoutProps) => {
-  const [CURRENT_TIME, setCurrentTime] = useState<string | null>(null);
-
+  const [currentTime, setCurrentTime] = useState<string>();
   const [opened, { toggle }] = useDisclosure();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(
-        new Date().toLocaleTimeString("de", {
-          ...DEFAULT_TIME_FORMAT,
-        })
-      );
-    }, 1000);
+  const interval = useInterval(() => {
     setCurrentTime(
       new Date().toLocaleTimeString("de", {
         ...DEFAULT_TIME_FORMAT,
-      })
+      }),
     );
-    return () => clearInterval(interval);
-  }, []);
+  }, 1000);
 
-  if (!CURRENT_TIME) return null;
+  useEffect(() => {
+    interval.start();
+
+    return interval.stop;
+  }, []);
 
   return (
     <AppShell
@@ -110,7 +105,7 @@ const Layout = ({
         <NetworkStatus />
         <OsStatus />
         <Text ms="auto">
-          {CURRENT_DATE} {CURRENT_TIME}
+          {currentDate ?? ""} {currentTime ?? ""}
         </Text>
       </AppShell.Footer>
     </AppShell>
