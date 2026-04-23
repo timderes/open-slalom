@@ -1,5 +1,7 @@
 import Layout from "@/components/shared/Layout";
+import PageHeader from "@/components/shared/PageHeader";
 import ScrollableTable from "@/components/shared/SortableTable";
+import { DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from "@/lib/constants";
 import database from "@/lib/database";
 import {
   Avatar,
@@ -10,7 +12,6 @@ import {
   Group,
   Stack,
   Text,
-  Title,
   Tooltip,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
@@ -91,7 +92,7 @@ const TrainingsIndexPage = () => {
       <Container my="sm">
         <Stack>
           <Group justify="space-between">
-            <Title>Trainings</Title>
+            <PageHeader title="Trainings" />
             <Button
               onClick={() => router.push("/trainings/active")}
               leftSection={<IconPlus />}
@@ -107,9 +108,11 @@ const TrainingsIndexPage = () => {
               head: ["Datum", "Modus", "Fahrer", ""], // the "" is needed for the actions column
               body: trainings?.map((training) => [
                 new Date(training.createdAt).toLocaleDateString("de", {
-                  minute: "2-digit",
-                  hour: "2-digit",
-                  second: "2-digit",
+                  ...DEFAULT_DATE_FORMAT,
+                  ...DEFAULT_TIME_FORMAT,
+                  // This removes the seconds from the time format,
+                  // as they are not needed in the table view
+                  second: undefined,
                 }),
                 training.mode,
                 <AvatarGroup>
