@@ -4,6 +4,7 @@ import database from "@/lib/database";
 import calculateDriverAge from "@/lib/misc/calculateDriverAge";
 import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
 import {
+  Avatar,
   Button,
   ButtonGroup,
   Container,
@@ -38,7 +39,7 @@ const DriversPage = () => {
       if (a.firstName.toLowerCase() < b.firstName.toLowerCase()) return -1;
       if (a.firstName.toLowerCase() > b.firstName.toLowerCase()) return 1;
       return 0;
-    }
+    },
   );
 
   const tableActions = (uuid: Driver["uuid"]) => {
@@ -103,7 +104,15 @@ const DriversPage = () => {
               head: ["Name", "", "Geburtsdatum", "JKS", "SKS"],
               body: drivers
                 ? drivers.map((driver) => [
-                    `${driver.firstName} ${driver.lastName}`,
+                    <Group gap="md">
+                      <Avatar
+                        color="initials"
+                        name={`${driver.firstName} ${driver.lastName}`}
+                      />
+                      <Text>
+                        {driver.firstName} {driver.lastName}
+                      </Text>
+                    </Group>,
                     driver.sex === "male" ? (
                       <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
                         <IconGenderMale />

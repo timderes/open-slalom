@@ -7,6 +7,7 @@ import database from "@/lib/database";
 import translateSex from "@/lib/misc/translateSex";
 import {
   ActionIcon,
+  Avatar,
   Button,
   Card,
   Container,
@@ -50,6 +51,11 @@ const DriverViewPage = () => {
       <Container my="sm">
         <Stack>
           <Group align="center">
+            <Avatar
+              size="xl"
+              color="initials"
+              name={`${driver.firstName} ${driver.lastName}`}
+            />
             <PageHeader title={driver.firstName + " " + driver.lastName} />
             <Tooltip
               label={`Das Profil von ${driver.firstName} bearbeiten`}
