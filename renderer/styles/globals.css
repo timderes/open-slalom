@@ -1,15 +1,45 @@
+/*
+ * Prevent the user from highlighting text in the application.
+ */
+*,
+*::before,
+*::after {
+    user-select: none;
+}
+
+/*
+ * Added to the title bar to allow dragging the window around. 
+ * This is necessary because Electron applications don't have a native title bar.
+ */
+.draggable {
+    -webkit-app-region: drag;
+    app-region: drag;
+}
+
+/*
+ * Since the entire title bar is draggable, we need to exclude interactive 
+ * elements like buttons, inputs, selects, and text areas from being draggable.
+ */
+.draggable button,
+.draggable input,
+.draggable select,
+.draggable textarea {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+}
+
 @media print {
 
     /* 
-        Ensure colors (especially backgrounds like Mantine Badge, UI components, etc.)
-        are preserved when printing.
-  
-        Browsers often strip or simplify colors in print mode to save ink,
-        which can make elements unreadable or lose their styling.
-
-        `print-color-adjust: exact` forces the browser to render colors
-        as they appear on screen.
-    */
+     * Ensure colors (especially backgrounds like Mantine Badge, UI components, etc.)
+     * are preserved when printing.
+     *
+     * Browsers often strip or simplify colors in print mode to save ink,
+     * which can make elements unreadable or lose their styling.
+     *
+     * `print-color-adjust: exact` forces the browser to render colors
+     * as they appear on screen.
+     */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
