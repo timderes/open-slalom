@@ -77,7 +77,7 @@ const Layout = ({
       padding={0}
       {...props}
     >
-      <AppShell.Header className="no-print">
+      <AppShell.Header className="draggable no-print">
         <Group h="100%" px="md" justify="space-between">
           <Group>
             {disableNavbar ? null : (
