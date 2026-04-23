@@ -49,7 +49,7 @@ import { useEffect } from "react";
 import type { TrainingState } from "@/lib/training/trainingReducer";
 import { useLocalStorage } from "@mantine/hooks";
 
-const TrainingPage = () => {
+const ActiveTrainingPage = () => {
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
   const {
     availableDrivers,
@@ -178,7 +178,7 @@ const TrainingPage = () => {
           </pre>
         </Drawer>
       </Drawer.Stack>
-      <Layout currentRoute="/training" disableNavbar>
+      <Layout currentRoute="/trainings" disableNavbar>
         <Container py="sm" fluid>
           <Grid>
             <Grid.Col span={12}>
@@ -627,4 +627,4 @@ const TrainingPage = () => {
   );
 };
 
-export default TrainingPage;
+export default ActiveTrainingPage;

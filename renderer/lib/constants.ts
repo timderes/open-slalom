@@ -31,8 +31,8 @@ export const APP_ROUTES = [
     label: "Startseite",
   },
   {
-    path: "/training",
-    label: "Training",
+    path: "/trainings",
+    label: "Trainings",
   },
   {
     path: "/drivers",

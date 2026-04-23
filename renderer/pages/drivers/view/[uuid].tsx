@@ -109,7 +109,7 @@ const DriverViewPage = () => {
                       <Button
                         size="xs"
                         onClick={() =>
-                          router.push(`/training/${training.uuid}/view`)
+                          router.push(`/trainings/${training.uuid}/view`)
                         }
                       >
                         <IconSearch />
