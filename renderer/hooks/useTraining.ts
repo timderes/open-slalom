@@ -25,11 +25,13 @@ type DisabledReasonKey = "start" | "lap" | "update" | "skip" | "stop";
 const useTraining = () => {
   const router = useRouter();
   const availableDrivers = useLiveQuery(() => database.drivers.toArray(), []);
+  const availableKarts = useLiveQuery(() => database.karts.toArray(), []);
   const stopwatch = useStopwatch();
   const settings = useForm<Training>({
     initialValues: {
       lapsPerStint: 3,
       drivers: [],
+      karts: [],
       mode: "JKS",
       uuid: uuidv4(),
       createdAt: Date.now(),
@@ -217,7 +219,14 @@ const useTraining = () => {
         driver.uuid === state.currentDriver?.uuid
           ? {
               ...driver,
-              stints: [...(driver.stints ?? []), { laps: state.laps }],
+              stints: [
+                ...(driver.stints ?? []),
+                {
+                  laps: state.laps,
+                  kart: state.currentDriver?.currentKart ?? null,
+                  driverId: driver.uuid,
+                },
+              ],
               updatedAt: Date.now(),
             }
           : driver,
@@ -364,6 +373,30 @@ const useTraining = () => {
     });
   };
 
+  const updateDriverKart = (driverId: Driver["uuid"], kart: Kart | null) => {
+    const updatedDrivers = settings.values.drivers.map((driver) =>
+      driver.uuid === driverId
+        ? {
+            ...driver,
+            currentKart: kart,
+            updatedAt: Date.now(),
+          }
+        : driver,
+    );
+
+    // 1. Form state update
+    settings.setFieldValue("drivers", updatedDrivers);
+
+    // 2. Reducer sync
+    applyAction({
+      type: "SET_DRIVERS",
+      payload: updatedDrivers,
+    });
+
+    // 3. Optional: persist in DB (falls du willst)
+    // database.drivers.update(driverId, { currentKart: kart });
+  };
+
   useEffect(() => {
     applyAction({ type: "SET_DRIVERS", payload: settings.values.drivers });
   }, [settings.values.drivers]);
@@ -414,6 +447,7 @@ const useTraining = () => {
 
   return {
     availableDrivers,
+    availableKarts,
     settings,
     timePenalties,
     currentStint: {
@@ -444,6 +478,7 @@ const useTraining = () => {
       updateLapGates,
       toggleLapInvalid,
       restoreBackup: handleRestoreTraining,
+      updateDriverKart,
     },
   };
 };

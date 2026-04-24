@@ -4,6 +4,7 @@ type Training = {
   lapsPerStint: number;
   mode: TrainingMode;
   drivers: DriverWithStints[];
+  karts: Kart[];
   uuid: string; // UUID v4
   createdAt: number; // Unix timestamp
   updatedAt: number; // Unix timestamp

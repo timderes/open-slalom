@@ -12,8 +12,10 @@ import {
   Grid,
   Group,
   Kbd,
+  MultiSelect,
   NumberInput,
   SegmentedControl,
+  Select,
   Stack,
   Table,
   Tabs,
@@ -54,6 +56,7 @@ const ActiveTrainingPage = () => {
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
   const {
     availableDrivers,
+    availableKarts,
     settings,
     timePenalties,
     currentStint,
@@ -160,6 +163,17 @@ const ActiveTrainingPage = () => {
                 }
               />
             </Stack>
+            <MultiSelect
+              label="Karts"
+              description="Wählen Sie die Karts aus, die in diesem Training verwendet werden."
+              data={
+                availableKarts?.map((kart) => {
+                  return { value: JSON.stringify(kart), label: kart.name };
+                }) ?? []
+              }
+              searchable
+              {...settings.getInputProps("karts")}
+            />
           </Stack>
         </Drawer>
         <Drawer size="100%" title="Entwickler" {...stack.register("dev")}>
@@ -344,7 +358,33 @@ const ActiveTrainingPage = () => {
                                 <Table.Td>
                                   {driver.firstName} {driver.lastName}
                                 </Table.Td>
-                                <Table.Td>N/A</Table.Td>
+                                <Table.Td>
+                                  <Select
+                                    data={
+                                      availableKarts?.map((kart) => ({
+                                        value: kart.uuid,
+                                        label: kart.name,
+                                      })) ?? []
+                                    }
+                                    value={driver.currentKart?.uuid ?? null}
+                                    onChange={(value) => {
+                                      const kart = availableKarts?.find(
+                                        (k) => k.uuid === value,
+                                      );
+
+                                      actions.updateDriverKart(
+                                        driver.uuid,
+                                        kart ?? null,
+                                      );
+                                    }}
+                                    placeholder="Kart zuweisen"
+                                    searchable
+                                    clearable
+                                    disabled={isRunning}
+                                    size="xs"
+                                    w="fit-content"
+                                  />
+                                </Table.Td>
                               </Table.Tr>
                             ))}
                           </Table.Tbody>
@@ -379,7 +419,7 @@ const ActiveTrainingPage = () => {
                             ({ driver, fastestLap, fastestLapTime }, idx) => {
                               const pos = `${idx + 1}.`;
                               const name = `${driver.firstName} ${driver.lastName}`;
-                              const kart = (driver as any).kart ?? "N/A";
+                              const kart = driver.currentKart?.name ?? "N/A";
                               const cones = fastestLap?.cones ?? 0;
                               const gates = fastestLap?.gates ?? 0;
                               const penalties =

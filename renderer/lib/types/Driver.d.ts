@@ -18,4 +18,5 @@ type Driver = {
  */
 type DriverWithStints = Driver & {
   stints: { laps: Lap[] }[];
+  currentKart?: Kart; // Optional current kart assignment
 };
