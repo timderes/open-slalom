@@ -1,6 +1,7 @@
 import Layout from "@/components/shared/Layout";
 import {
   ActionIcon,
+  Avatar,
   Button,
   ButtonGroup,
   Card,
@@ -94,6 +95,11 @@ const ActiveTrainingPage = () => {
           <Stack>
             {availableDrivers?.map((driver) => (
               <Group key={driver.uuid}>
+                <Avatar
+                  color="initials"
+                  name={`${driver.firstName} ${driver.lastName}`}
+                  size="sm"
+                />
                 <Text>
                   {driver.firstName} {driver.lastName}
                 </Text>
