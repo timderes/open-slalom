@@ -10,6 +10,8 @@ export type DriverRankingEntry = {
   fastestLap?: Lap;
   fastestLapTime?: number;
   kart?: Kart | null;
+  diffToBest?: number;
+  diffToPrevious?: number;
 };
 
 /**
@@ -22,13 +24,16 @@ export const getValidLaps = (laps: Lap[]) =>
  * Returns fastest valid lap (by time with penalties)
  */
 export const getFastestLap = (laps: Lap[]) => {
-  const validLaps = getValidLaps(laps);
+  let fastestLap: Lap | undefined = undefined;
 
-  if (validLaps.length === 0) return undefined;
+  for (const lap of laps) {
+    if (lap.isInvalid) continue;
+    if (!fastestLap || lap.time_with_penalties < fastestLap.time_with_penalties) {
+      fastestLap = lap;
+    }
+  }
 
-  return validLaps.reduce((fastest, lap) =>
-    lap.time_with_penalties < fastest.time_with_penalties ? lap : fastest,
-  );
+  return fastestLap;
 };
 
 /**
@@ -38,12 +43,17 @@ export const getAverageLap = (
   laps: Lap[],
   key: "time" | "time_with_penalties" = "time",
 ) => {
-  const validLaps = getValidLaps(laps);
+  let total = 0;
+  let count = 0;
 
-  if (validLaps.length === 0) return undefined;
+  for (const lap of laps) {
+    if (lap.isInvalid) continue;
+    total += lap[key];
+    count += 1;
+  }
 
-  const total = validLaps.reduce((sum, lap) => sum + lap[key], 0);
-  return total / validLaps.length;
+  if (count === 0) return undefined;
+  return total / count;
 };
 
 /**
@@ -53,15 +63,23 @@ export const getTotalLapTime = (
   laps: Lap[],
   key: "time" | "time_with_penalties" = "time",
 ) => {
-  const validLaps = getValidLaps(laps);
-  return validLaps.reduce((sum, lap) => sum + lap[key], 0);
+  let total = 0;
+  for (const lap of laps) {
+    if (lap.isInvalid) continue;
+    total += lap[key];
+  }
+  return total;
 };
 
 /**
  * Flatten all laps of a driver
  */
 export const getDriverLaps = (driver: DriverWithStints) =>
-  (driver.stints ?? []).flatMap((stint) => stint.laps ?? []);
+  (driver.stints ?? []).reduce<Lap[]>((acc, stint) => {
+    if (!stint?.laps || stint.laps.length === 0) return acc;
+    acc.push(...stint.laps);
+    return acc;
+  }, []);
 
 /**
  * Fastest lap of driver
@@ -80,14 +98,48 @@ export const getStintByLap = (driver: DriverWithStints, lap?: Lap) => {
   );
 };
 
+const getKartLookup = (availableKarts: Kart[]) =>
+  new Map(availableKarts.map((kart) => [kart.uuid, kart] as const));
+
+const resolveKartByUUID = (
+  kartUUID: string | null | undefined,
+  kartLookup: Map<string, Kart>,
+) => {
+  if (!kartUUID) return undefined;
+  return kartLookup.get(kartUUID);
+};
+
+const getDriverFastestLapWithStint = (driver: DriverWithStints) => {
+  let fastestLap: Lap | undefined = undefined;
+  let fastestStint: Stint | undefined = undefined;
+
+  for (const stint of driver.stints ?? []) {
+    for (const lap of stint.laps ?? []) {
+      if (lap.isInvalid) continue;
+
+      if (!fastestLap || lap.time_with_penalties < fastestLap.time_with_penalties) {
+        fastestLap = lap;
+        fastestStint = stint;
+      }
+    }
+  }
+
+  return { fastestLap, fastestStint };
+};
+
 /**
  * Resolve kart from stint
  */
 export const getKartByStint = (
   stint: Stint | undefined,
-  availableKarts: Kart[] = [],
+  availableKarts: Kart[] | Map<string, Kart> = [],
 ) => {
   if (!stint?.kartUUID) return undefined;
+
+  if (availableKarts instanceof Map) {
+    return resolveKartByUUID(stint.kartUUID, availableKarts);
+  }
+
   return availableKarts.find((kart) => kart.uuid === stint.kartUUID);
 };
 
@@ -97,7 +149,7 @@ export const getKartByStint = (
 export const getKartByLap = (
   lap: Lap | undefined,
   driver: DriverWithStints,
-  availableKarts: Kart[] = [],
+  availableKarts: Kart[] | Map<string, Kart> = [],
 ) => {
   const stint = getStintByLap(driver, lap);
   return getKartByStint(stint, availableKarts);
@@ -108,7 +160,7 @@ export const getKartByLap = (
  */
 export const getKartFromFastestLap = (
   driver: DriverWithStints,
-  availableKarts: Kart[] = [],
+  availableKarts: Kart[] | Map<string, Kart> = [],
 ) => {
   const fastestLap = getDriverFastestLap(driver);
   return getKartByLap(fastestLap, driver, availableKarts);
@@ -125,19 +177,33 @@ export const getKartDisplayName = (kart?: Kart | null) => kart?.name ?? "N/A";
 export const getDriverRanking = (
   drivers: DriverWithStints[],
   availableKarts: Kart[] = [],
-) =>
-  drivers
-    .map((driver, index) => {
-      const fastestLap = getDriverFastestLap(driver);
+) => {
+  const kartLookup = getKartLookup(availableKarts);
 
-      return {
+  const ranking = drivers
+    .reduce<
+      Array<{
+        driver: DriverWithStints;
+        fastestLap?: Lap;
+        fastestLapTime?: number;
+        kart: Kart | null;
+        index: number;
+      }>
+    >((acc, driver, index) => {
+      if (!driver) return acc;
+
+      const { fastestLap, fastestStint } = getDriverFastestLapWithStint(driver);
+
+      acc.push({
         driver,
         fastestLap,
         fastestLapTime: fastestLap?.time_with_penalties,
-        kart: getKartFromFastestLap(driver, availableKarts) ?? null,
+        kart: getKartByStint(fastestStint, kartLookup) ?? null,
         index,
-      };
-    })
+      });
+
+      return acc;
+    }, [])
     .sort((a, b) => {
       if (a.fastestLapTime === undefined && b.fastestLapTime === undefined) {
         return a.index - b.index;
@@ -150,22 +216,40 @@ export const getDriverRanking = (
     })
     .map(({ index, ...entry }): DriverRankingEntry => entry);
 
+  const bestTime = ranking[0]?.fastestLapTime;
+
+  return ranking.map((entry, index) => {
+    const current = entry.fastestLapTime;
+    const previous = ranking[index - 1]?.fastestLapTime;
+
+    return {
+      ...entry,
+      diffToBest:
+        current !== undefined && bestTime !== undefined
+          ? current - bestTime
+          : undefined,
+      diffToPrevious:
+        current === undefined
+          ? undefined
+          : index === 0
+            ? 0
+            : previous === undefined
+              ? undefined
+              : current - previous,
+    };
+  });
+};
+
 /**
  * Difference to best driver
  */
 export const getDiffToBest = (
   driver: DriverWithStints,
   drivers: DriverWithStints[],
+  availableKarts: Kart[] = [],
 ) => {
-  const driverFastest = getDriverFastestLap(driver);
-  if (!driverFastest) return undefined;
-
-  const ranking = getDriverRanking(drivers);
-  const best = ranking[0]?.fastestLap;
-
-  if (!best) return undefined;
-
-  return driverFastest.time_with_penalties - best.time_with_penalties;
+  const ranking = getDriverRanking(drivers, availableKarts);
+  return ranking.find((entry) => entry.driver.uuid === driver.uuid)?.diffToBest;
 };
 
 /**
@@ -174,20 +258,11 @@ export const getDiffToBest = (
 export const getDiffToPrevious = (
   driver: DriverWithStints,
   drivers: DriverWithStints[],
+  availableKarts: Kart[] = [],
 ) => {
-  const ranking = getDriverRanking(drivers);
-
-  const index = ranking.findIndex((entry) => entry.driver.uuid === driver.uuid);
-
-  if (index === -1) return undefined;
-  if (index === 0) return 0;
-
-  const current = ranking[index]?.fastestLap;
-  const previous = ranking[index - 1]?.fastestLap;
-
-  if (!current || !previous) return undefined;
-
-  return current.time_with_penalties - previous.time_with_penalties;
+  const ranking = getDriverRanking(drivers, availableKarts);
+  return ranking.find((entry) => entry.driver.uuid === driver.uuid)
+    ?.diffToPrevious;
 };
 
 /**

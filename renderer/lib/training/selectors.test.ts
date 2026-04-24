@@ -7,6 +7,7 @@ import {
   getDriverRanking,
   getFastestLap,
   getKartByLap,
+  getKartByStint,
   getKartDisplayName,
   getKartFromFastestLap,
   getLapPenaltySeconds,
@@ -126,6 +127,9 @@ describe("training selectors", () => {
 
     expect(getKartFromFastestLap(driver, [kartA])?.uuid).toBe(kartA.uuid);
     expect(getKartByLap(lap, driver, [kartA])?.name).toBe("Kart A");
+    expect(
+      getKartByStint(driver.stints[0], new Map([[kartA.uuid, kartA]]))?.name,
+    ).toBe("Kart A");
   });
 
   it("uses fallback name when kart is missing", () => {
@@ -134,7 +138,7 @@ describe("training selectors", () => {
     const ranking = getDriverRanking([driver], []);
 
     expect(ranking[0]?.kart).toBeNull();
-    expect(getKartDisplayName(ranking[0]?.kart)).toBe("Unknown Kart");
+    expect(getKartDisplayName(ranking[0]?.kart)).toBe("N/A");
   });
 
   it("computes best and previous diffs from valid laps only", () => {

@@ -3,17 +3,14 @@ import PageContent from "@/components/shared/PageContent";
 import database from "@/lib/database";
 import { formatTime } from "@/lib/time/formatTime";
 import {
-  getDiffToBest,
-  getDiffToPrevious,
-  getDriverFastestLap,
   getDriverRanking,
-  getFastestLapTimestamp,
   getKartByStint,
   getKartDisplayName,
 } from "@/lib/training/selectors";
 import { Badge, Code, Stack, Table, Text, Title } from "@mantine/core";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
+import { useMemo } from "react";
 
 const TrainingViewPage = () => {
   const router = useRouter();
@@ -36,6 +33,14 @@ const TrainingViewPage = () => {
 
   const training = useLiveQuery(() => database.trainings.get(uuid.toString()));
   const availableKarts = useLiveQuery(() => database.karts.toArray(), []) ?? [];
+  const kartLookup = useMemo(
+    () => new Map(availableKarts.map((kart) => [kart.uuid, kart] as const)),
+    [availableKarts],
+  );
+  const rankedDrivers = useMemo(
+    () => getDriverRanking(training?.drivers ?? [], availableKarts),
+    [training?.drivers, availableKarts],
+  );
 
   if (!training) {
     return (
@@ -50,8 +55,6 @@ const TrainingViewPage = () => {
       </Layout>
     );
   }
-
-  const rankedDrivers = getDriverRanking(training.drivers, availableKarts);
 
   return (
     <Layout currentRoute="/trainings">
@@ -97,14 +100,9 @@ const TrainingViewPage = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {rankedDrivers.map(({ driver, kart }, index) => {
-              const fastestLap = getDriverFastestLap(driver);
-              const diffToBest = getDiffToBest(driver, training.drivers);
-              const diffToPrevious = getDiffToPrevious(
-                driver,
-                training.drivers,
-              );
-              const fastestLapTimestamp = getFastestLapTimestamp(driver);
+            {rankedDrivers.map(
+              ({ driver, kart, fastestLap, diffToBest, diffToPrevious }, index) => {
+              const fastestLapTimestamp = fastestLap?.timestamp;
 
               return (
                 <Table.Tr key={driver.uuid}>
@@ -132,8 +130,8 @@ const TrainingViewPage = () => {
                   </Table.Td>
                   <Table.Td>
                     {diffToBest !== undefined
-                      ? formatTime(diffToBest, "gap")
-                      : "N/A"}
+                        ? formatTime(diffToBest, "gap")
+                        : "N/A"}
                   </Table.Td>
                   <Table.Td>
                     {diffToPrevious !== undefined
@@ -154,7 +152,8 @@ const TrainingViewPage = () => {
                   </Table.Td>
                 </Table.Tr>
               );
-            })}
+              },
+            )}
           </Table.Tbody>
         </Table>
 
@@ -163,7 +162,7 @@ const TrainingViewPage = () => {
           const rows = driver.stints.flatMap((stint, stintIndex) =>
             (() => {
               const kartName = getKartDisplayName(
-                getKartByStint(stint, availableKarts),
+                getKartByStint(stint, kartLookup),
               );
 
               return stint.laps.map((lap, lapIndex) => {

@@ -48,7 +48,7 @@ import {
   getTotalLapTime,
 } from "@/lib/training/selectors";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { TrainingState } from "@/lib/training/trainingReducer";
 import { useLocalStorage } from "@mantine/hooks";
 import { formatTime } from "@/lib/time/formatTime";
@@ -87,6 +87,73 @@ const ActiveTrainingPage = () => {
     }
   }, [restoreBackup]);
 
+  const selectedDrivers = useMemo(
+    () =>
+      (settings.values.drivers ?? []).filter(
+        (driver): driver is DriverWithStints => Boolean(driver),
+      ),
+    [settings.values.drivers],
+  );
+  const selectableDrivers = useMemo(
+    () =>
+      (availableDrivers ?? []).filter(
+        (driver): driver is Driver => Boolean(driver),
+      ),
+    [availableDrivers],
+  );
+
+  const fastestLapTableRows = useMemo<string[][]>(() => {
+    const driversWithFastest = getDriverRanking(selectedDrivers, availableKarts ?? []);
+    const bestTime = driversWithFastest[0]?.fastestLapTime;
+
+    return driversWithFastest.map(
+      ({ driver, fastestLap, fastestLapTime, kart }, idx) => {
+        const pos = `${idx + 1}.`;
+        const name = `${driver.firstName} ${driver.lastName}`;
+        const kartName = getKartDisplayName(kart);
+        const cones = fastestLap?.cones ?? 0;
+        const gates = fastestLap?.gates ?? 0;
+        const penalties =
+          fastestLap !== undefined
+            ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
+                fastestLap,
+                timePenalties,
+              )}s)`
+            : "N/A";
+        const timeStr = fastestLap
+          ? formatTime(fastestLap.time_with_penalties, "lap")
+          : "N/A";
+
+        const diffToBest =
+          fastestLapTime !== undefined
+            ? idx === 0 || bestTime === undefined
+              ? "-"
+              : `+${formatTime(fastestLapTime - bestTime, "gap")}`
+            : "N/A";
+
+        const date = fastestLap
+          ? new Date(fastestLap.timestamp).toTimeString().split(" ")[0]
+          : "N/A";
+
+        let totalRounds = 0;
+        for (const stint of driver.stints ?? []) {
+          totalRounds += stint.laps?.length ?? 0;
+        }
+
+        return [
+          pos,
+          name,
+          kartName,
+          timeStr,
+          diffToBest,
+          penalties,
+          date,
+          String(totalRounds),
+        ];
+      },
+    );
+  }, [availableKarts, selectedDrivers, timePenalties]);
+
   return (
     <>
       <Drawer.Stack>
@@ -97,7 +164,7 @@ const ActiveTrainingPage = () => {
           {...stack.register("drivers")}
         >
           <Stack>
-            {availableDrivers?.map((driver) => (
+            {selectableDrivers.map((driver) => (
               <Group key={driver.uuid}>
                 <Avatar
                   color="initials"
@@ -109,14 +176,14 @@ const ActiveTrainingPage = () => {
                 </Text>
                 <ActionIcon
                   color={
-                    settings.values.drivers.some((d) => d.uuid === driver.uuid)
+                    selectedDrivers.some((d) => d.uuid === driver.uuid)
                       ? "red"
                       : "blue"
                   }
                   ms="auto"
                   onClick={() => {
                     // Check if driver already was added to the training before and then preserve their stints
-                    const existing = settings.values.drivers.find(
+                    const existing = selectedDrivers.find(
                       (d) => d.uuid === driver.uuid,
                     );
                     actions.addDriver({
@@ -126,7 +193,7 @@ const ActiveTrainingPage = () => {
                     });
                   }}
                 >
-                  {settings.values.drivers.some(
+                  {selectedDrivers.some(
                     (d) => d.uuid === driver.uuid,
                   ) ? (
                     <IconUserMinus />
@@ -307,7 +374,7 @@ const ActiveTrainingPage = () => {
                     </Tabs.Tab>
                   </Tabs.List>
                   <Tabs.Panel value="starterList" my="lg">
-                    {settings.values.drivers.length === 0 ? (
+                    {selectedDrivers.length === 0 ? (
                       <Stack align="center">
                         <Text fz="h4">Es wurden keine Fahrer ausgewählt!</Text>
                         <Button
@@ -329,7 +396,7 @@ const ActiveTrainingPage = () => {
                             </Table.Tr>
                           </Table.Thead>
                           <Table.Tbody>
-                            {settings.values?.drivers.map((driver, _idx) => (
+                            {selectedDrivers.map((driver, _idx) => (
                               <Table.Tr
                                 key={driver.uuid}
                                 bg={
@@ -392,71 +459,7 @@ const ActiveTrainingPage = () => {
                           "Zeitpunkt",
                           "Runden",
                         ],
-                        body: (() => {
-                          const driversWithFastest = getDriverRanking(
-                            settings.values.drivers,
-                            availableKarts ?? [],
-                          );
-                          const bestTime =
-                            driversWithFastest[0]?.fastestLapTime;
-
-                          return driversWithFastest.map(
-                            (
-                              { driver, fastestLap, fastestLapTime, kart },
-                              idx,
-                            ) => {
-                              const pos = `${idx + 1}.`;
-                              const name = `${driver.firstName} ${driver.lastName}`;
-                              const kartName = getKartDisplayName(kart);
-                              const cones = fastestLap?.cones ?? 0;
-                              const gates = fastestLap?.gates ?? 0;
-                              const penalties =
-                                fastestLap !== undefined
-                                  ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
-                                      fastestLap,
-                                      timePenalties,
-                                    )}s)`
-                                  : "N/A";
-                              const timeStr = fastestLap
-                                ? formatTime(
-                                    fastestLap.time_with_penalties,
-                                    "lap",
-                                  )
-                                : "N/A";
-
-                              const diffToBest =
-                                fastestLapTime !== undefined
-                                  ? idx === 0 || bestTime === undefined
-                                    ? "-"
-                                    : `+${formatTime(
-                                        fastestLapTime - bestTime,
-                                        "gap",
-                                      )}`
-                                  : "N/A";
-
-                              const date = fastestLap
-                                ? new Date(fastestLap.timestamp)
-                                    .toTimeString()
-                                    .split(" ")[0]
-                                : "N/A";
-
-                              const totalRounds = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? [],
-                              ).length;
-
-                              return [
-                                pos,
-                                name,
-                                kartName,
-                                timeStr,
-                                diffToBest,
-                                penalties,
-                                date,
-                                totalRounds,
-                              ];
-                            },
-                          );
-                        })(),
+                        body: fastestLapTableRows,
                       }}
                     />
                   </Tabs.Panel>
@@ -554,7 +557,7 @@ const ActiveTrainingPage = () => {
                 />
                 {currentStint.laps.length === 0 ? (
                   <Text c="dimmed" fs="italic">
-                    {currentStint.driver.firstName} hat noch keine Runde
+                    {currentStint.driver?.firstName ?? "Der Fahrer"} hat noch keine Runde
                     absolviert...
                   </Text>
                 ) : (
