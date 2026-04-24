@@ -161,37 +161,40 @@ const TrainingViewPage = () => {
         {/* Tables for each driver with all Laps + penalties and timestamps */}
         {rankedDrivers.map(({ driver }) => {
           const rows = driver.stints.flatMap((stint, stintIndex) =>
-            stint.laps.map((lap, lapIndex) => {
-              const overallLap =
-                stintIndex * training.lapsPerStint + lapIndex + 1;
+            (() => {
               const kartName = getKartDisplayName(
                 getKartByStint(stint, availableKarts),
               );
 
-              return (
-                <Table.Tr key={`${driver.uuid}-${stintIndex}-${lapIndex}`}>
-                  <Table.Td>{overallLap}</Table.Td>
-                  <Table.Td>{stintIndex + 1}</Table.Td>
-                  <Table.Td>{lapIndex + 1}</Table.Td>
-                  <Table.Td>{kartName}</Table.Td>
-                  <Table.Td>
-                    <Badge ff="monospace">
-                      {formatTime(lap.time_with_penalties, "lap")}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>{lap.cones}</Table.Td>
-                  <Table.Td>{lap.gates}</Table.Td>
-                  {/*<Table.Td>{formatTime(penaltyMs, "gap")}</Table.Td>*/}
-                  <Table.Td>
-                    {new Date(lap.timestamp).toLocaleTimeString("de", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </Table.Td>
-                </Table.Tr>
-              );
-            }),
+              return stint.laps.map((lap, lapIndex) => {
+                const overallLap =
+                  stintIndex * training.lapsPerStint + lapIndex + 1;
+
+                return (
+                  <Table.Tr key={`${driver.uuid}-${stintIndex}-${lapIndex}`}>
+                    <Table.Td>{overallLap}</Table.Td>
+                    <Table.Td>{stintIndex + 1}</Table.Td>
+                    <Table.Td>{lapIndex + 1}</Table.Td>
+                    <Table.Td>{kartName}</Table.Td>
+                    <Table.Td>
+                      <Badge ff="monospace">
+                        {formatTime(lap.time_with_penalties, "lap")}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>{lap.cones}</Table.Td>
+                    <Table.Td>{lap.gates}</Table.Td>
+                    {/*<Table.Td>{formatTime(penaltyMs, "gap")}</Table.Td>*/}
+                    <Table.Td>
+                      {new Date(lap.timestamp).toLocaleTimeString("de", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              });
+            })(),
           );
 
           return (
