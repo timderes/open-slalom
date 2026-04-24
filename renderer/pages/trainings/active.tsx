@@ -189,7 +189,7 @@ const ActiveTrainingPage = () => {
                     actions.addDriver({
                       ...driver,
                       stints: existing ? existing.stints : [],
-                      currentKartUUID: existing?.currentKartUUID ?? null,
+                      currentKartUUID: existing?.currentKartUUID,
                     });
                   }}
                 >

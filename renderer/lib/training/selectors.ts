@@ -3,7 +3,7 @@ type TimePenalties = {
   MISSED_GATE: number;
 };
 
-export const UNKNOWN_KART_NAME = "Unknown Kart";
+export const UNKNOWN_KART_NAME = "N/A";
 
 export type DriverRankingEntry = {
   driver: DriverWithStints;
@@ -169,7 +169,8 @@ export const getKartFromFastestLap = (
 /**
  * Fallback-safe kart name for UI output
  */
-export const getKartDisplayName = (kart?: Kart | null) => kart?.name ?? "N/A";
+export const getKartDisplayName = (kart?: Kart | null) =>
+  kart?.name ?? UNKNOWN_KART_NAME;
 
 /**
  * DRIVER RANKING (with kart resolved from stint)
