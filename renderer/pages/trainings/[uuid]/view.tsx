@@ -8,6 +8,8 @@ import {
   getDriverFastestLap,
   getDriverRanking,
   getFastestLapTimestamp,
+  getKartByLap,
+  getKartDisplayName,
 } from "@/lib/training/selectors";
 import { Badge, Code, Stack, Table, Text, Title } from "@mantine/core";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -33,6 +35,7 @@ const TrainingViewPage = () => {
   }
 
   const training = useLiveQuery(() => database.trainings.get(uuid.toString()));
+  const availableKarts = useLiveQuery(() => database.karts.toArray(), []) ?? [];
 
   if (!training) {
     return (
@@ -48,9 +51,7 @@ const TrainingViewPage = () => {
     );
   }
 
-  const sortiedDrivers = getDriverRanking(training.drivers).map(
-    (entry) => entry.driver,
-  );
+  const rankedDrivers = getDriverRanking(training.drivers, availableKarts);
 
   return (
     <Layout currentRoute="/trainings">
@@ -87,6 +88,7 @@ const TrainingViewPage = () => {
               <Table.Th>#</Table.Th>
               <Table.Th>Klasse</Table.Th>
               <Table.Th>Fahrer</Table.Th>
+              <Table.Th>Kart</Table.Th>
               <Table.Th>Bestzeit</Table.Th>
               <Table.Th>Abstand</Table.Th>
               <Table.Th>Intervall</Table.Th>
@@ -95,7 +97,7 @@ const TrainingViewPage = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {sortiedDrivers.map((driver, index) => {
+            {rankedDrivers.map(({ driver, kart }, index) => {
               const fastestLap = getDriverFastestLap(driver);
               const diffToBest = getDiffToBest(driver, training.drivers);
               const diffToPrevious = getDiffToPrevious(
@@ -116,6 +118,7 @@ const TrainingViewPage = () => {
                   <Table.Td>
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
+                  <Table.Td>{getKartDisplayName(kart)}</Table.Td>
                   <Table.Td>
                     <Text
                       ff="monospace"
@@ -156,18 +159,21 @@ const TrainingViewPage = () => {
         </Table>
 
         {/* Tables for each driver with all Laps + penalties and timestamps */}
-        {sortiedDrivers.map((driver) => {
+        {rankedDrivers.map(({ driver }) => {
           const rows = driver.stints.flatMap((stint, stintIndex) =>
             stint.laps.map((lap, lapIndex) => {
               const overallLap =
                 stintIndex * training.lapsPerStint + lapIndex + 1;
-              const penaltyMs = Math.max(0, lap.time_with_penalties - lap.time);
+              const kartName = getKartDisplayName(
+                getKartByLap(lap, driver, availableKarts),
+              );
 
               return (
                 <Table.Tr key={`${driver.uuid}-${stintIndex}-${lapIndex}`}>
                   <Table.Td>{overallLap}</Table.Td>
                   <Table.Td>{stintIndex + 1}</Table.Td>
                   <Table.Td>{lapIndex + 1}</Table.Td>
+                  <Table.Td>{kartName}</Table.Td>
                   <Table.Td>
                     <Badge ff="monospace">
                       {formatTime(lap.time_with_penalties, "lap")}
@@ -199,6 +205,7 @@ const TrainingViewPage = () => {
                     <Table.Th>#</Table.Th>
                     <Table.Th>Stint</Table.Th>
                     <Table.Th>Runde</Table.Th>
+                    <Table.Th>Kart</Table.Th>
                     <Table.Th>Zeit</Table.Th>
                     <Table.Th>Pylonen-Fehler</Table.Th>
                     <Table.Th>Tor-Fehler</Table.Th>

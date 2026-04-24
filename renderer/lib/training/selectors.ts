@@ -3,10 +3,7 @@ type TimePenalties = {
   MISSED_GATE: number;
 };
 
-export type Stint = {
-  laps: Lap[];
-  kart: Kart | null;
-};
+export const UNKNOWN_KART_NAME = "Unknown Kart";
 
 export type DriverRankingEntry = {
   driver: DriverWithStints;
@@ -84,20 +81,61 @@ export const getStintByLap = (driver: DriverWithStints, lap?: Lap) => {
 };
 
 /**
+ * Resolve kart from stint
+ */
+export const getKartByStint = (
+  stint: Stint | undefined,
+  availableKarts: Kart[] = [],
+) => {
+  if (!stint?.kartUUID) return undefined;
+  return availableKarts.find((kart) => kart.uuid === stint.kartUUID);
+};
+
+/**
+ * Resolve kart from lap -> stint
+ */
+export const getKartByLap = (
+  lap: Lap | undefined,
+  driver: DriverWithStints,
+  availableKarts: Kart[] = [],
+) => {
+  const stint = getStintByLap(driver, lap);
+  return getKartByStint(stint, availableKarts);
+};
+
+/**
+ * Resolve kart from driver's fastest lap
+ */
+export const getKartFromFastestLap = (
+  driver: DriverWithStints,
+  availableKarts: Kart[] = [],
+) => {
+  const fastestLap = getDriverFastestLap(driver);
+  return getKartByLap(fastestLap, driver, availableKarts);
+};
+
+/**
+ * Fallback-safe kart name for UI output
+ */
+export const getKartDisplayName = (kart?: Kart | null) =>
+  kart?.name ?? UNKNOWN_KART_NAME;
+
+/**
  * DRIVER RANKING (with kart resolved from stint)
  */
-export const getDriverRanking = (drivers: DriverWithStints[]) =>
+export const getDriverRanking = (
+  drivers: DriverWithStints[],
+  availableKarts: Kart[] = [],
+) =>
   drivers
     .map((driver, index) => {
       const fastestLap = getDriverFastestLap(driver);
-
-      const stint = getStintByLap(driver, fastestLap);
 
       return {
         driver,
         fastestLap,
         fastestLapTime: fastestLap?.time_with_penalties,
-        kart: stint?.kart ?? null,
+        kart: getKartFromFastestLap(driver, availableKarts) ?? null,
         index,
       };
     })

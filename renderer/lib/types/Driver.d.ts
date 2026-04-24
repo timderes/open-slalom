@@ -17,6 +17,6 @@ type Driver = {
  * Extends the default driver profile with an array of laps.
  */
 type DriverWithStints = Driver & {
-  stints: { laps: Lap[] }[];
-  currentKart?: Kart; // Optional current kart assignment
+  stints: Stint[];
+  currentKartUUID?: Kart["uuid"] | null; // Optional kart assignment for the next stint
 };

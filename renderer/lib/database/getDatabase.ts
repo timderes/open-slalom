@@ -46,6 +46,47 @@ export default async function getDatabase() {
       });
   });
 
+  // This upgrade normalizes kart tracking in training data to use only kartUUID
+  // on stint level and removes persisted kart objects from training records.
+  db.version(3).upgrade((tx) => {
+    return tx
+      .table("trainings")
+      .toCollection()
+      .modify((training) => {
+        training.drivers.forEach((driver: DriverWithStints) => {
+          const mutableDriver = driver as DriverWithStints & {
+            currentKart?: Kart | null;
+            currentKartUUID?: string | null;
+          };
+
+          if (!("currentKartUUID" in mutableDriver)) {
+            mutableDriver.currentKartUUID =
+              mutableDriver.currentKart?.uuid ?? null;
+          }
+
+          delete mutableDriver.currentKart;
+
+          mutableDriver.stints.forEach((stint) => {
+            const mutableStint = stint as Stint & {
+              kart?: Kart | string | null;
+              driverId?: string;
+              kartUUID?: string | null;
+            };
+
+            if (typeof mutableStint.kartUUID !== "string") {
+              mutableStint.kartUUID =
+                typeof mutableStint.kart === "object" && mutableStint.kart
+                  ? mutableStint.kart.uuid ?? null
+                  : null;
+            }
+
+            delete mutableStint.kart;
+            delete mutableStint.driverId;
+          });
+        });
+      });
+  });
+
   instance = db;
   return instance;
 }

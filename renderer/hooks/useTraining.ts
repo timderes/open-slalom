@@ -223,8 +223,7 @@ const useTraining = () => {
                 ...(driver.stints ?? []),
                 {
                   laps: state.laps,
-                  kart: state.currentDriver?.currentKart ?? null,
-                  driverId: driver.uuid,
+                  kartUUID: state.currentDriver?.currentKartUUID ?? null,
                 },
               ],
               updatedAt: Date.now(),
@@ -373,12 +372,15 @@ const useTraining = () => {
     });
   };
 
-  const updateDriverKart = (driverId: Driver["uuid"], kart: Kart | null) => {
+  const updateDriverKart = (
+    driverId: Driver["uuid"],
+    kartUUID: Kart["uuid"] | null,
+  ) => {
     const updatedDrivers = settings.values.drivers.map((driver) =>
       driver.uuid === driverId
         ? {
             ...driver,
-            currentKart: kart,
+            currentKartUUID: kartUUID,
             updatedAt: Date.now(),
           }
         : driver,
@@ -394,7 +396,7 @@ const useTraining = () => {
     });
 
     // 3. Optional: persist in DB (falls du willst)
-    // database.drivers.update(driverId, { currentKart: kart });
+    // database.drivers.update(driverId, { currentKartUUID: kartUUID });
   };
 
   useEffect(() => {
@@ -456,7 +458,8 @@ const useTraining = () => {
       driver: state.currentDriver,
       laps: state.laps,
       time: state.time,
-    } satisfies Stint,
+      kartUUID: state.currentDriver?.currentKartUUID ?? null,
+    },
     conditions: {
       hasDriver,
       hasDrivers,

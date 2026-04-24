@@ -6,6 +6,9 @@ import {
   getDriverFastestLap,
   getDriverRanking,
   getFastestLap,
+  getKartByLap,
+  getKartDisplayName,
+  getKartFromFastestLap,
   getLapPenaltySeconds,
   getValidLaps,
 } from "./selectors";
@@ -20,7 +23,11 @@ const createLap = (overrides: Partial<Lap>): Lap => ({
   ...overrides,
 });
 
-const createDriver = (uuid: string, laps: Lap[]): DriverWithStints => ({
+const createDriver = (
+  uuid: string,
+  laps: Lap[],
+  kartUUID: string | null = null,
+): DriverWithStints => ({
   uuid,
   firstName: `First-${uuid}`,
   lastName: `Last-${uuid}`,
@@ -29,7 +36,7 @@ const createDriver = (uuid: string, laps: Lap[]): DriverWithStints => ({
   driverClass: { jks: 1, sks: 1 },
   createdAt: 1,
   updatedAt: 1,
-  stints: [{ laps }],
+  stints: [{ laps, kartUUID }],
 });
 
 describe("training selectors", () => {
@@ -91,6 +98,43 @@ describe("training selectors", () => {
 
     expect(ranking.map((entry) => entry.driver.uuid)).toEqual(["A", "B", "C"]);
     expect(getDriverFastestLap(driverC)).toBeUndefined();
+  });
+
+  it("resolves kart from fastest lap and lap->stint mapping", () => {
+    const kartA: Kart = {
+      uuid: "kart-a",
+      name: "Kart A",
+      createdAt: 1,
+      updatedAt: 1,
+      engine: "E",
+      chassis: "C",
+      type: "JKS",
+      history: {
+        laps: 0,
+        totalTrainingsSessions: 0,
+        totalTime: 0,
+        firstTraining: 0,
+        lastTraining: 0,
+      },
+    };
+    const lap = createLap({
+      timestamp: 101,
+      time_with_penalties: 990,
+      isInvalid: false,
+    });
+    const driver = createDriver("A", [lap], kartA.uuid);
+
+    expect(getKartFromFastestLap(driver, [kartA])?.uuid).toBe(kartA.uuid);
+    expect(getKartByLap(lap, driver, [kartA])?.name).toBe("Kart A");
+  });
+
+  it("uses fallback name when kart is missing", () => {
+    const lap = createLap({ timestamp: 201, isInvalid: false });
+    const driver = createDriver("A", [lap], "deleted-kart");
+    const ranking = getDriverRanking([driver], []);
+
+    expect(ranking[0]?.kart).toBeNull();
+    expect(getKartDisplayName(ranking[0]?.kart)).toBe("Unknown Kart");
   });
 
   it("computes best and previous diffs from valid laps only", () => {

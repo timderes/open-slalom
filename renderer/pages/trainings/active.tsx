@@ -43,6 +43,7 @@ import useTraining from "@/hooks/useTraining";
 import {
   getAverageLap,
   getDriverRanking,
+  getKartDisplayName,
   getLapPenaltySeconds,
   getTotalLapTime,
 } from "@/lib/training/selectors";
@@ -121,6 +122,7 @@ const ActiveTrainingPage = () => {
                     actions.addDriver({
                       ...driver,
                       stints: existing ? existing.stints : [],
+                      currentKartUUID: existing?.currentKartUUID ?? null,
                     });
                   }}
                 >
@@ -163,15 +165,15 @@ const ActiveTrainingPage = () => {
                 }
               />
             </Stack>
-            <MultiSelect
-              label="Karts"
-              description="Wählen Sie die Karts aus, die in diesem Training verwendet werden."
-              data={
-                availableKarts?.map((kart) => {
-                  return { value: JSON.stringify(kart), label: kart.name };
-                }) ?? []
-              }
-              searchable
+              <MultiSelect
+                label="Karts"
+                description="Wählen Sie die Karts aus, die in diesem Training verwendet werden."
+                data={
+                  availableKarts?.map((kart) => {
+                    return { value: kart.uuid, label: kart.name };
+                  }) ?? []
+                }
+                searchable
               {...settings.getInputProps("karts")}
             />
           </Stack>
@@ -360,24 +362,20 @@ const ActiveTrainingPage = () => {
                                 </Table.Td>
                                 <Table.Td>
                                   <Select
-                                    data={
-                                      availableKarts?.map((kart) => ({
-                                        value: kart.uuid,
-                                        label: kart.name,
-                                      })) ?? []
-                                    }
-                                    value={driver.currentKart?.uuid ?? null}
-                                    onChange={(value) => {
-                                      const kart = availableKarts?.find(
-                                        (k) => k.uuid === value,
-                                      );
-
-                                      actions.updateDriverKart(
-                                        driver.uuid,
-                                        kart ?? null,
-                                      );
-                                    }}
-                                    placeholder="Kart zuweisen"
+                                     data={
+                                       availableKarts?.map((kart) => ({
+                                         value: kart.uuid,
+                                         label: kart.name,
+                                       })) ?? []
+                                     }
+                                     value={driver.currentKartUUID ?? null}
+                                     onChange={(value) => {
+                                       actions.updateDriverKart(
+                                         driver.uuid,
+                                         value ?? null,
+                                       );
+                                     }}
+                                     placeholder="Kart zuweisen"
                                     searchable
                                     clearable
                                     disabled={isRunning}
@@ -411,18 +409,19 @@ const ActiveTrainingPage = () => {
                         body: (() => {
                           const driversWithFastest = getDriverRanking(
                             settings.values.drivers,
+                            availableKarts ?? [],
                           );
                           const bestTime =
                             driversWithFastest[0]?.fastestLapTime;
 
-                          return driversWithFastest.map(
-                            ({ driver, fastestLap, fastestLapTime }, idx) => {
-                              const pos = `${idx + 1}.`;
-                              const name = `${driver.firstName} ${driver.lastName}`;
-                              const kart = driver.currentKart?.name ?? "N/A";
-                              const cones = fastestLap?.cones ?? 0;
-                              const gates = fastestLap?.gates ?? 0;
-                              const penalties =
+                           return driversWithFastest.map(
+                             ({ driver, fastestLap, fastestLapTime, kart }, idx) => {
+                               const pos = `${idx + 1}.`;
+                               const name = `${driver.firstName} ${driver.lastName}`;
+                               const kartName = getKartDisplayName(kart);
+                               const cones = fastestLap?.cones ?? 0;
+                               const gates = fastestLap?.gates ?? 0;
+                               const penalties =
                                 fastestLap !== undefined
                                   ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
                                       fastestLap,
@@ -459,7 +458,7 @@ const ActiveTrainingPage = () => {
                               return [
                                 pos,
                                 name,
-                                kart,
+                                kartName,
                                 timeStr,
                                 diffToBest,
                                 penalties,
