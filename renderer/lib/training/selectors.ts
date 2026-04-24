@@ -117,8 +117,7 @@ export const getKartFromFastestLap = (
 /**
  * Fallback-safe kart name for UI output
  */
-export const getKartDisplayName = (kart?: Kart | null) =>
-  kart?.name ?? UNKNOWN_KART_NAME;
+export const getKartDisplayName = (kart?: Kart | null) => kart?.name ?? "N/A";
 
 /**
  * DRIVER RANKING (with kart resolved from stint)

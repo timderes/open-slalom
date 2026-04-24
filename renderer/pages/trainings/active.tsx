@@ -165,17 +165,6 @@ const ActiveTrainingPage = () => {
                 }
               />
             </Stack>
-              <MultiSelect
-                label="Karts"
-                description="Wählen Sie die Karts aus, die in diesem Training verwendet werden."
-                data={
-                  availableKarts?.map((kart) => {
-                    return { value: kart.uuid, label: kart.name };
-                  }) ?? []
-                }
-                searchable
-              {...settings.getInputProps("karts")}
-            />
           </Stack>
         </Drawer>
         <Drawer size="100%" title="Entwickler" {...stack.register("dev")}>
@@ -297,10 +286,7 @@ const ActiveTrainingPage = () => {
                         disabled={isRunning}
                         onClick={() => actions.stopTraining()}
                       >
-                        Training beenden{" "}
-                        <Kbd size="xs" ms="xs">
-                          ESC
-                        </Kbd>
+                        Training beenden
                       </Button>
                     </Tooltip>
                   </Group>
@@ -362,25 +348,25 @@ const ActiveTrainingPage = () => {
                                 </Table.Td>
                                 <Table.Td>
                                   <Select
-                                     data={
-                                       availableKarts?.map((kart) => ({
-                                         value: kart.uuid,
-                                         label: kart.name,
-                                       })) ?? []
-                                     }
-                                     value={driver.currentKartUUID ?? null}
-                                     onChange={(value) => {
-                                       actions.updateDriverKart(
-                                         driver.uuid,
-                                         value ?? null,
-                                       );
-                                     }}
-                                     placeholder="Kart zuweisen"
-                                    searchable
+                                    data={
+                                      availableKarts?.map((kart) => ({
+                                        value: kart.uuid,
+                                        label: kart.name,
+                                      })) ?? []
+                                    }
+                                    value={driver.currentKartUUID ?? null}
+                                    onChange={(value) => {
+                                      actions.updateDriverKart(
+                                        driver.uuid,
+                                        value ?? null,
+                                      );
+                                    }}
+                                    placeholder="Kart zuweisen"
                                     clearable
                                     disabled={isRunning}
                                     size="xs"
                                     w="fit-content"
+                                    variant="filled"
                                   />
                                 </Table.Td>
                               </Table.Tr>
@@ -414,14 +400,17 @@ const ActiveTrainingPage = () => {
                           const bestTime =
                             driversWithFastest[0]?.fastestLapTime;
 
-                           return driversWithFastest.map(
-                             ({ driver, fastestLap, fastestLapTime, kart }, idx) => {
-                               const pos = `${idx + 1}.`;
-                               const name = `${driver.firstName} ${driver.lastName}`;
-                               const kartName = getKartDisplayName(kart);
-                               const cones = fastestLap?.cones ?? 0;
-                               const gates = fastestLap?.gates ?? 0;
-                               const penalties =
+                          return driversWithFastest.map(
+                            (
+                              { driver, fastestLap, fastestLapTime, kart },
+                              idx,
+                            ) => {
+                              const pos = `${idx + 1}.`;
+                              const name = `${driver.firstName} ${driver.lastName}`;
+                              const kartName = getKartDisplayName(kart);
+                              const cones = fastestLap?.cones ?? 0;
+                              const gates = fastestLap?.gates ?? 0;
+                              const penalties =
                                 fastestLap !== undefined
                                   ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
                                       fastestLap,
@@ -563,108 +552,118 @@ const ActiveTrainingPage = () => {
                   }
                   labelPosition="left"
                 />
-                <Stack ta="left">
-                  {(() => {
-                    const totalValidLapTime = getTotalLapTime(
-                      currentStint.laps,
-                    );
-                    const averageValidLap = getAverageLap(currentStint.laps);
+                {currentStint.laps.length === 0 ? (
+                  <Text c="dimmed" fs="italic">
+                    {currentStint.driver.firstName} hat noch keine Runde
+                    absolviert...
+                  </Text>
+                ) : (
+                  <Stack ta="left">
+                    {(() => {
+                      const totalValidLapTime = getTotalLapTime(
+                        currentStint.laps,
+                      );
+                      const averageValidLap = getAverageLap(currentStint.laps);
 
-                    return (
-                      <Text opacity={0.7}>
-                        Gesamtzeit: {formatTime(totalValidLapTime, "lap")}{" "}
-                        &mdash; &#x00D8;{" "}
-                        {averageValidLap === undefined
-                          ? "N/A"
-                          : formatTime(averageValidLap, "lap")}
-                      </Text>
-                    );
-                  })()}
-                  <Table.ScrollContainer minWidth="auto" maxHeight={300}>
-                    <Table striped highlightOnHover stickyHeader>
-                      <Table.Thead>
-                        <Table.Tr>
-                          <Table.Th>Runde</Table.Th>
-                          <Table.Th>Zeit</Table.Th>
-                          <Table.Th>Zeitstrafe</Table.Th>
-                          <Table.Th>Pylonen</Table.Th>
-                          <Table.Th>Tore</Table.Th>
-                          <Table.Th>Ungültig</Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>
-                        {currentStint.laps.map((lap, index) => {
-                          const LAP_HAS_PENALTIES =
-                            lap.cones !== 0 || lap.gates !== 0;
+                      return (
+                        <Text opacity={0.7}>
+                          Gesamtzeit: {formatTime(totalValidLapTime, "lap")}{" "}
+                          &mdash; &#x00D8;{" "}
+                          {averageValidLap === undefined
+                            ? "N/A"
+                            : formatTime(averageValidLap, "lap")}
+                        </Text>
+                      );
+                    })()}
 
-                          return (
-                            <Table.Tr key={lap.timestamp}>
-                              <Table.Td>
-                                <Group gap={5}>
-                                  {index + 1}
-                                  {LAP_HAS_PENALTIES && (
-                                    <IconAlertSquareRounded
-                                      color="red"
-                                      size={24}
-                                    />
-                                  )}
-                                </Group>
-                              </Table.Td>
-                              <Table.Td>
-                                <Text component="span">
-                                  {formatTime(lap.time, "lap")}
-                                </Text>
-                              </Table.Td>
-                              <Table.Td>
-                                {LAP_HAS_PENALTIES && (
-                                  <Text c="red" fw="bold">
-                                    +{getLapPenaltySeconds(lap, timePenalties)}s
+                    <Table.ScrollContainer minWidth="auto" maxHeight={300}>
+                      <Table striped highlightOnHover stickyHeader>
+                        <Table.Thead>
+                          <Table.Tr>
+                            <Table.Th>Runde</Table.Th>
+                            <Table.Th>Zeit</Table.Th>
+                            <Table.Th>Zeitstrafe</Table.Th>
+                            <Table.Th>Pylonen</Table.Th>
+                            <Table.Th>Tore</Table.Th>
+                            <Table.Th>Ungültig</Table.Th>
+                          </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                          {currentStint.laps.map((lap, index) => {
+                            const LAP_HAS_PENALTIES =
+                              lap.cones !== 0 || lap.gates !== 0;
+
+                            return (
+                              <Table.Tr key={lap.timestamp}>
+                                <Table.Td>
+                                  <Group gap={5}>
+                                    {index + 1}
+                                    {LAP_HAS_PENALTIES && (
+                                      <IconAlertSquareRounded
+                                        color="red"
+                                        size={24}
+                                      />
+                                    )}
+                                  </Group>
+                                </Table.Td>
+                                <Table.Td>
+                                  <Text component="span">
+                                    {formatTime(lap.time, "lap")}
                                   </Text>
-                                )}
-                              </Table.Td>
-                              <Table.Td>
-                                <NumberInput
-                                  defaultValue={0}
-                                  maw={100}
-                                  min={0}
-                                  max={99}
-                                  variant="unstyled"
-                                  onChange={(val) =>
-                                    actions.updateLapCones(index, val ?? 0)
-                                  }
-                                />
-                              </Table.Td>
-                              <Table.Td>
-                                <NumberInput
-                                  style={{
-                                    color: LAP_HAS_PENALTIES
-                                      ? "white"
-                                      : undefined,
-                                  }}
-                                  defaultValue={0}
-                                  maw={100}
-                                  min={0}
-                                  max={99}
-                                  variant="unstyled"
-                                  onChange={(val) =>
-                                    actions.updateLapGates(index, val ?? 0)
-                                  }
-                                />
-                              </Table.Td>
-                              <Table.Td>
-                                <Checkbox
-                                  onClick={() =>
-                                    actions.toggleLapInvalid(index)
-                                  }
-                                />
-                              </Table.Td>
-                            </Table.Tr>
-                          );
-                        })}
-                      </Table.Tbody>
-                    </Table>
-                  </Table.ScrollContainer>
-                </Stack>
+                                </Table.Td>
+                                <Table.Td>
+                                  {LAP_HAS_PENALTIES && (
+                                    <Text c="red" fw="bold">
+                                      +
+                                      {getLapPenaltySeconds(lap, timePenalties)}
+                                      s
+                                    </Text>
+                                  )}
+                                </Table.Td>
+                                <Table.Td>
+                                  <NumberInput
+                                    defaultValue={0}
+                                    maw={100}
+                                    min={0}
+                                    max={99}
+                                    variant="unstyled"
+                                    onChange={(val) =>
+                                      actions.updateLapCones(index, val ?? 0)
+                                    }
+                                  />
+                                </Table.Td>
+                                <Table.Td>
+                                  <NumberInput
+                                    style={{
+                                      color: LAP_HAS_PENALTIES
+                                        ? "white"
+                                        : undefined,
+                                    }}
+                                    defaultValue={0}
+                                    maw={100}
+                                    min={0}
+                                    max={99}
+                                    variant="unstyled"
+                                    onChange={(val) =>
+                                      actions.updateLapGates(index, val ?? 0)
+                                    }
+                                  />
+                                </Table.Td>
+                                <Table.Td>
+                                  <Checkbox
+                                    onClick={() =>
+                                      actions.toggleLapInvalid(index)
+                                    }
+                                  />
+                                </Table.Td>
+                              </Table.Tr>
+                            );
+                          })}
+                        </Table.Tbody>
+                      </Table>
+                    </Table.ScrollContainer>
+                  </Stack>
+                )}
               </Card>
             </Grid.Col>
           </Grid>

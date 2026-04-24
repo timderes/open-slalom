@@ -444,7 +444,7 @@ const useTraining = () => {
     ["E", () => handleStopwatchReset()],
     ["CTRL+S", () => handleUpdateCurrentDriver()],
     ["CTRL+D", () => handleSkipDriver()],
-    ["ESC", () => handleStopTraining()],
+    //["ESC", () => handleStopTraining()],
   ]);
 
   return {
