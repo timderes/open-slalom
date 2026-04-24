@@ -1,7 +1,7 @@
 import Layout from "@/components/shared/Layout";
 import PageContent from "@/components/shared/PageContent";
 import database from "@/lib/database";
-import convertTimeToString from "@/lib/training/convertTimeToString";
+import { formatTime } from "@/lib/time/formatTime";
 import {
   getDiffToBest,
   getDiffToPrevious,
@@ -123,18 +123,18 @@ const TrainingViewPage = () => {
                       c={index === 0 ? "grape" : ""}
                     >
                       {fastestLap
-                        ? convertTimeToString(fastestLap.time_with_penalties)
+                        ? formatTime(fastestLap.time_with_penalties, "lap")
                         : "N/A"}
                     </Text>
                   </Table.Td>
                   <Table.Td>
                     {diffToBest !== undefined
-                      ? `+${convertTimeToString(diffToBest)}`
+                      ? formatTime(diffToBest, "gap")
                       : "N/A"}
                   </Table.Td>
                   <Table.Td>
                     {diffToPrevious !== undefined
-                      ? `+${convertTimeToString(diffToPrevious)}`
+                      ? formatTime(diffToPrevious, "gap")
                       : "N/A"}
                   </Table.Td>
                   <Table.Td>
@@ -170,12 +170,12 @@ const TrainingViewPage = () => {
                   <Table.Td>{lapIndex + 1}</Table.Td>
                   <Table.Td>
                     <Badge ff="monospace">
-                      {convertTimeToString(lap.time_with_penalties)}
+                      {formatTime(lap.time_with_penalties, "lap")}
                     </Badge>
                   </Table.Td>
                   <Table.Td>{lap.cones}</Table.Td>
                   <Table.Td>{lap.gates}</Table.Td>
-                  {/*<Table.Td>{convertTimeToString(penaltyMs)}</Table.Td>*/}
+                  {/*<Table.Td>{formatTime(penaltyMs, "gap")}</Table.Td>*/}
                   <Table.Td>
                     {new Date(lap.timestamp).toLocaleTimeString("de", {
                       hour: "2-digit",

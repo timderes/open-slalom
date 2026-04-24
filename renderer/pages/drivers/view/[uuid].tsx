@@ -6,6 +6,7 @@ import Stat from "@/components/shared/Stat";
 import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
 import database from "@/lib/database";
 import translateSex from "@/lib/misc/translateSex";
+import { getDriverStats } from "@/lib/training/stats/driverStats";
 import {
   ActionIcon,
   Avatar,
@@ -20,6 +21,7 @@ import {
 import { IconCode, IconPencil, IconSearch } from "@tabler/icons-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRouter } from "next/router";
+import { formatTime } from "@/lib/time/formatTime";
 
 const DriverViewPage = () => {
   const router = useRouter();
@@ -44,6 +46,11 @@ const DriverViewPage = () => {
       </Layout>
     );
   }
+
+  const driverStats = getDriverStats({
+    trainings: trainings ?? [],
+    driverUUID: driver.uuid,
+  });
 
   return (
     <Layout currentRoute="/drivers">
@@ -89,6 +96,16 @@ const DriverViewPage = () => {
             <Stat label="Trainings" value={trainings?.length || 0} />
           </Group>
         </Card>
+        <Divider label="Statistiken" labelPosition="left" />
+        <Group flex={{ xs: "flex-row" }} grow>
+          <Stat label="Gefahrene Runden" value={driverStats.totalLaps} />
+          <Stat
+            label="Fahrzeit"
+            value={formatTime(driverStats.totalDrivingTime, "duration")}
+          />
+          <Stat label="Pylonen" value={driverStats.hitCones} />
+          <Stat label="Torfehler" value={driverStats.hitGates} />
+        </Group>
         <Divider label="Trainings" labelPosition="left" />
         {trainings && trainings.length > 0 && (
           <Table mt="md">

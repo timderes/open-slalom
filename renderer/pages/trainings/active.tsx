@@ -21,7 +21,6 @@ import {
   Tooltip,
   useDrawersStack,
 } from "@mantine/core";
-import convertTimeToString from "@/lib/training/convertTimeToString";
 import {
   IconAlertSquareRounded,
   IconBugFilled,
@@ -48,6 +47,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import type { TrainingState } from "@/lib/training/trainingReducer";
 import { useLocalStorage } from "@mantine/hooks";
+import { formatTime } from "@/lib/time/formatTime";
 
 const ActiveTrainingPage = () => {
   const stack = useDrawersStack(["drivers", "settings", "dev"]);
@@ -384,8 +384,9 @@ const ActiveTrainingPage = () => {
                                     )}s)`
                                   : "N/A";
                               const timeStr = fastestLap
-                                ? convertTimeToString(
+                                ? formatTime(
                                     fastestLap.time_with_penalties,
+                                    "lap",
                                   )
                                 : "N/A";
 
@@ -393,8 +394,9 @@ const ActiveTrainingPage = () => {
                                 fastestLapTime !== undefined
                                   ? idx === 0 || bestTime === undefined
                                     ? "-"
-                                    : `+${convertTimeToString(
+                                    : `+${formatTime(
                                         fastestLapTime - bestTime,
+                                        "gap",
                                       )}`
                                   : "N/A";
 
@@ -446,7 +448,7 @@ const ActiveTrainingPage = () => {
                 />
                 <Stack gap={0}>
                   <Text ff="monospace" fz="5rem" fw="bold">
-                    {convertTimeToString(currentStint.time)}
+                    {formatTime(currentStint.time, "lap")}
                   </Text>
                   <Text opacity={0.7}>
                     Runde: {currentStint.currentLap} /{" "}
@@ -525,11 +527,11 @@ const ActiveTrainingPage = () => {
 
                     return (
                       <Text opacity={0.7}>
-                        Gesamtzeit: {convertTimeToString(totalValidLapTime)}{" "}
+                        Gesamtzeit: {formatTime(totalValidLapTime, "lap")}{" "}
                         &mdash; &#x00D8;{" "}
                         {averageValidLap === undefined
                           ? "N/A"
-                          : convertTimeToString(averageValidLap)}
+                          : formatTime(averageValidLap, "lap")}
                       </Text>
                     );
                   })()}
@@ -565,7 +567,7 @@ const ActiveTrainingPage = () => {
                               </Table.Td>
                               <Table.Td>
                                 <Text component="span">
-                                  {convertTimeToString(lap.time)}
+                                  {formatTime(lap.time, "lap")}
                                 </Text>
                               </Table.Td>
                               <Table.Td>
