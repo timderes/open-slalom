@@ -1,3 +1,7 @@
+/**
+ * Migrates legacy kart references in a training record to UUID-only storage.
+ * Mutates the provided training object in place.
+ */
 export const normalizeTrainingKartTracking = (training: Training) => {
   training.drivers.forEach((driver) => {
     const mutableDriver = driver as DriverWithStints & {

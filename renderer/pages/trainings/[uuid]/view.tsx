@@ -8,7 +8,7 @@ import {
   getDriverFastestLap,
   getDriverRanking,
   getFastestLapTimestamp,
-  getKartByLap,
+  getKartByStint,
   getKartDisplayName,
 } from "@/lib/training/selectors";
 import { Badge, Code, Stack, Table, Text, Title } from "@mantine/core";
@@ -165,7 +165,7 @@ const TrainingViewPage = () => {
               const overallLap =
                 stintIndex * training.lapsPerStint + lapIndex + 1;
               const kartName = getKartDisplayName(
-                getKartByLap(lap, driver, availableKarts),
+                getKartByStint(stint, availableKarts),
               );
 
               return (
