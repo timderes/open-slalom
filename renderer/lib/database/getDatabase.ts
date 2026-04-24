@@ -1,4 +1,5 @@
 import { APP_NAME } from "@/lib/constants";
+import { normalizeTrainingKartTracking } from "./normalizeKartTracking";
 
 let instance = null;
 
@@ -52,39 +53,7 @@ export default async function getDatabase() {
     return tx
       .table("trainings")
       .toCollection()
-      .modify((training) => {
-        training.drivers.forEach((driver: DriverWithStints) => {
-          const mutableDriver = driver as DriverWithStints & {
-            currentKart?: Kart | null;
-            currentKartUUID?: string | null;
-          };
-
-          if (!("currentKartUUID" in mutableDriver)) {
-            mutableDriver.currentKartUUID =
-              mutableDriver.currentKart?.uuid ?? null;
-          }
-
-          delete mutableDriver.currentKart;
-
-          mutableDriver.stints.forEach((stint) => {
-            const mutableStint = stint as Stint & {
-              kart?: Kart | string | null;
-              driverId?: string;
-              kartUUID?: string | null;
-            };
-
-            if (typeof mutableStint.kartUUID !== "string") {
-              mutableStint.kartUUID =
-                typeof mutableStint.kart === "object" && mutableStint.kart
-                  ? mutableStint.kart.uuid ?? null
-                  : null;
-            }
-
-            delete mutableStint.kart;
-            delete mutableStint.driverId;
-          });
-        });
-      });
+      .modify(normalizeTrainingKartTracking);
   });
 
   instance = db;
