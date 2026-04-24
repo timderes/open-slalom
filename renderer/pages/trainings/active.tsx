@@ -281,10 +281,7 @@ const ActiveTrainingPage = () => {
                         disabled={isRunning}
                         onClick={() => actions.stopTraining()}
                       >
-                        Training beenden{" "}
-                        <Kbd size="xs" ms="xs">
-                          ESC
-                        </Kbd>
+                        Training beenden
                       </Button>
                     </Tooltip>
                   </Group>

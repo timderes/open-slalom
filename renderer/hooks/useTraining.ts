@@ -296,7 +296,7 @@ const useTraining = () => {
           .add(settings.values)
           .then(() =>
             router
-              .push("/")
+              .push(`/trainings/${settings.values.uuid}/view`)
               .then(() =>
                 notifyInfo(
                   "Training gespeichert",
@@ -409,7 +409,7 @@ const useTraining = () => {
     ["E", () => handleStopwatchReset()],
     ["CTRL+S", () => handleUpdateCurrentDriver()],
     ["CTRL+D", () => handleSkipDriver()],
-    ["ESC", () => handleStopTraining()],
+    // ["ESC", () => handleStopTraining()],
   ]);
 
   return {
