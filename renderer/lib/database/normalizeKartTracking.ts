@@ -5,7 +5,7 @@ export const normalizeTrainingKartTracking = (training: Training) => {
       currentKartUUID?: string | null;
     };
 
-    if (!("currentKartUUID" in mutableDriver)) {
+    if (!Object.hasOwn(mutableDriver, "currentKartUUID")) {
       mutableDriver.currentKartUUID = mutableDriver.currentKart?.uuid ?? null;
     }
 
@@ -17,7 +17,7 @@ export const normalizeTrainingKartTracking = (training: Training) => {
         driverId?: string;
       };
 
-      if (!Object.prototype.hasOwnProperty.call(mutableStint, "kartUUID")) {
+      if (!Object.hasOwn(mutableStint, "kartUUID")) {
         (mutableStint as Stint & { kartUUID?: string | null }).kartUUID =
           typeof mutableStint.kart === "object" && mutableStint.kart
             ? mutableStint.kart.uuid ?? null
