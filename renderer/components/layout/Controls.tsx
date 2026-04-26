@@ -1,6 +1,6 @@
 import { DEFAULT_TOOLTIP_PROPS } from "@/lib/constants";
 import { ActionIcon, Group, Text, Tooltip } from "@mantine/core";
-import { useFullscreen } from "@mantine/hooks";
+import { useFullscreenDocument } from "@mantine/hooks";
 import {
   IconMinus,
   IconWindowMaximize,
@@ -17,7 +17,7 @@ const Controls = () => {
   /**
    * Manages the fullscreen state of the app.
    */
-  const { toggle, fullscreen } = useFullscreen();
+  const { toggle, fullscreen } = useFullscreenDocument();
 
   /**
    * Closes the app. In development mode, the app will be relaunched for easier debugging.
@@ -26,7 +26,7 @@ const Controls = () => {
     modals.openConfirmModal({
       title: "App wirklich schließen?",
       centered: true,
-      children: <Text>Alle ungespeicherten Daten gehen verloren!</Text>,
+      children: <Text>Alle nicht gespeicherten Daten gehen verloren!</Text>,
       labels: { confirm: "App schließen", cancel: "Abbrechen" },
       confirmProps: { color: "red" },
       onConfirm: () => {
