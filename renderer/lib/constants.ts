@@ -2,49 +2,49 @@
  * App-wide constants that can be used throughout the app.
  */
 
-import type { ComboboxData, TooltipProps } from "@mantine/core";
-import pkg from "../../package.json";
+import type { ComboboxData, TooltipProps } from '@mantine/core';
+import pkg from '../../package.json';
 
 export const APP_NAME = pkg.productName;
 export const APP_VERSION = pkg.version;
 
 export const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
 };
 
 export const DEFAULT_TIME_FORMAT: Intl.DateTimeFormatOptions = {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
 };
 
-export const DEFAULT_TOOLTIP_PROPS: Omit<TooltipProps, "label"> = {
-  position: "bottom",
+export const DEFAULT_TOOLTIP_PROPS: Omit<TooltipProps, 'label'> = {
+  position: 'bottom',
   withArrow: true,
 };
 
 export const APP_ROUTES = [
   {
-    path: "/",
-    label: "Startseite",
+    path: '/',
+    label: 'Startseite',
   },
   {
-    path: "/trainings",
-    label: "Trainings",
+    path: '/trainings',
+    label: 'Trainings',
   },
   {
-    path: "/drivers",
-    label: "Fahrer",
+    path: '/drivers',
+    label: 'Fahrer',
   },
   {
-    path: "/karts",
-    label: "Karts",
+    path: '/karts',
+    label: 'Karts',
   },
   {
-    path: "/settings",
-    label: "Einstellungen",
+    path: '/settings',
+    label: 'Einstellungen',
   },
 ];
 
@@ -102,15 +102,15 @@ export const DEFAULT_STOPWATCH_INTERVAL = 50; // ms
  */
 export const GENDER_OPTIONS: ComboboxData = [
   {
-    label: "Männlich",
-    value: "male",
+    label: 'Männlich',
+    value: 'male',
   },
   {
-    label: "Weiblich",
-    value: "female",
+    label: 'Weiblich',
+    value: 'female',
   },
   {
-    label: "Divers",
-    value: "other",
+    label: 'Divers',
+    value: 'other',
   },
 ];

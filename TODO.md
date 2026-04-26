@@ -23,7 +23,7 @@ TODOs for the upcoming releases of the app.
 
 ### Misc
 
-- [ ] deps: Update the current used packages to their latest versions (if possible without breaking changes). This will help us to keep the app up to date and to benefit from the latest features and bug fixes of the packages we are using.
+- [x] deps: Update the current used packages to their latest versions (if possible without breaking changes). This will help us to keep the app up to date and to benefit from the latest features and bug fixes of the packages we are using.
 
 ## 1.3.0
 

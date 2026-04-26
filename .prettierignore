@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+out
+coverage
+resources
+*.log
+package-lock.json
+tsconfig.tsbuildinfo

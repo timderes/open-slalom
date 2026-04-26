@@ -3,7 +3,7 @@ type Driver = {
   lastName: string;
   birthDate: string; // ISO 8601 format: YYYY-MM-DD
   // "other" can be used for non-binary, undisclosed, or unspecified sex
-  sex: "male" | "female" | "other";
+  sex: 'male' | 'female' | 'other';
   driverClass: {
     jks: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
     sks: 1 | 2 | 3 | 4 | 5;

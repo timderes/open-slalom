@@ -4,7 +4,7 @@
 *,
 *::before,
 *::after {
-    user-select: none;
+  user-select: none;
 }
 
 /*
@@ -12,8 +12,8 @@
  * This is necessary because Electron applications don't have a native title bar.
  */
 .draggable {
-    -webkit-app-region: drag;
-    app-region: drag;
+  -webkit-app-region: drag;
+  app-region: drag;
 }
 
 /*
@@ -24,13 +24,12 @@
 .draggable input,
 .draggable select,
 .draggable textarea {
-    -webkit-app-region: no-drag;
-    app-region: no-drag;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 }
 
 @media print {
-
-    /* 
+  /* 
      * Ensure colors (especially backgrounds like Mantine Badge, UI components, etc.)
      * are preserved when printing.
      *
@@ -40,12 +39,12 @@
      * `print-color-adjust: exact` forces the browser to render colors
      * as they appear on screen.
      */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 
-    .no-print {
-        display: none !important;
-    }
+  .no-print {
+    display: none !important;
+  }
 }

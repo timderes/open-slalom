@@ -1,4 +1,4 @@
-type TrainingMode = "JKS" | "SKS";
+type TrainingMode = 'JKS' | 'SKS';
 
 type Training = {
   lapsPerStint: number;

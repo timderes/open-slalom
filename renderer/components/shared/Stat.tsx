@@ -1,4 +1,4 @@
-import { Stack, type StackProps, Text } from "@mantine/core";
+import { Stack, type StackProps, Text } from '@mantine/core';
 
 type StatProps = {
   label: string;

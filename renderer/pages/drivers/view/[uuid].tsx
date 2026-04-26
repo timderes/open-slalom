@@ -1,12 +1,12 @@
-import EmptyQueryResult from "@/components/shared/EmptyQueryResult";
-import Layout from "@/components/shared/Layout";
-import PageContent from "@/components/shared/PageContent";
-import PageHeader from "@/components/shared/PageHeader";
-import Stat from "@/components/shared/Stat";
-import { DEFAULT_DATE_FORMAT } from "@/lib/constants";
-import database from "@/lib/database";
-import translateSex from "@/lib/misc/translateSex";
-import { getDriverStats } from "@/lib/training/stats/driverStats";
+import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
+import Layout from '@/components/shared/Layout';
+import PageContent from '@/components/shared/PageContent';
+import PageHeader from '@/components/shared/PageHeader';
+import Stat from '@/components/shared/Stat';
+import { DEFAULT_DATE_FORMAT } from '@/lib/constants';
+import database from '@/lib/database';
+import translateSex from '@/lib/misc/translateSex';
+import { getDriverStats } from '@/lib/training/stats/driverStats';
 import {
   ActionIcon,
   Avatar,
@@ -17,11 +17,11 @@ import {
   Table,
   Text,
   Tooltip,
-} from "@mantine/core";
-import { IconCode, IconPencil, IconSearch } from "@tabler/icons-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useRouter } from "next/router";
-import { formatTime } from "@/lib/time/formatTime";
+} from '@mantine/core';
+import { IconCode, IconPencil, IconSearch } from '@tabler/icons-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useRouter } from 'next/router';
+import { formatTime } from '@/lib/time/formatTime';
 
 const DriverViewPage = () => {
   const router = useRouter();
@@ -30,9 +30,7 @@ const DriverViewPage = () => {
   const driver = useLiveQuery(() => database.drivers.get(uuid.toString()));
   const trainings = useLiveQuery(() =>
     database.trainings
-      .filter((training) =>
-        training.drivers.some((driver) => driver.uuid === uuid.toString()),
-      )
+      .filter((training) => training.drivers.some((driver) => driver.uuid === uuid.toString()))
       .toArray(),
   );
 
@@ -40,8 +38,7 @@ const DriverViewPage = () => {
     return (
       <Layout currentRoute="/drivers">
         <EmptyQueryResult title="Fahrer nicht gefunden">
-          Die Daten für den Fahrer mit der UUID <code>{uuid}</code> konnten
-          nicht geladen werden.
+          Die Daten für den Fahrer mit der UUID <code>{uuid}</code> konnten nicht geladen werden.
         </EmptyQueryResult>
       </Layout>
     );
@@ -56,12 +53,8 @@ const DriverViewPage = () => {
     <Layout currentRoute="/drivers">
       <PageContent>
         <Group align="center">
-          <Avatar
-            size="xl"
-            color="initials"
-            name={`${driver.firstName} ${driver.lastName}`}
-          />
-          <PageHeader title={driver.firstName + " " + driver.lastName} />
+          <Avatar size="xl" color="initials" name={`${driver.firstName} ${driver.lastName}`} />
+          <PageHeader title={driver.firstName + ' ' + driver.lastName} />
           <Tooltip
             label={`Das Profil von ${driver.firstName} bearbeiten`}
             withArrow
@@ -82,13 +75,10 @@ const DriverViewPage = () => {
           </Tooltip>
         </Group>
         <Card withBorder>
-          <Group flex={{ xs: "flex-row" }} grow>
+          <Group flex={{ xs: 'flex-row' }} grow>
             <Stat
               label="Geburtstag"
-              value={new Date(driver.birthDate).toLocaleDateString(
-                "de",
-                DEFAULT_DATE_FORMAT,
-              )}
+              value={new Date(driver.birthDate).toLocaleDateString('de', DEFAULT_DATE_FORMAT)}
             />
             <Stat label="Geschlecht" value={translateSex(driver.sex)} />
             <Stat label="JKS" value={`K${driver.driverClass.jks}`} />
@@ -97,12 +87,9 @@ const DriverViewPage = () => {
           </Group>
         </Card>
         <Divider label="Statistiken" labelPosition="left" />
-        <Group flex={{ xs: "flex-row" }} grow>
+        <Group flex={{ xs: 'flex-row' }} grow>
           <Stat label="Gefahrene Runden" value={driverStats.totalLaps} />
-          <Stat
-            label="Fahrzeit"
-            value={formatTime(driverStats.totalDrivingTime, "duration")}
-          />
+          <Stat label="Fahrzeit" value={formatTime(driverStats.totalDrivingTime, 'duration')} />
           <Stat label="Pylonen" value={driverStats.hitCones} />
           <Stat label="Torfehler" value={driverStats.hitGates} />
         </Group>
@@ -120,18 +107,13 @@ const DriverViewPage = () => {
               {trainings.map((training) => (
                 <Table.Tr key={training.uuid}>
                   <Table.Td>
-                    {new Date(training.createdAt).toLocaleDateString(
-                      "de",
-                      DEFAULT_DATE_FORMAT,
-                    )}
+                    {new Date(training.createdAt).toLocaleDateString('de', DEFAULT_DATE_FORMAT)}
                   </Table.Td>
                   <Table.Td>{training.mode}</Table.Td>
                   <Table.Td>
                     <Button
                       size="xs"
-                      onClick={() =>
-                        router.push(`/trainings/${training.uuid}/view`)
-                      }
+                      onClick={() => router.push(`/trainings/${training.uuid}/view`)}
                     >
                       <IconSearch />
                     </Button>
@@ -142,9 +124,7 @@ const DriverViewPage = () => {
           </Table>
         )}
         {!trainings || trainings.length === 0 ? (
-          <Text>
-            {driver.firstName} hat noch an keinem Training teilgenommen.
-          </Text>
+          <Text>{driver.firstName} hat noch an keinem Training teilgenommen.</Text>
         ) : null}
       </PageContent>
     </Layout>

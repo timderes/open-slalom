@@ -1,14 +1,14 @@
 /**
  * Returns the German translation of a driver's sex.
  */
-const translateSex = (sex: Driver["sex"]): string => {
+const translateSex = (sex: Driver['sex']): string => {
   switch (sex) {
-    case "male":
-      return "Männlich";
-    case "female":
-      return "Weiblich";
-    case "other":
-      return "Divers";
+    case 'male':
+      return 'Männlich';
+    case 'female':
+      return 'Weiblich';
+    case 'other':
+      return 'Divers';
   }
 };
 

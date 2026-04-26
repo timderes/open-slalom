@@ -1,14 +1,9 @@
-import { DEFAULT_TOOLTIP_PROPS } from "@/lib/constants";
-import { ActionIcon, Group, Text, Tooltip } from "@mantine/core";
-import { useFullscreenDocument } from "@mantine/hooks";
-import {
-  IconMinus,
-  IconWindowMaximize,
-  IconWindowMinimize,
-  IconX,
-} from "@tabler/icons-react";
-import { modals } from "@mantine/modals";
-import PrintButton from "../ui/PrintButton";
+import { DEFAULT_TOOLTIP_PROPS } from '@/lib/constants';
+import { ActionIcon, Group, Text, Tooltip } from '@mantine/core';
+import { useFullscreenDocument } from '@mantine/hooks';
+import { IconMinus, IconWindowMaximize, IconWindowMinimize, IconX } from '@tabler/icons-react';
+import { modals } from '@mantine/modals';
+import PrintButton from '../ui/PrintButton';
 
 /**
  * Returns a group of window control buttons (minimize, maximize, close).
@@ -24,13 +19,13 @@ const Controls = () => {
    */
   const handleCloseApp = () => {
     modals.openConfirmModal({
-      title: "App wirklich schließen?",
+      title: 'App wirklich schließen?',
       centered: true,
       children: <Text>Alle nicht gespeicherten Daten gehen verloren!</Text>,
-      labels: { confirm: "App schließen", cancel: "Abbrechen" },
-      confirmProps: { color: "red" },
+      labels: { confirm: 'App schließen', cancel: 'Abbrechen' },
+      confirmProps: { color: 'red' },
       onConfirm: () => {
-        window.ipc.send("app-quit", null);
+        window.ipc.send('app-quit', null);
       },
     });
   };
@@ -39,25 +34,18 @@ const Controls = () => {
    * Minimizes the app window.
    */
   const handleMinimizeAppWindow = () => {
-    window.ipc.send("app-minimize-window", null);
+    window.ipc.send('app-minimize-window', null);
   };
 
   return (
     <Group>
       <PrintButton />
       <Tooltip label="Minimieren" {...DEFAULT_TOOLTIP_PROPS}>
-        <ActionIcon
-          c="inherit"
-          variant="subtle"
-          onClick={handleMinimizeAppWindow}
-        >
+        <ActionIcon c="inherit" variant="subtle" onClick={handleMinimizeAppWindow}>
           <IconMinus />
         </ActionIcon>
       </Tooltip>
-      <Tooltip
-        label={fullscreen ? "Fenstermodus" : "Vollbild"}
-        {...DEFAULT_TOOLTIP_PROPS}
-      >
+      <Tooltip label={fullscreen ? 'Fenstermodus' : 'Vollbild'} {...DEFAULT_TOOLTIP_PROPS}>
         <ActionIcon c="inherit" variant="subtle" onClick={toggle}>
           {fullscreen ? <IconWindowMinimize /> : <IconWindowMaximize />}
         </ActionIcon>

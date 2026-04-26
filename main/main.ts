@@ -1,25 +1,25 @@
-import path from "path";
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
-import serve from "electron-serve";
-import { createWindow } from "./helpers";
-import registerFileIpcHandlers from "./ipc/files";
+import path from 'path';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import serve from 'electron-serve';
+import { createWindow } from './helpers';
+import registerFileIpcHandlers from './ipc/files';
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) {
-  serve({ directory: "app" });
+  serve({ directory: 'app' });
 } else {
-  app.setPath("userData", `${app.getPath("userData")} (development)`);
+  app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
 
 (async () => {
   await app.whenReady();
 
-  const mainWindow = createWindow("main", {
+  const mainWindow = createWindow('main', {
     width: 1000,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(import.meta.dirname, 'preload.js'),
     },
   });
 
@@ -30,21 +30,21 @@ if (isProd) {
     // This also disables built-in Chromium shortcuts (for example: Ctrl+W)
     Menu.setApplicationMenu(null);
 
-    await mainWindow.loadURL("app://./");
+    await mainWindow.loadURL('app://./');
   } else {
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}`);
     mainWindow.webContents.openDevTools({
-      mode: "detach",
+      mode: 'detach',
     });
   }
 })();
 
-app.on("window-all-closed", () => {
+app.on('window-all-closed', () => {
   app.quit();
 });
 
-ipcMain.on("app-quit", () => {
+ipcMain.on('app-quit', () => {
   // In development, relaunch the app for easier debugging
   if (!isProd) {
     app.relaunch();
@@ -53,7 +53,7 @@ ipcMain.on("app-quit", () => {
   app.quit();
 });
 
-ipcMain.on("app-minimize-window", () => {
+ipcMain.on('app-minimize-window', () => {
   const window = BrowserWindow.getFocusedWindow();
 
   if (window) {

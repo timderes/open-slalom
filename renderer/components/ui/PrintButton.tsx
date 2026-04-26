@@ -1,5 +1,5 @@
-import { Button, type ButtonProps } from "@mantine/core";
-import { IconPrinter } from "@tabler/icons-react";
+import { Button, type ButtonProps } from '@mantine/core';
+import { IconPrinter } from '@tabler/icons-react';
 
 /**
  * A button component that triggers the print dialog when clicked.
@@ -8,18 +8,12 @@ import { IconPrinter } from "@tabler/icons-react";
  *
  * The button is hidden when printing.
  */
-const PrintButton = ({
-  size,
-  variant,
-  ms,
-  className,
-  ...props
-}: ButtonProps) => {
-  const classes = ["no-print", className].filter(Boolean).join(" ");
+const PrintButton = ({ size, variant, ms, className, ...props }: ButtonProps) => {
+  const classes = ['no-print', className].filter(Boolean).join(' ');
 
   const handlePrint = () => {
     if (!window) {
-      console.error("Window object is not available. Unable to print.");
+      console.error('Window object is not available. Unable to print.');
       return;
     }
 
@@ -30,9 +24,9 @@ const PrintButton = ({
     <Button
       onClick={handlePrint}
       className={classes}
-      size={size ?? "compact-xs"}
-      variant={variant ?? "transparent"}
-      ms={ms ?? "auto"}
+      size={size ?? 'compact-xs'}
+      variant={variant ?? 'transparent'}
+      ms={ms ?? 'auto'}
       {...props}
     >
       <IconPrinter />

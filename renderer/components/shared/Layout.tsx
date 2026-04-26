@@ -4,22 +4,15 @@ import {
   APP_VERSION,
   DEFAULT_DATE_FORMAT,
   DEFAULT_TIME_FORMAT,
-} from "@/lib/constants";
-import {
-  AppShell,
-  type AppShellProps,
-  Burger,
-  Group,
-  NavLink,
-  Text,
-} from "@mantine/core";
-import { useDisclosure, useInterval } from "@mantine/hooks";
+} from '@/lib/constants';
+import { AppShell, type AppShellProps, Burger, Group, NavLink, Text } from '@mantine/core';
+import { useDisclosure, useInterval } from '@mantine/hooks';
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import Controls from "../layout/Controls";
-import NetworkStatus from "../layout/NetworkStatus";
-import OsStatus from "../layout/OsStatus";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import Controls from '../layout/Controls';
+import NetworkStatus from '../layout/NetworkStatus';
+import OsStatus from '../layout/OsStatus';
 
 type LayoutProps = {
   currentRoute: string;
@@ -32,25 +25,20 @@ export const APP_FOOTER_HEIGHT = 60; // px
 export const APP_NAVBAR_WIDTH = 200; // px
 export const APP_ASIDE_WIDTH = 300; // px
 
-const currentDate = new Date().toLocaleDateString("de", {
+const currentDate = new Date().toLocaleDateString('de', {
   ...DEFAULT_DATE_FORMAT,
 });
 
 /**
  * Default layout for the app. With header, footer, navbar and aside sections.
  */
-const Layout = ({
-  currentRoute,
-  disableNavbar = false,
-  children,
-  ...props
-}: LayoutProps) => {
+const Layout = ({ currentRoute, disableNavbar = false, children, ...props }: LayoutProps) => {
   const [currentTime, setCurrentTime] = useState<string>();
   const [opened, { toggle }] = useDisclosure();
 
   const interval = useInterval(() => {
     setCurrentTime(
-      new Date().toLocaleTimeString("de", {
+      new Date().toLocaleTimeString('de', {
         ...DEFAULT_TIME_FORMAT,
       }),
     );
@@ -68,7 +56,7 @@ const Layout = ({
       footer={{ height: APP_FOOTER_HEIGHT }}
       navbar={{
         width: APP_NAVBAR_WIDTH,
-        breakpoint: "sm",
+        breakpoint: 'sm',
         collapsed: {
           mobile: disableNavbar ? true : !opened,
           desktop: disableNavbar ? true : opened,
@@ -80,9 +68,7 @@ const Layout = ({
       <AppShell.Header className="draggable no-print">
         <Group h="100%" px="md" justify="space-between">
           <Group>
-            {disableNavbar ? null : (
-              <Burger opened={opened} onClick={toggle} size="sm" />
-            )}
+            {disableNavbar ? null : <Burger opened={opened} onClick={toggle} size="sm" />}
             {APP_NAME}
           </Group>
           <Controls />
@@ -105,7 +91,7 @@ const Layout = ({
         <NetworkStatus />
         <OsStatus />
         <Text ms="auto">
-          {currentDate ?? ""} {currentTime ?? ""}
+          {currentDate ?? ''} {currentTime ?? ''}
         </Text>
       </AppShell.Footer>
     </AppShell>

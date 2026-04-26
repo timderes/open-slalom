@@ -1,4 +1,4 @@
-import { TIME_PENALTIES_JKS, TIME_PENALTIES_SKS } from "@/lib/constants";
+import { TIME_PENALTIES_JKS, TIME_PENALTIES_SKS } from '@/lib/constants';
 
 // =========================
 // TYPES
@@ -19,19 +19,19 @@ export type TrainingState = {
 };
 
 export type TrainingAction =
-  | { type: "START" }
-  | { type: "STOP" }
-  | { type: "ADD_LAP"; payload: { timestamp: number } }
-  | { type: "RESET" }
-  | { type: "SKIP" }
-  | { type: "TICK"; payload: number }
-  | { type: "SET_DRIVERS"; payload: DriverWithStints[] }
-  | { type: "SET_LAPS_PER_STINT"; payload: number }
-  | { type: "SET_MODE"; payload: SlalomType }
-  | { type: "UPDATE_LAP_CONES"; payload: { index: number; cones: number } }
-  | { type: "UPDATE_LAP_GATES"; payload: { index: number; gates: number } }
-  | { type: "TOGGLE_LAP_INVALID"; payload: { index: number } }
-  | { type: "RESTORE"; payload: Partial<TrainingState> };
+  | { type: 'START' }
+  | { type: 'STOP' }
+  | { type: 'ADD_LAP'; payload: { timestamp: number } }
+  | { type: 'RESET' }
+  | { type: 'SKIP' }
+  | { type: 'TICK'; payload: number }
+  | { type: 'SET_DRIVERS'; payload: DriverWithStints[] }
+  | { type: 'SET_LAPS_PER_STINT'; payload: number }
+  | { type: 'SET_MODE'; payload: SlalomType }
+  | { type: 'UPDATE_LAP_CONES'; payload: { index: number; cones: number } }
+  | { type: 'UPDATE_LAP_GATES'; payload: { index: number; gates: number } }
+  | { type: 'TOGGLE_LAP_INVALID'; payload: { index: number } }
+  | { type: 'RESTORE'; payload: Partial<TrainingState> };
 
 // =========================
 // INITIAL STATE
@@ -45,7 +45,7 @@ export const initialState: TrainingState = {
   laps: [],
   currentLap: 1,
   lapsPerStint: 3,
-  mode: "JKS",
+  mode: 'JKS',
 
   time: 0,
   isRunning: false,
@@ -55,12 +55,9 @@ export const initialState: TrainingState = {
 // REDUCER
 // =========================
 
-export const trainingReducer = (
-  state: TrainingState,
-  action: TrainingAction,
-): TrainingState => {
+export const trainingReducer = (state: TrainingState, action: TrainingAction): TrainingState => {
   switch (action.type) {
-    case "START": {
+    case 'START': {
       if (!state.currentDriver || state.isRunning) return state;
 
       return {
@@ -70,14 +67,14 @@ export const trainingReducer = (
       };
     }
 
-    case "STOP": {
+    case 'STOP': {
       return {
         ...state,
         isRunning: false,
       };
     }
 
-    case "ADD_LAP": {
+    case 'ADD_LAP': {
       if (!state.isRunning) return state;
 
       const isFinalLap = state.currentLap === state.lapsPerStint;
@@ -99,7 +96,7 @@ export const trainingReducer = (
       };
     }
 
-    case "RESET": {
+    case 'RESET': {
       return {
         ...state,
         laps: [],
@@ -109,7 +106,7 @@ export const trainingReducer = (
       };
     }
 
-    case "SKIP": {
+    case 'SKIP': {
       if (state.drivers.length === 0) return state;
 
       const nextIndex = (state.currentDriverIndex + 1) % state.drivers.length;
@@ -125,14 +122,14 @@ export const trainingReducer = (
       };
     }
 
-    case "TICK": {
+    case 'TICK': {
       return {
         ...state,
         time: action.payload,
       };
     }
 
-    case "SET_DRIVERS": {
+    case 'SET_DRIVERS': {
       return {
         ...state,
         drivers: action.payload,
@@ -140,26 +137,25 @@ export const trainingReducer = (
       };
     }
 
-    case "SET_LAPS_PER_STINT": {
+    case 'SET_LAPS_PER_STINT': {
       return {
         ...state,
         lapsPerStint: action.payload,
       };
     }
 
-    case "SET_MODE": {
+    case 'SET_MODE': {
       return {
         ...state,
         mode: action.payload,
       };
     }
 
-    case "UPDATE_LAP_CONES": {
+    case 'UPDATE_LAP_CONES': {
       if (!state.laps[action.payload.index]) return state;
 
       const updatedLaps = [...state.laps];
-      const penalties =
-        state.mode === "SKS" ? TIME_PENALTIES_SKS : TIME_PENALTIES_JKS;
+      const penalties = state.mode === 'SKS' ? TIME_PENALTIES_SKS : TIME_PENALTIES_JKS;
       updatedLaps[action.payload.index] = {
         ...updatedLaps[action.payload.index],
         cones: action.payload.cones,
@@ -176,12 +172,11 @@ export const trainingReducer = (
       };
     }
 
-    case "UPDATE_LAP_GATES": {
+    case 'UPDATE_LAP_GATES': {
       if (!state.laps[action.payload.index]) return state;
 
       const updatedLaps = [...state.laps];
-      const penalties =
-        state.mode === "SKS" ? TIME_PENALTIES_SKS : TIME_PENALTIES_JKS;
+      const penalties = state.mode === 'SKS' ? TIME_PENALTIES_SKS : TIME_PENALTIES_JKS;
       updatedLaps[action.payload.index] = {
         ...updatedLaps[action.payload.index],
         gates: action.payload.gates,
@@ -198,7 +193,7 @@ export const trainingReducer = (
       };
     }
 
-    case "TOGGLE_LAP_INVALID": {
+    case 'TOGGLE_LAP_INVALID': {
       if (!state.laps[action.payload.index]) return state;
 
       const updatedLaps = [...state.laps];
@@ -213,13 +208,11 @@ export const trainingReducer = (
       };
     }
 
-    case "RESTORE": {
+    case 'RESTORE': {
       const payload = action.payload;
       const drivers = payload.drivers ?? state.drivers;
-      const currentDriverIndex =
-        payload.currentDriverIndex ?? state.currentDriverIndex;
-      const currentDriver =
-        payload.currentDriver ?? drivers[currentDriverIndex];
+      const currentDriverIndex = payload.currentDriverIndex ?? state.currentDriverIndex;
+      const currentDriver = payload.currentDriver ?? drivers[currentDriverIndex];
 
       return {
         drivers,

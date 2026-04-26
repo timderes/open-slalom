@@ -1,36 +1,28 @@
-import Layout from "@/components/shared/Layout";
-import PageHeader from "@/components/shared/PageHeader";
-import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
-import database from "@/lib/database";
-import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
-import {
-  Button,
-  Group,
-  NativeSelect,
-  NumberInput,
-  Stack,
-  Text,
-  TextInput,
-} from "@mantine/core";
-import { DateInput } from "@mantine/dates";
-import { hasLength, isInRange, isNotEmpty, useForm } from "@mantine/form";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import { IconHelmet } from "@tabler/icons-react";
-import { useRouter } from "next/router";
-import { v4 as uuidv4 } from "uuid";
-import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from "@/lib/constants";
-import calculateDriverAge from "@/lib/misc/calculateDriverAge";
-import PageContent from "@/components/shared/PageContent";
+import Layout from '@/components/shared/Layout';
+import PageHeader from '@/components/shared/PageHeader';
+import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from '@/lib/constants';
+import database from '@/lib/database';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
+import { Button, Group, NativeSelect, NumberInput, Stack, Text, TextInput } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
+import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { IconHelmet } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
+import { v4 as uuidv4 } from 'uuid';
+import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from '@/lib/constants';
+import calculateDriverAge from '@/lib/misc/calculateDriverAge';
+import PageContent from '@/components/shared/PageContent';
 
 const CreateDriverPage = () => {
   const router = useRouter();
   const form = useForm<Driver>({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      birthDate: "",
-      sex: "male",
+      firstName: '',
+      lastName: '',
+      birthDate: '',
+      sex: 'male',
       driverClass: {
         jks: 0,
         sks: 1,
@@ -40,42 +32,30 @@ const CreateDriverPage = () => {
       updatedAt: Date.now(),
     },
     validate: {
-      firstName: hasLength(
-        { min: 2, max: 99 },
-        "Dieses Feld darf nicht leer sein.",
-      ),
-      lastName: hasLength(
-        { min: 2, max: 99 },
-        "Dieses Feld darf nicht leer sein.",
-      ),
+      firstName: hasLength({ min: 2, max: 99 }, 'Dieses Feld darf nicht leer sein.'),
+      lastName: hasLength({ min: 2, max: 99 }, 'Dieses Feld darf nicht leer sein.'),
       birthDate: (value) => {
         const age = calculateDriverAge(value);
         return (
           isInRange(
             { min: MIN_DRIVER_AGE, max: MAX_DRIVER_AGE },
             `Ungültiges Geburtsdatum. Fahrer müssen zwischen ${MIN_DRIVER_AGE} und ${MAX_DRIVER_AGE} Jahre alt sein.`,
-          )(age) || isNotEmpty("Dieses Feld darf nicht leer sein.")(value)
+          )(age) || isNotEmpty('Dieses Feld darf nicht leer sein.')(value)
         );
       },
-      sex: isNotEmpty("Dieses Feld darf nicht leer sein."),
+      sex: isNotEmpty('Dieses Feld darf nicht leer sein.'),
     },
     validateInputOnChange: true,
   });
 
   const handleBirthDateChange = (date: string) => {
-    form.getInputProps("birthDate").onChange(date);
+    form.getInputProps('birthDate').onChange(date);
 
     const classJKS = getJksClass({ birthDate: date });
     const classSKS = getSksClass({ birthDate: date });
 
-    form.setFieldValue(
-      "driverClass.jks",
-      classJKS as Driver["driverClass"]["jks"],
-    );
-    form.setFieldValue(
-      "driverClass.sks",
-      classSKS as Driver["driverClass"]["sks"],
-    );
+    form.setFieldValue('driverClass.jks', classJKS as Driver['driverClass']['jks']);
+    form.setFieldValue('driverClass.sks', classSKS as Driver['driverClass']['sks']);
   };
 
   const handleCreateDriver = () => {
@@ -84,33 +64,29 @@ const CreateDriverPage = () => {
 
       notifications.show({
         icon: <IconHelmet />,
-        title: "Fahrer angelegt",
+        title: 'Fahrer angelegt',
         message: `${firstName} ${lastName} wurde erfolgreich angelegt.`,
-        color: "green",
+        color: 'green',
       });
 
       form.reset();
-      router.push("/drivers");
+      router.push('/drivers');
     });
   };
 
   const handleGoBack = () => {
     if (!form.isDirty()) {
       // Skip confirmation modal if form is not dirty
-      router.push("/drivers");
+      router.push('/drivers');
       return;
     }
 
     modals.openConfirmModal({
-      title: "Fahrer nicht anlegen?",
+      title: 'Fahrer nicht anlegen?',
       centered: true,
-      children: (
-        <Text>
-          Bereits eingetragene Informationen werden nicht gespeichert!
-        </Text>
-      ),
-      labels: { confirm: "Ja", cancel: "Nein" },
-      onConfirm: () => router.push("/drivers"),
+      children: <Text>Bereits eingetragene Informationen werden nicht gespeichert!</Text>,
+      labels: { confirm: 'Ja', cancel: 'Nein' },
+      onConfirm: () => router.push('/drivers'),
     });
   };
 
@@ -133,14 +109,14 @@ const CreateDriverPage = () => {
               <TextInput
                 label="Vorname"
                 placeholder="Max"
-                {...form.getInputProps("firstName")}
-                key={form.key("firstName")}
+                {...form.getInputProps('firstName')}
+                key={form.key('firstName')}
               />
               <TextInput
                 label="Nachname"
                 placeholder="Verstappen"
-                {...form.getInputProps("lastName")}
-                key={form.key("lastName")}
+                {...form.getInputProps('lastName')}
+                key={form.key('lastName')}
               />
             </Group>
             <Group grow>
@@ -150,14 +126,14 @@ const CreateDriverPage = () => {
                 onChange={(e) => handleBirthDateChange(e)}
                 label="Geburtsdatum"
                 placeholder="Geburtsdatum"
-                key={form.key("birthDate")}
-                error={form.getInputProps("birthDate").error}
+                key={form.key('birthDate')}
+                error={form.getInputProps('birthDate').error}
               />
               <NativeSelect
                 label="Geschlecht"
                 data={GENDER_OPTIONS}
-                key={form.key("sex")}
-                {...form.getInputProps("sex")}
+                key={form.key('sex')}
+                {...form.getInputProps('sex')}
               />
             </Group>
             <Group grow>
@@ -166,16 +142,16 @@ const CreateDriverPage = () => {
                 min={Math.min(...JKS_CLASSES)}
                 max={Math.max(...JKS_CLASSES)}
                 label="Klasse JKS"
-                {...form.getInputProps("driverClass.jks")}
-                key={form.key("driverClass.jks")}
+                {...form.getInputProps('driverClass.jks')}
+                key={form.key('driverClass.jks')}
               />
               <NumberInput
                 description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
                 min={Math.min(...SKS_CLASSES)}
                 max={Math.max(...SKS_CLASSES)}
                 label="Klasse SKS"
-                {...form.getInputProps("driverClass.sks")}
-                key={form.key("driverClass.sks")}
+                {...form.getInputProps('driverClass.sks')}
+                key={form.key('driverClass.sks')}
               />
             </Group>
             <Group mt="xl">

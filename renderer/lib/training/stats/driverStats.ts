@@ -1,6 +1,6 @@
 type DriverStatsParams = {
   trainings: Training[];
-  driverUUID: Driver["uuid"];
+  driverUUID: Driver['uuid'];
 };
 
 type DriverStats = {
@@ -10,14 +10,11 @@ type DriverStats = {
   hitGates: number;
 };
 
-const getDriverData = (training: Training, driverUUID: Driver["uuid"]) => {
+const getDriverData = (training: Training, driverUUID: Driver['uuid']) => {
   return training.drivers.find((d) => d.uuid === driverUUID);
 };
 
-export const getDriverStats = ({
-  trainings,
-  driverUUID,
-}: DriverStatsParams): DriverStats => {
+export const getDriverStats = ({ trainings, driverUUID }: DriverStatsParams): DriverStats => {
   if (!trainings || trainings.length === 0) {
     return {
       totalLaps: 0,
