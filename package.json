@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
+    "format": "prettier --write .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck:renderer": "tsc --noEmit -p renderer/tsconfig.json",
@@ -44,6 +45,7 @@
     "postcss": "^8.5.12",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
+    "prettier": "^3.8.3",
     "typescript": "^5.9.3",
     "vitest": "^4.1.5"
   }
