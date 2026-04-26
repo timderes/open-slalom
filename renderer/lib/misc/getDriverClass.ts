@@ -1,8 +1,8 @@
-import { calculateDriverAgeBasedOfBirthYear } from "./calculateDriverAge";
-import { CLASS_AGE_TABLE } from "../constants";
+import { calculateDriverAgeBasedOfBirthYear } from './calculateDriverAge';
+import { CLASS_AGE_TABLE } from '../constants';
 
 type DriverBirthDate = {
-  birthDate: Driver["birthDate"];
+  birthDate: Driver['birthDate'];
 };
 
 const getClassByAge = ({
@@ -14,7 +14,7 @@ const getClassByAge = ({
 }) => {
   for (const [classKey, range] of Object.entries(classTable) as [
     string,
-    { min: number; max: number | null }
+    { min: number; max: number | null },
   ][]) {
     if (age >= range.min && (range.max === null || age <= range.max)) {
       return Number(classKey);

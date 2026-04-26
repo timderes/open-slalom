@@ -1,9 +1,9 @@
-import Layout from "@/components/shared/Layout";
-import PageContent from "@/components/shared/PageContent";
-import PageHeader from "@/components/shared/PageHeader";
-import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from "@/lib/constants";
-import database from "@/lib/database";
-import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
+import Layout from '@/components/shared/Layout';
+import PageContent from '@/components/shared/PageContent';
+import PageHeader from '@/components/shared/PageHeader';
+import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from '@/lib/constants';
+import database from '@/lib/database';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import {
   Button,
   Group,
@@ -13,14 +13,14 @@ import {
   TextInput,
   Text,
   Title,
-} from "@mantine/core";
-import { DateInput } from "@mantine/dates";
-import { useForm } from "@mantine/form";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+} from '@mantine/core';
+import { DateInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const DriverEditPage = () => {
   const router = useRouter();
@@ -28,21 +28,18 @@ const DriverEditPage = () => {
 
   const form = useForm<Driver>({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      birthDate: "", // ISO string
-      sex: "male",
+      firstName: '',
+      lastName: '',
+      birthDate: '', // ISO string
+      sex: 'male',
       driverClass: { jks: 0, sks: 1 },
-      uuid: "",
+      uuid: '',
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
   });
 
-  const driver = useLiveQuery(
-    () => database.drivers.get(uuid as string),
-    [uuid],
-  );
+  const driver = useLiveQuery(() => database.drivers.get(uuid as string), [uuid]);
 
   useEffect(() => {
     if (!driver) return;
@@ -78,8 +75,8 @@ const DriverEditPage = () => {
         <PageContent>
           <Title>Fahrer nicht gefunden</Title>
           <Text>
-            Der Fahrer mit der angegebenen UUID wurde in der Datenbank nicht
-            gefunden. Ist die Datenbank aktuell?
+            Der Fahrer mit der angegebenen UUID wurde in der Datenbank nicht gefunden. Ist die
+            Datenbank aktuell?
           </Text>
         </PageContent>
       </Layout>
@@ -88,37 +85,27 @@ const DriverEditPage = () => {
 
   const handleGoBack = () => {
     if (!form.isDirty()) {
-      router.push("/drivers");
+      router.push('/drivers');
       return;
     }
 
     modals.openConfirmModal({
-      title: "Bearbeiten des Fahrers abbrechen?",
+      title: 'Bearbeiten des Fahrers abbrechen?',
       centered: true,
-      children: (
-        <Text>
-          Bereits eingetragene Informationen werden nicht gespeichert!
-        </Text>
-      ),
-      labels: { confirm: "Ja", cancel: "Nein" },
-      onConfirm: () => router.push("/drivers"),
+      children: <Text>Bereits eingetragene Informationen werden nicht gespeichert!</Text>,
+      labels: { confirm: 'Ja', cancel: 'Nein' },
+      onConfirm: () => router.push('/drivers'),
     });
   };
 
   const handleBirthDateChange = (date: string) => {
-    form.getInputProps("birthDate").onChange(date);
+    form.getInputProps('birthDate').onChange(date);
 
     const classJKS = getJksClass({ birthDate: date });
     const classSKS = getSksClass({ birthDate: date });
 
-    form.setFieldValue(
-      "driverClass.jks",
-      classJKS as Driver["driverClass"]["jks"],
-    );
-    form.setFieldValue(
-      "driverClass.sks",
-      classSKS as Driver["driverClass"]["sks"],
-    );
+    form.setFieldValue('driverClass.jks', classJKS as Driver['driverClass']['jks']);
+    form.setFieldValue('driverClass.sks', classSKS as Driver['driverClass']['sks']);
   };
 
   const handleEditDriver = () => {
@@ -128,17 +115,17 @@ const DriverEditPage = () => {
       .update(uuid as string, { ...form.values, updatedAt: Date.now() })
       .catch((error) => {
         notifications.show({
-          title: "Fehler beim Bearbeiten des Fahrers",
+          title: 'Fehler beim Bearbeiten des Fahrers',
           message: `Es ist ein Fehler aufgetreten: ${error.message}`,
-          color: "red",
+          color: 'red',
         });
       })
       .then(() => {
         notifications.show({
-          title: "Fahrer bearbeitet",
-          message: "Der Fahrer wurde erfolgreich bearbeitet.",
+          title: 'Fahrer bearbeitet',
+          message: 'Der Fahrer wurde erfolgreich bearbeitet.',
         });
-        router.push("/drivers");
+        router.push('/drivers');
       });
   };
 
@@ -160,33 +147,31 @@ const DriverEditPage = () => {
               <TextInput
                 label="Vorname"
                 placeholder="Max"
-                {...form.getInputProps("firstName")}
-                key={form.key("firstName")}
+                {...form.getInputProps('firstName')}
+                key={form.key('firstName')}
               />
               <TextInput
                 label="Nachname"
                 placeholder="Verstappen"
-                {...form.getInputProps("lastName")}
-                key={form.key("lastName")}
+                {...form.getInputProps('lastName')}
+                key={form.key('lastName')}
               />
             </Group>
             <Group grow>
               <DateInput
                 valueFormat="DD. MMMM YYYY"
-                value={
-                  form.values.birthDate ? new Date(form.values.birthDate) : null
-                }
+                value={form.values.birthDate ? new Date(form.values.birthDate) : null}
                 onChange={(e) => handleBirthDateChange(e)}
                 label="Geburtsdatum"
                 placeholder="Geburtsdatum"
-                key={form.key("birthDate")}
-                error={form.getInputProps("birthDate").error}
+                key={form.key('birthDate')}
+                error={form.getInputProps('birthDate').error}
               />
               <NativeSelect
                 label="Geschlecht"
                 data={GENDER_OPTIONS}
-                key={form.key("sex")}
-                {...form.getInputProps("sex")}
+                key={form.key('sex')}
+                {...form.getInputProps('sex')}
               />
             </Group>
             <Group grow>
@@ -195,16 +180,16 @@ const DriverEditPage = () => {
                 min={Math.min(...JKS_CLASSES)}
                 max={Math.max(...JKS_CLASSES)}
                 label="Klasse JKS"
-                {...form.getInputProps("driverClass.jks")}
-                key={form.key("driverClass.jks")}
+                {...form.getInputProps('driverClass.jks')}
+                key={form.key('driverClass.jks')}
               />
               <NumberInput
                 description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
                 min={Math.min(...SKS_CLASSES)}
                 max={Math.max(...SKS_CLASSES)}
                 label="Klasse SKS"
-                {...form.getInputProps("driverClass.sks")}
-                key={form.key("driverClass.sks")}
+                {...form.getInputProps('driverClass.sks')}
+                key={form.key('driverClass.sks')}
               />
             </Group>
             <Group mt="xl">

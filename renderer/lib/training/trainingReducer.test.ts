@@ -1,20 +1,20 @@
-import { describe, expect, it } from "vitest";
-import { initialState, trainingReducer } from "./trainingReducer";
+import { describe, expect, it } from 'vitest';
+import { initialState, trainingReducer } from './trainingReducer';
 
 const createDriver = (uuid: string): DriverWithStints => ({
   uuid,
   firstName: `First-${uuid}`,
   lastName: `Last-${uuid}`,
-  birthDate: "2000-01-01",
-  sex: "other",
+  birthDate: '2000-01-01',
+  sex: 'other',
   driverClass: { jks: 1, sks: 1 },
   createdAt: 1,
   updatedAt: 1,
   stints: [],
 });
 
-const createRunningState = (mode: SlalomType = "JKS") => {
-  const firstDriver = createDriver("driver-1");
+const createRunningState = (mode: SlalomType = 'JKS') => {
+  const firstDriver = createDriver('driver-1');
 
   return {
     ...initialState,
@@ -28,9 +28,9 @@ const createRunningState = (mode: SlalomType = "JKS") => {
   };
 };
 
-describe("trainingReducer", () => {
-  it("starts a stint when a driver exists", () => {
-    const firstDriver = createDriver("driver-1");
+describe('trainingReducer', () => {
+  it('starts a stint when a driver exists', () => {
+    const firstDriver = createDriver('driver-1');
     const started = trainingReducer(
       {
         ...initialState,
@@ -39,16 +39,16 @@ describe("trainingReducer", () => {
         isRunning: false,
         time: 999,
       },
-      { type: "START" },
+      { type: 'START' },
     );
 
     expect(started.isRunning).toBe(true);
     expect(started.time).toBe(0);
   });
 
-  it("adds a lap and increments current lap for non-final laps", () => {
+  it('adds a lap and increments current lap for non-final laps', () => {
     const next = trainingReducer(createRunningState(), {
-      type: "ADD_LAP",
+      type: 'ADD_LAP',
       payload: { timestamp: 777 },
     });
 
@@ -59,7 +59,7 @@ describe("trainingReducer", () => {
     expect(next.isRunning).toBe(true);
   });
 
-  it("adds final lap and stops running", () => {
+  it('adds final lap and stops running', () => {
     const next = trainingReducer(
       {
         ...createRunningState(),
@@ -67,7 +67,7 @@ describe("trainingReducer", () => {
         lapsPerStint: 3,
       },
       {
-        type: "ADD_LAP",
+        type: 'ADD_LAP',
         payload: { timestamp: 888 },
       },
     );
@@ -77,9 +77,9 @@ describe("trainingReducer", () => {
     expect(next.isRunning).toBe(false);
   });
 
-  it("skips to next driver and resets stint state", () => {
-    const firstDriver = createDriver("driver-1");
-    const secondDriver = createDriver("driver-2");
+  it('skips to next driver and resets stint state', () => {
+    const firstDriver = createDriver('driver-1');
+    const secondDriver = createDriver('driver-2');
     const next = trainingReducer(
       {
         ...initialState,
@@ -100,7 +100,7 @@ describe("trainingReducer", () => {
         time: 1000,
         isRunning: true,
       },
-      { type: "SKIP" },
+      { type: 'SKIP' },
     );
 
     expect(next.currentDriverIndex).toBe(1);
@@ -111,10 +111,10 @@ describe("trainingReducer", () => {
     expect(next.isRunning).toBe(false);
   });
 
-  it("applies JKS cone penalties", () => {
+  it('applies JKS cone penalties', () => {
     const next = trainingReducer(
       {
-        ...createRunningState("JKS"),
+        ...createRunningState('JKS'),
         laps: [
           {
             time: 5000,
@@ -127,7 +127,7 @@ describe("trainingReducer", () => {
         ],
       },
       {
-        type: "UPDATE_LAP_CONES",
+        type: 'UPDATE_LAP_CONES',
         payload: { index: 0, cones: 2 },
       },
     );
@@ -135,10 +135,10 @@ describe("trainingReducer", () => {
     expect(next.laps[0].time_with_penalties).toBe(9000);
   });
 
-  it("applies SKS cone penalties", () => {
+  it('applies SKS cone penalties', () => {
     const next = trainingReducer(
       {
-        ...createRunningState("SKS"),
+        ...createRunningState('SKS'),
         laps: [
           {
             time: 5000,
@@ -151,7 +151,7 @@ describe("trainingReducer", () => {
         ],
       },
       {
-        type: "UPDATE_LAP_CONES",
+        type: 'UPDATE_LAP_CONES',
         payload: { index: 0, cones: 2 },
       },
     );
@@ -159,10 +159,10 @@ describe("trainingReducer", () => {
     expect(next.laps[0].time_with_penalties).toBe(11000);
   });
 
-  it("keeps existing gate penalties when cone penalties are updated", () => {
+  it('keeps existing gate penalties when cone penalties are updated', () => {
     const next = trainingReducer(
       {
-        ...createRunningState("JKS"),
+        ...createRunningState('JKS'),
         laps: [
           {
             time: 5000,
@@ -175,7 +175,7 @@ describe("trainingReducer", () => {
         ],
       },
       {
-        type: "UPDATE_LAP_CONES",
+        type: 'UPDATE_LAP_CONES',
         payload: { index: 0, cones: 2 },
       },
     );

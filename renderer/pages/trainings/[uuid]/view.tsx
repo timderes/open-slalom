@@ -1,17 +1,17 @@
-import Layout from "@/components/shared/Layout";
-import PageContent from "@/components/shared/PageContent";
-import database from "@/lib/database";
-import { formatTime } from "@/lib/time/formatTime";
+import Layout from '@/components/shared/Layout';
+import PageContent from '@/components/shared/PageContent';
+import database from '@/lib/database';
+import { formatTime } from '@/lib/time/formatTime';
 import {
   getDiffToBest,
   getDiffToPrevious,
   getDriverFastestLap,
   getDriverRanking,
   getFastestLapTimestamp,
-} from "@/lib/training/selectors";
-import { Badge, Code, Stack, Table, Text, Title } from "@mantine/core";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useRouter } from "next/router";
+} from '@/lib/training/selectors';
+import { Badge, Code, Stack, Table, Text, Title } from '@mantine/core';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useRouter } from 'next/router';
 
 const TrainingViewPage = () => {
   const router = useRouter();
@@ -23,9 +23,8 @@ const TrainingViewPage = () => {
         <PageContent>
           <Title>Training konnte nicht geladen werden!</Title>
           <Text>
-            Starten Sie die App neu und versuchen Sie das Training erneut zu
-            öffnen. Wenn das Problem weiterhin besteht, könnte die
-            Trainingsdatei beschädigt sein.
+            Starten Sie die App neu und versuchen Sie das Training erneut zu öffnen. Wenn das
+            Problem weiterhin besteht, könnte die Trainingsdatei beschädigt sein.
           </Text>
         </PageContent>
       </Layout>
@@ -40,43 +39,41 @@ const TrainingViewPage = () => {
         <PageContent>
           <Title>Training nicht gefunden!</Title>
           <Text>
-            Das Training mit der UUID <Code>{uuid}</Code> konnte nicht gefunden.
-            Es könnte gelöscht worden sein oder die UUID ist ungültig.
+            Das Training mit der UUID <Code>{uuid}</Code> konnte nicht gefunden. Es könnte gelöscht
+            worden sein oder die UUID ist ungültig.
           </Text>
         </PageContent>
       </Layout>
     );
   }
 
-  const sortiedDrivers = getDriverRanking(training.drivers).map(
-    (entry) => entry.driver,
-  );
+  const sortiedDrivers = getDriverRanking(training.drivers).map((entry) => entry.driver);
 
   return (
     <Layout currentRoute="/trainings">
       <PageContent>
         <Title>
-          {training.mode}-Training am{" "}
-          {new Date(training.createdAt).toLocaleDateString("de", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+          {training.mode}-Training am{' '}
+          {new Date(training.createdAt).toLocaleDateString('de', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
           })}
         </Title>
         <Stack>
           <Badge>{training.drivers.length} Fahrer</Badge>
           <Text c="dimmed">
-            Gestartet:{" "}
-            {new Date(training.createdAt).toLocaleTimeString("de", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })}{" "}
-            &ndash; Beendet:{" "}
-            {new Date(training.updatedAt).toLocaleTimeString("de", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
+            Gestartet:{' '}
+            {new Date(training.createdAt).toLocaleTimeString('de', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            })}{' '}
+            &ndash; Beendet:{' '}
+            {new Date(training.updatedAt).toLocaleTimeString('de', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
             })}
           </Text>
         </Stack>
@@ -98,10 +95,7 @@ const TrainingViewPage = () => {
             {sortiedDrivers.map((driver, index) => {
               const fastestLap = getDriverFastestLap(driver);
               const diffToBest = getDiffToBest(driver, training.drivers);
-              const diffToPrevious = getDiffToPrevious(
-                driver,
-                training.drivers,
-              );
+              const diffToPrevious = getDiffToPrevious(driver, training.drivers);
               const fastestLapTimestamp = getFastestLapTimestamp(driver);
 
               return (
@@ -109,7 +103,7 @@ const TrainingViewPage = () => {
                   <Table.Td>{index + 1}.</Table.Td>
                   <Table.Td>
                     K
-                    {training.mode === "JKS"
+                    {training.mode === 'JKS'
                       ? (driver.driverClass?.jks ?? 7)
                       : (driver.driverClass?.sks ?? 5)}
                   </Table.Td>
@@ -117,37 +111,25 @@ const TrainingViewPage = () => {
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
                   <Table.Td>
-                    <Text
-                      ff="monospace"
-                      fw="bold"
-                      c={index === 0 ? "grape" : ""}
-                    >
-                      {fastestLap
-                        ? formatTime(fastestLap.time_with_penalties, "lap")
-                        : "N/A"}
+                    <Text ff="monospace" fw="bold" c={index === 0 ? 'grape' : ''}>
+                      {fastestLap ? formatTime(fastestLap.time_with_penalties, 'lap') : 'N/A'}
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    {diffToBest !== undefined
-                      ? formatTime(diffToBest, "gap")
-                      : "N/A"}
+                    {diffToBest !== undefined ? formatTime(diffToBest, 'gap') : 'N/A'}
                   </Table.Td>
                   <Table.Td>
-                    {diffToPrevious !== undefined
-                      ? formatTime(diffToPrevious, "gap")
-                      : "N/A"}
+                    {diffToPrevious !== undefined ? formatTime(diffToPrevious, 'gap') : 'N/A'}
                   </Table.Td>
-                  <Table.Td>
-                    {driver.stints.length * training.lapsPerStint}
-                  </Table.Td>
+                  <Table.Td>{driver.stints.length * training.lapsPerStint}</Table.Td>
                   <Table.Td>
                     {fastestLapTimestamp
-                      ? new Date(fastestLapTimestamp).toLocaleTimeString("de", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
+                      ? new Date(fastestLapTimestamp).toLocaleTimeString('de', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
                         })
-                      : "N/A"}
+                      : 'N/A'}
                   </Table.Td>
                 </Table.Tr>
               );
@@ -159,8 +141,7 @@ const TrainingViewPage = () => {
         {sortiedDrivers.map((driver) => {
           const rows = driver.stints.flatMap((stint, stintIndex) =>
             stint.laps.map((lap, lapIndex) => {
-              const overallLap =
-                stintIndex * training.lapsPerStint + lapIndex + 1;
+              const overallLap = stintIndex * training.lapsPerStint + lapIndex + 1;
               const penaltyMs = Math.max(0, lap.time_with_penalties - lap.time);
 
               return (
@@ -169,18 +150,16 @@ const TrainingViewPage = () => {
                   <Table.Td>{stintIndex + 1}</Table.Td>
                   <Table.Td>{lapIndex + 1}</Table.Td>
                   <Table.Td>
-                    <Badge ff="monospace">
-                      {formatTime(lap.time_with_penalties, "lap")}
-                    </Badge>
+                    <Badge ff="monospace">{formatTime(lap.time_with_penalties, 'lap')}</Badge>
                   </Table.Td>
                   <Table.Td>{lap.cones}</Table.Td>
                   <Table.Td>{lap.gates}</Table.Td>
                   {/*<Table.Td>{formatTime(penaltyMs, "gap")}</Table.Td>*/}
                   <Table.Td>
-                    {new Date(lap.timestamp).toLocaleTimeString("de", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
+                    {new Date(lap.timestamp).toLocaleTimeString('de', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
                     })}
                   </Table.Td>
                 </Table.Tr>

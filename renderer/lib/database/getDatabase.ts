@@ -1,4 +1,4 @@
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME } from '@/lib/constants';
 
 let instance = null;
 
@@ -12,28 +12,28 @@ let instance = null;
 export default async function getDatabase() {
   if (instance) return instance;
 
-  if (typeof window === "undefined") {
-    throw new Error("getDatabase() called on the server");
+  if (typeof window === 'undefined') {
+    throw new Error('getDatabase() called on the server');
   }
 
   // Dynamically import Dexie on the client only
-  const DexieModule = await import("dexie");
+  const DexieModule = await import('dexie');
   const Dexie = (DexieModule && (DexieModule as any).default) || DexieModule;
 
-  const name = APP_NAME.toLowerCase().replace(/\s+/g, "-");
+  const name = APP_NAME.toLowerCase().replace(/\s+/g, '-');
   const db = new Dexie(name);
 
   db.version(1).stores({
-    drivers: "&uuid",
-    karts: "&uuid",
-    trainings: "&uuid",
+    drivers: '&uuid',
+    karts: '&uuid',
+    trainings: '&uuid',
   });
 
   // This upgrade adds the "isInvalid" property to all existing laps in the database,
   // defaulting to `false`. This change was merged with PR #3.
   db.version(2).upgrade((tx) => {
     return tx
-      .table("trainings")
+      .table('trainings')
       .toCollection()
       .modify((training) => {
         training.drivers.forEach((d: DriverWithStints) => {

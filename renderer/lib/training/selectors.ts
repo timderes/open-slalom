@@ -23,10 +23,7 @@ export const getFastestLap = (laps: Lap[]) => {
   );
 };
 
-export const getAverageLap = (
-  laps: Lap[],
-  key: "time" | "time_with_penalties" = "time",
-) => {
+export const getAverageLap = (laps: Lap[], key: 'time' | 'time_with_penalties' = 'time') => {
   const validLaps = getValidLaps(laps);
 
   if (validLaps.length === 0) {
@@ -37,10 +34,7 @@ export const getAverageLap = (
   return total / validLaps.length;
 };
 
-export const getTotalLapTime = (
-  laps: Lap[],
-  key: "time" | "time_with_penalties" = "time",
-) => {
+export const getTotalLapTime = (laps: Lap[], key: 'time' | 'time_with_penalties' = 'time') => {
   const validLaps = getValidLaps(laps);
   return validLaps.reduce((sum, lap) => sum + lap[key], 0);
 };
@@ -75,10 +69,7 @@ export const getDriverRanking = (drivers: DriverWithStints[]) =>
     })
     .map(({ index, ...entry }): DriverRankingEntry => entry);
 
-export const getDiffToBest = (
-  driver: DriverWithStints,
-  drivers: DriverWithStints[],
-) => {
+export const getDiffToBest = (driver: DriverWithStints, drivers: DriverWithStints[]) => {
   const driverFastest = getDriverFastestLap(driver);
 
   if (!driverFastest) {
@@ -95,10 +86,7 @@ export const getDiffToBest = (
   return driverFastest.time_with_penalties - best.time_with_penalties;
 };
 
-export const getDiffToPrevious = (
-  driver: DriverWithStints,
-  drivers: DriverWithStints[],
-) => {
+export const getDiffToPrevious = (driver: DriverWithStints, drivers: DriverWithStints[]) => {
   const ranking = getDriverRanking(drivers);
   const index = ranking.findIndex((entry) => entry.driver.uuid === driver.uuid);
 

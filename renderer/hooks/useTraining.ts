@@ -1,26 +1,26 @@
-import { useEffect, useReducer } from "react";
-import { useStopwatch } from "react-use-precision-timer";
-import { useForm } from "@mantine/form";
-import { v4 as uuidv4 } from "uuid";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useRouter } from "next/router";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import { useHotkeys, useInterval } from "@mantine/hooks";
+import { useEffect, useReducer } from 'react';
+import { useStopwatch } from 'react-use-precision-timer';
+import { useForm } from '@mantine/form';
+import { v4 as uuidv4 } from 'uuid';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useRouter } from 'next/router';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { useHotkeys, useInterval } from '@mantine/hooks';
 import {
   DEFAULT_STOPWATCH_INTERVAL,
   TIME_PENALTIES_JKS,
   TIME_PENALTIES_SKS,
-} from "@/lib/constants";
-import database from "@/lib/database";
+} from '@/lib/constants';
+import database from '@/lib/database';
 import {
   initialState,
   trainingReducer,
   TrainingState,
   type TrainingAction,
-} from "@/lib/training/trainingReducer";
+} from '@/lib/training/trainingReducer';
 
-type DisabledReasonKey = "start" | "lap" | "update" | "skip" | "stop";
+type DisabledReasonKey = 'start' | 'lap' | 'update' | 'skip' | 'stop';
 
 const useTraining = () => {
   const router = useRouter();
@@ -30,13 +30,13 @@ const useTraining = () => {
     initialValues: {
       lapsPerStint: 3,
       drivers: [],
-      mode: "JKS",
+      mode: 'JKS',
       uuid: uuidv4(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
     onValuesChange: () => {
-      settings.setFieldValue("updatedAt", Date.now());
+      settings.setFieldValue('updatedAt', Date.now());
     },
   });
 
@@ -49,53 +49,51 @@ const useTraining = () => {
   const hasDrivers = settings.values.drivers.length > 0;
   const isRunning = stopwatch.isRunning();
   const isFinished = state.laps.length === settings.values.lapsPerStint;
-  const isFinalLapInThisStint =
-    state.currentLap === settings.values.lapsPerStint;
+  const isFinalLapInThisStint = state.currentLap === settings.values.lapsPerStint;
   const trainingHasFinishedStints = settings.values.drivers.some(
     (driver) => (driver.stints?.length ?? 0) > 0,
   );
-  const timePenalties =
-    settings.values.mode === "SKS" ? TIME_PENALTIES_SKS : TIME_PENALTIES_JKS;
+  const timePenalties = settings.values.mode === 'SKS' ? TIME_PENALTIES_SKS : TIME_PENALTIES_JKS;
 
   const notifyError = (title: string, message: string) =>
     notifications.show({
-      color: "red",
+      color: 'red',
       title,
       message,
     });
 
   const notifyInfo = (title: string, message: string) =>
     notifications.show({
-      color: "blue",
+      color: 'blue',
       title,
       message,
     });
 
   const getDisabledReason = (key: DisabledReasonKey): string | undefined => {
     switch (key) {
-      case "start":
-        if (isRunning) return "Stoppuhr läuft";
-        if (!hasDriver) return "Bitte zuerst einen Fahrer auswählen.";
-        if (isFinished) return "Rundenlimit erreicht";
+      case 'start':
+        if (isRunning) return 'Stoppuhr läuft';
+        if (!hasDriver) return 'Bitte zuerst einen Fahrer auswählen.';
+        if (isFinished) return 'Rundenlimit erreicht';
         return undefined;
 
-      case "lap":
-        if (!isRunning) return "Stoppuhr nicht gestartet";
-        if (isFinished) return "Rundenlimit erreicht";
+      case 'lap':
+        if (!isRunning) return 'Stoppuhr nicht gestartet';
+        if (isFinished) return 'Rundenlimit erreicht';
         return undefined;
 
-      case "update":
-        if (isRunning) return "Stoppuhr läuft";
-        if (!isFinished) return "Stint unvollständig";
+      case 'update':
+        if (isRunning) return 'Stoppuhr läuft';
+        if (!isFinished) return 'Stint unvollständig';
         return undefined;
 
-      case "skip":
-        if (isRunning) return "Stoppuhr läuft";
-        if (!hasDrivers) return "Keine Fahrer ausgewählt";
+      case 'skip':
+        if (isRunning) return 'Stoppuhr läuft';
+        if (!hasDrivers) return 'Keine Fahrer ausgewählt';
         return undefined;
 
-      case "stop":
-        return isRunning ? "Stoppuhr läuft" : undefined;
+      case 'stop':
+        return isRunning ? 'Stoppuhr läuft' : undefined;
 
       default:
         return undefined;
@@ -108,51 +106,44 @@ const useTraining = () => {
 
   const handleStopwatchStart = () => {
     if (!hasDriver) {
-      notifyError("Kein Fahrer", "Bitte zuerst einen Fahrer auswählen.");
+      notifyError('Kein Fahrer', 'Bitte zuerst einen Fahrer auswählen.');
       return;
     }
 
     if (stopwatch.isRunning()) {
-      notifyError(
-        "Stoppuhr läuft bereits",
-        "Die Stoppuhr ist bereits gestartet.",
-      );
+      notifyError('Stoppuhr läuft bereits', 'Die Stoppuhr ist bereits gestartet.');
       return;
     }
 
     if (isFinished) {
       notifyError(
-        "Der Stint ist abgeschlossen",
-        "Der Fahrer hat bereits alle Runden gefahren. Bitte nächsten Fahrer auswählen oder Stint zurücksetzen.",
+        'Der Stint ist abgeschlossen',
+        'Der Fahrer hat bereits alle Runden gefahren. Bitte nächsten Fahrer auswählen oder Stint zurücksetzen.',
       );
       return;
     }
 
     stopwatch.stop();
     stopwatch.start();
-    applyAction({ type: "START" });
+    applyAction({ type: 'START' });
   };
 
   const resetStint = () => {
     stopwatch.stop();
-    applyAction({ type: "RESET" });
-    notifyInfo("Stint gelöscht", "Alle Runden wurden zurückgesetzt.");
+    applyAction({ type: 'RESET' });
+    notifyInfo('Stint gelöscht', 'Alle Runden wurden zurückgesetzt.');
   };
 
   const handleStopwatchReset = () => {
-    const hasProgress =
-      state.laps.length > 0 ||
-      stopwatch.getElapsedRunningTime() > 0 ||
-      isRunning;
+    const hasProgress = state.laps.length > 0 || stopwatch.getElapsedRunningTime() > 0 || isRunning;
 
     if (hasProgress) {
       modals.openConfirmModal({
-        title: "Stint wirklich löschen?",
+        title: 'Stint wirklich löschen?',
         centered: true,
-        children:
-          "Alle Runden gehen verloren. Dies kann nicht rückgängig gemacht werden.",
-        labels: { confirm: "Stint löschen", cancel: "Abbrechen" },
-        confirmProps: { color: "red" },
+        children: 'Alle Runden gehen verloren. Dies kann nicht rückgängig gemacht werden.',
+        labels: { confirm: 'Stint löschen', cancel: 'Abbrechen' },
+        confirmProps: { color: 'red' },
         onConfirm: () => resetStint(),
       });
       return;
@@ -163,20 +154,20 @@ const useTraining = () => {
 
   const handleStopwatchLap = () => {
     if (!isRunning) {
-      notifyError("Stoppuhr nicht gestartet", "Bitte zuerst Start drücken.");
+      notifyError('Stoppuhr nicht gestartet', 'Bitte zuerst Start drücken.');
       return;
     }
 
     const wasFinalLap = isFinalLapInThisStint;
     applyAction({
-      type: "ADD_LAP",
+      type: 'ADD_LAP',
       payload: { timestamp: stopwatch.getStartTime() },
     });
 
     if (wasFinalLap) {
       stopwatch.stop();
-      applyAction({ type: "STOP" });
-      notifyInfo("Stint beendet", "Alle Runden abgeschlossen.");
+      applyAction({ type: 'STOP' });
+      notifyInfo('Stint beendet', 'Alle Runden abgeschlossen.');
       return;
     }
 
@@ -190,29 +181,29 @@ const useTraining = () => {
       ? settings.values.drivers.filter((d) => d.uuid !== driver.uuid)
       : [...settings.values.drivers, driver];
 
-    settings.setFieldValue("drivers", updatedDrivers);
-    applyAction({ type: "SET_DRIVERS", payload: updatedDrivers });
+    settings.setFieldValue('drivers', updatedDrivers);
+    applyAction({ type: 'SET_DRIVERS', payload: updatedDrivers });
   };
 
   const updateCurrentStateToNextDriver = () => {
-    applyAction({ type: "SKIP" });
+    applyAction({ type: 'SKIP' });
   };
 
   const handleUpdateCurrentDriver = () => {
     if (!hasDriver) {
-      notifyError("Kein Fahrer", "Es ist kein Fahrer aktiv.");
+      notifyError('Kein Fahrer', 'Es ist kein Fahrer aktiv.');
       return;
     }
 
     if (!isFinished) {
       notifyError(
-        "Stint unvollständig",
-        "Es müssen alle Runden beendet werden, bevor zum nächsten Fahrer gewechselt werden kann.",
+        'Stint unvollständig',
+        'Es müssen alle Runden beendet werden, bevor zum nächsten Fahrer gewechselt werden kann.',
       );
       return;
     }
 
-    settings.setFieldValue("drivers", (prevDrivers) =>
+    settings.setFieldValue('drivers', (prevDrivers) =>
       prevDrivers.map((driver) =>
         driver.uuid === state.currentDriver?.uuid
           ? {
@@ -240,17 +231,17 @@ const useTraining = () => {
 
     if (backupSizeInBytes < maxBackupStorageSize) {
       try {
-        localStorage.setItem("training-backup", backup);
+        localStorage.setItem('training-backup', backup);
       } catch (error: unknown) {
         notifyError(
-          "Sicherheitsbackup fehlgeschlagen",
+          'Sicherheitsbackup fehlgeschlagen',
           `Es konnte kein Backup erstellt werden. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen. Fehler: ${error instanceof DOMException ? error.message : String(error)}`,
         );
       }
     } else {
       notifyError(
-        "Sicherheitsbackup nicht möglich",
-        "Die Trainingsdaten sind größer als 4,5 MB. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen.",
+        'Sicherheitsbackup nicht möglich',
+        'Die Trainingsdaten sind größer als 4,5 MB. Das Training kann fortgesetzt werden, aber bei einem Absturz kann Fortschritt verloren gehen.',
       );
     }
   };
@@ -261,12 +252,11 @@ const useTraining = () => {
 
     if (state.laps.length > 0) {
       modals.openConfirmModal({
-        title: "Fahrer wirklich überspringen?",
+        title: 'Fahrer wirklich überspringen?',
         centered: true,
-        children:
-          "Alle Runden des aktuellen Fahrers gehen verloren. Wirklich überspringen?",
-        labels: { confirm: "Fahrer überspringen", cancel: "Abbrechen" },
-        confirmProps: { color: "red" },
+        children: 'Alle Runden des aktuellen Fahrers gehen verloren. Wirklich überspringen?',
+        labels: { confirm: 'Fahrer überspringen', cancel: 'Abbrechen' },
+        confirmProps: { color: 'red' },
         onConfirm: () => updateCurrentStateToNextDriver(),
       });
       return;
@@ -277,18 +267,18 @@ const useTraining = () => {
 
   const handleStopTraining = () => {
     modals.openConfirmModal({
-      title: "Training beenden?",
+      title: 'Training beenden?',
       centered: true,
       children:
-        "Möchten Sie das Training wirklich beenden? Nicht abgeschlossene Stints werden nicht gespeichert!",
-      labels: { confirm: "Training beenden", cancel: "Abbrechen" },
+        'Möchten Sie das Training wirklich beenden? Nicht abgeschlossene Stints werden nicht gespeichert!',
+      labels: { confirm: 'Training beenden', cancel: 'Abbrechen' },
       onConfirm: () => {
         if (!hasDrivers || !trainingHasFinishedStints) {
           notifyError(
-            "Das Training wurde nicht gespeichert",
-            "Trainings ohne Fahrer oder abgeschlossene Stints werden nicht gespeichert.",
+            'Das Training wurde nicht gespeichert',
+            'Trainings ohne Fahrer oder abgeschlossene Stints werden nicht gespeichert.',
           );
-          router.push("/");
+          router.push('/');
           return;
         }
 
@@ -298,86 +288,83 @@ const useTraining = () => {
             router
               .push(`/trainings/${settings.values.uuid}/view`)
               .then(() =>
-                notifyInfo(
-                  "Training gespeichert",
-                  "Das Training wurde erfolgreich gespeichert.",
-                ),
+                notifyInfo('Training gespeichert', 'Das Training wurde erfolgreich gespeichert.'),
               ),
           )
           .catch((error) =>
             notifyError(
-              "Training konnte nicht gespeichert werden",
-              error?.message || "Unbekannter Fehler",
+              'Training konnte nicht gespeichert werden',
+              error?.message || 'Unbekannter Fehler',
             ),
           );
       },
-      confirmProps: { color: "red" },
+      confirmProps: { color: 'red' },
     });
   };
 
   const handleRestoreTraining = (backup: Partial<TrainingState>) => {
     if (!backup || !Array.isArray(backup.drivers)) {
       notifyError(
-        "Wiederherstellung fehlgeschlagen",
-        "Ungültiges Backup des Trainings. Bitte versuchen Sie es erneut.",
+        'Wiederherstellung fehlgeschlagen',
+        'Ungültiges Backup des Trainings. Bitte versuchen Sie es erneut.',
       );
       return;
     }
 
     // restore form values used elsewhere in the UI
-    settings.setFieldValue("drivers", backup.drivers);
-    if (typeof backup.lapsPerStint === "number") {
-      settings.setFieldValue("lapsPerStint", backup.lapsPerStint);
+    settings.setFieldValue('drivers', backup.drivers);
+    if (typeof backup.lapsPerStint === 'number') {
+      settings.setFieldValue('lapsPerStint', backup.lapsPerStint);
     }
     if (backup.mode) {
-      settings.setFieldValue("mode", backup.mode);
+      settings.setFieldValue('mode', backup.mode);
     }
 
     // restore reducer state (stopwatch will remain stopped)
-    applyAction({ type: "RESTORE", payload: backup });
+    applyAction({ type: 'RESTORE', payload: backup });
     notifyInfo(
-      "Backup geladen",
-      "Das Training wurde erfolgreich aus dem Backup wiederhergestellt.",
+      'Backup geladen',
+      'Das Training wurde erfolgreich aus dem Backup wiederhergestellt.',
     );
   };
 
   const updateLapCones = (index: number, value: number | string) => {
-    const cones = typeof value === "number" ? value : Number(value);
+    const cones = typeof value === 'number' ? value : Number(value);
     applyAction({
-      type: "UPDATE_LAP_CONES",
+      type: 'UPDATE_LAP_CONES',
       payload: { index, cones: Number.isNaN(cones) ? 0 : cones },
     });
   };
 
   const updateLapGates = (index: number, value: number | string) => {
-    const gates = typeof value === "number" ? value : Number(value);
+    const gates = typeof value === 'number' ? value : Number(value);
     applyAction({
-      type: "UPDATE_LAP_GATES",
+      type: 'UPDATE_LAP_GATES',
       payload: { index, gates: Number.isNaN(gates) ? 0 : gates },
     });
   };
 
   const toggleLapInvalid = (index: number) => {
     applyAction({
-      type: "TOGGLE_LAP_INVALID",
+      type: 'TOGGLE_LAP_INVALID',
       payload: { index },
     });
   };
 
   useEffect(() => {
-    applyAction({ type: "SET_DRIVERS", payload: settings.values.drivers });
+    applyAction({ type: 'SET_DRIVERS', payload: settings.values.drivers });
   }, [settings.values.drivers]);
 
   useEffect(() => {
     applyAction({
-      type: "SET_LAPS_PER_STINT",
+      type: 'SET_LAPS_PER_STINT',
       payload: settings.values.lapsPerStint,
     });
   }, [settings.values.lapsPerStint]);
 
   useEffect(() => {
     applyAction({
-      type: "SET_MODE",
+      type: 'SET_MODE',
       payload: settings.values.mode,
     });
   }, [settings.values.mode]);
@@ -385,7 +372,7 @@ const useTraining = () => {
   const interval = useInterval(
     () =>
       applyAction({
-        type: "TICK",
+        type: 'TICK',
         payload: stopwatch.getElapsedRunningTime(),
       }),
     DEFAULT_STOPWATCH_INTERVAL,
@@ -404,11 +391,11 @@ const useTraining = () => {
   }, [stopwatch.isRunning()]);
 
   useHotkeys([
-    ["Q", () => handleStopwatchStart()],
-    ["W", () => handleStopwatchLap()],
-    ["E", () => handleStopwatchReset()],
-    ["CTRL+S", () => handleUpdateCurrentDriver()],
-    ["CTRL+D", () => handleSkipDriver()],
+    ['Q', () => handleStopwatchStart()],
+    ['W', () => handleStopwatchLap()],
+    ['E', () => handleStopwatchReset()],
+    ['CTRL+S', () => handleUpdateCurrentDriver()],
+    ['CTRL+D', () => handleSkipDriver()],
     // ["ESC", () => handleStopTraining()],
   ]);
 

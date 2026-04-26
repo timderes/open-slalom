@@ -1,4 +1,4 @@
-import getDatabase from "../getDatabase";
+import getDatabase from '../getDatabase';
 
 const clearDatabase = async () => {
   const db = await getDatabase();

@@ -1,29 +1,22 @@
-import Layout from "@/components/shared/Layout";
-import PageContent from "@/components/shared/PageContent";
-import PageHeader from "@/components/shared/PageHeader";
-import database from "@/lib/database";
-import {
-  Button,
-  Group,
-  SegmentedControl,
-  Stack,
-  Text,
-  TextInput,
-} from "@mantine/core";
-import { isNotEmpty, useForm } from "@mantine/form";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import { useRouter } from "next/router";
-import { v4 as uuidv4 } from "uuid";
+import Layout from '@/components/shared/Layout';
+import PageContent from '@/components/shared/PageContent';
+import PageHeader from '@/components/shared/PageHeader';
+import database from '@/lib/database';
+import { Button, Group, SegmentedControl, Stack, Text, TextInput } from '@mantine/core';
+import { isNotEmpty, useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { useRouter } from 'next/router';
+import { v4 as uuidv4 } from 'uuid';
 
 const CreateKartPage = () => {
   const router = useRouter();
   const form = useForm<Kart>({
     initialValues: {
-      name: "",
-      engine: "",
-      chassis: "",
-      type: "JKS",
+      name: '',
+      engine: '',
+      chassis: '',
+      type: 'JKS',
       history: {
         laps: 0,
         totalTrainingsSessions: 0,
@@ -36,9 +29,9 @@ const CreateKartPage = () => {
       updatedAt: Date.now(),
     },
     validate: {
-      name: isNotEmpty("Dieses Feld darf nicht leer sein."),
-      engine: isNotEmpty("Dieses Feld darf nicht leer sein."),
-      chassis: isNotEmpty("Dieses Feld darf nicht leer sein."),
+      name: isNotEmpty('Dieses Feld darf nicht leer sein.'),
+      engine: isNotEmpty('Dieses Feld darf nicht leer sein.'),
+      chassis: isNotEmpty('Dieses Feld darf nicht leer sein.'),
     },
 
     validateInputOnChange: true,
@@ -50,33 +43,29 @@ const CreateKartPage = () => {
 
       notifications.show({
         // icon: <IconHelmet />,
-        title: "Kart angelegt",
+        title: 'Kart angelegt',
         message: `${name} wurde erfolgreich angelegt.`,
-        color: "green",
+        color: 'green',
       });
 
       form.reset();
-      router.push("/karts");
+      router.push('/karts');
     });
   };
 
   const handleGoBack = () => {
     if (!form.isDirty()) {
       // Skip confirmation modal if form is not dirty
-      router.push("/karts");
+      router.push('/karts');
       return;
     }
 
     modals.openConfirmModal({
-      title: "Kart nicht anlegen?",
+      title: 'Kart nicht anlegen?',
       centered: true,
-      children: (
-        <Text>
-          Bereits eingetragende Informationen werden nicht gespeichert!
-        </Text>
-      ),
-      labels: { confirm: "Ja", cancel: "Nein" },
-      onConfirm: () => router.push("/karts"),
+      children: <Text>Bereits eingetragende Informationen werden nicht gespeichert!</Text>,
+      labels: { confirm: 'Ja', cancel: 'Nein' },
+      onConfirm: () => router.push('/karts'),
     });
   };
 
@@ -99,30 +88,28 @@ const CreateKartPage = () => {
               <TextInput
                 label="Kart"
                 placeholder="Jugendkart #1"
-                {...form.getInputProps("name")}
-                key={form.key("name")}
+                {...form.getInputProps('name')}
+                key={form.key('name')}
               />
               <SegmentedControl
                 color="blue"
-                data={["JKS", "SKS"]}
+                data={['JKS', 'SKS']}
                 value={form.values.type}
-                onChange={(value) =>
-                  form.setFieldValue("type", value as SlalomType)
-                }
+                onChange={(value) => form.setFieldValue('type', value as SlalomType)}
               />
             </Group>
             <Group grow>
               <TextInput
                 label="Motor"
                 placeholder="Honda GX-200"
-                {...form.getInputProps("engine")}
-                key={form.key("engine")}
+                {...form.getInputProps('engine')}
+                key={form.key('engine')}
               />
               <TextInput
                 label="Chassis"
                 placeholder="Mach1"
-                {...form.getInputProps("chassis")}
-                key={form.key("chassis")}
+                {...form.getInputProps('chassis')}
+                key={form.key('chassis')}
               />
             </Group>
             <Group mt="xl">

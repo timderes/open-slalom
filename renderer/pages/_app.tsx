@@ -1,22 +1,22 @@
 // Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
-import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
-import "@mantine/notifications/styles.css";
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
 
-import "../styles/globals.css";
+import '../styles/globals.css';
 
-import "dayjs/locale/de";
+import 'dayjs/locale/de';
 
-import type { AppProps } from "next/app";
-import Head from "next/head";
+import type { AppProps } from 'next/app';
+import Head from 'next/head';
 
-import { createTheme, MantineProvider } from "@mantine/core";
-import { DatesProvider } from "@mantine/dates";
-import { ModalsProvider } from "@mantine/modals";
-import { Notifications } from "@mantine/notifications";
+import { createTheme, MantineProvider } from '@mantine/core';
+import { DatesProvider } from '@mantine/dates';
+import { ModalsProvider } from '@mantine/modals';
+import { Notifications } from '@mantine/notifications';
 
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME } from '@/lib/constants';
 
 const theme = createTheme({
   /** Put your mantine theme override here */
@@ -29,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>{APP_NAME}</title>
       </Head>
       <Notifications limit={3} position="top-right" />
-      <DatesProvider settings={{ locale: "de" }}>
+      <DatesProvider settings={{ locale: 'de' }}>
         <ModalsProvider>
           <Component {...pageProps} />
         </ModalsProvider>

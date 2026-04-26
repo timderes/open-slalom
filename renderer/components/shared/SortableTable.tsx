@@ -1,4 +1,4 @@
-import { Table, type TableProps } from "@mantine/core";
+import { Table, type TableProps } from '@mantine/core';
 
 type ScrollableTableProps = TableProps;
 

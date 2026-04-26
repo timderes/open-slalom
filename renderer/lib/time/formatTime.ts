@@ -1,4 +1,4 @@
-export type TimeFormatPreset = "lap" | "duration" | "gap";
+export type TimeFormatPreset = 'lap' | 'duration' | 'gap';
 
 type FormatTimeOptions = {
   showHours?: boolean;
@@ -26,49 +26,45 @@ const formatTimeBase = (
 
   if (showMilliseconds) {
     if (hours > 0 || showHours) {
-      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
         .toString()
-        .padStart(2, "0")}.${milliseconds.toString().padStart(3, "0")}`;
+        .padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
     }
 
     if (minutes === 0 && trimLeadingZeroMinutes) {
-      const sec = padSeconds
-        ? seconds.toString().padStart(2, "0")
-        : seconds.toString();
+      const sec = padSeconds ? seconds.toString().padStart(2, '0') : seconds.toString();
 
-      return `${sec}.${milliseconds.toString().padStart(3, "0")}`;
+      return `${sec}.${milliseconds.toString().padStart(3, '0')}`;
     }
 
-    return `${minutes}:${seconds.toString().padStart(2, "0")}.${milliseconds
+    return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds
       .toString()
-      .padStart(3, "0")}`;
+      .padStart(3, '0')}`;
   }
 
   if (hours > 0 || showHours) {
-    return `${hours.toString().padStart(2, "0")}:${minutes
+    return `${hours.toString().padStart(2, '0')}:${minutes
       .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  return `${minutes.toString().padStart(2, "0")}:${seconds
-    .toString()
-    .padStart(2, "0")}`;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
 export const formatTime = (time: number, preset: TimeFormatPreset): string => {
   switch (preset) {
-    case "lap":
+    case 'lap':
       return formatTimeBase(time, {
         showMilliseconds: true,
         trimLeadingZeroMinutes: true,
         padSeconds: true,
       });
 
-    case "duration":
+    case 'duration':
       return formatTimeBase(time);
 
-    case "gap": {
-      const sign = time > 0 ? "+" : time < 0 ? "-" : "";
+    case 'gap': {
+      const sign = time > 0 ? '+' : time < 0 ? '-' : '';
 
       return (
         sign +

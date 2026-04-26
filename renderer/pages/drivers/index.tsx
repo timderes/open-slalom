@@ -1,16 +1,9 @@
-import Layout from "@/components/shared/Layout";
-import { DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from "@/lib/constants";
-import database from "@/lib/database";
-import calculateDriverAge from "@/lib/misc/calculateDriverAge";
-import { getJksClass, getSksClass } from "@/lib/misc/getDriverClass";
-import {
-  Avatar,
-  Button,
-  ButtonGroup,
-  Group,
-  Text,
-  Tooltip,
-} from "@mantine/core";
+import Layout from '@/components/shared/Layout';
+import { DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from '@/lib/constants';
+import database from '@/lib/database';
+import calculateDriverAge from '@/lib/misc/calculateDriverAge';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
+import { Avatar, Button, ButtonGroup, Group, Text, Tooltip } from '@mantine/core';
 import {
   IconGenderFemale,
   IconGenderMale,
@@ -19,28 +12,26 @@ import {
   IconPencil,
   IconTrash,
   IconUserSearch,
-} from "@tabler/icons-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useRouter } from "next/router";
-import { modals } from "@mantine/modals";
-import PageHeader from "@/components/shared/PageHeader";
-import ScrollableTable from "@/components/shared/SortableTable";
-import PageContent from "@/components/shared/PageContent";
+} from '@tabler/icons-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useRouter } from 'next/router';
+import { modals } from '@mantine/modals';
+import PageHeader from '@/components/shared/PageHeader';
+import ScrollableTable from '@/components/shared/SortableTable';
+import PageContent from '@/components/shared/PageContent';
 
 const DriversPage = () => {
   const router = useRouter();
-  const drivers = useLiveQuery(() => database.drivers.toArray(), [])?.sort(
-    (a, b) => {
-      // Sort by last name, then first name
-      if (a.lastName.toLowerCase() < b.lastName.toLowerCase()) return -1;
-      if (a.lastName.toLowerCase() > b.lastName.toLowerCase()) return 1;
-      if (a.firstName.toLowerCase() < b.firstName.toLowerCase()) return -1;
-      if (a.firstName.toLowerCase() > b.firstName.toLowerCase()) return 1;
-      return 0;
-    },
-  );
+  const drivers = useLiveQuery(() => database.drivers.toArray(), [])?.sort((a, b) => {
+    // Sort by last name, then first name
+    if (a.lastName.toLowerCase() < b.lastName.toLowerCase()) return -1;
+    if (a.lastName.toLowerCase() > b.lastName.toLowerCase()) return 1;
+    if (a.firstName.toLowerCase() < b.firstName.toLowerCase()) return -1;
+    if (a.firstName.toLowerCase() > b.firstName.toLowerCase()) return 1;
+    return 0;
+  });
 
-  const tableActions = (uuid: Driver["uuid"]) => {
+  const tableActions = (uuid: Driver['uuid']) => {
     return (
       <ButtonGroup ms="auto" w="fit-content" key={uuid}>
         <Button onClick={() => router.push(`/drivers/view/${uuid}`)}>
@@ -49,18 +40,14 @@ const DriversPage = () => {
         <Button onClick={() => router.push(`/drivers/edit/${uuid}`)}>
           <IconPencil />
         </Button>
-        <Button
-          variant="filled"
-          bg="red"
-          onClick={() => handleDeleteDriver(uuid)}
-        >
+        <Button variant="filled" bg="red" onClick={() => handleDeleteDriver(uuid)}>
           <IconTrash />
         </Button>
       </ButtonGroup>
     );
   };
 
-  const handleDeleteDriver = (uuid: Driver["uuid"]) => {
+  const handleDeleteDriver = (uuid: Driver['uuid']) => {
     const driver = drivers.find((d) => d.uuid === uuid);
     if (!driver) return;
 
@@ -68,13 +55,13 @@ const DriversPage = () => {
       title: `Das Profil von ${driver.firstName} löschen?`,
       children: (
         <Text>
-          Alle Ergebnisse und Daten von {driver.firstName} werden gelöscht. Das
-          kann nicht rückgängig gemacht werden!
+          Alle Ergebnisse und Daten von {driver.firstName} werden gelöscht. Das kann nicht
+          rückgängig gemacht werden!
         </Text>
       ),
       onConfirm: () => database.drivers.delete(driver.uuid),
-      labels: { confirm: "Löschen", cancel: "Abbrechen" },
-      confirmProps: { color: "red" },
+      labels: { confirm: 'Löschen', cancel: 'Abbrechen' },
+      confirmProps: { color: 'red' },
       centered: true,
     });
   };
@@ -86,7 +73,7 @@ const DriversPage = () => {
           <PageHeader title="Fahrer" />
           <Button
             leftSection={<IconHelmet />}
-            onClick={() => router.push("/drivers/create")}
+            onClick={() => router.push('/drivers/create')}
             variant="filled"
             w="fit-content"
           >
@@ -98,23 +85,20 @@ const DriversPage = () => {
           highlightOnHover
           withRowBorders={false}
           data={{
-            head: ["Name", "", "Geburtsdatum", "JKS", "SKS"],
+            head: ['Name', '', 'Geburtsdatum', 'JKS', 'SKS'],
             body: drivers
               ? drivers.map((driver) => [
                   <Group gap="md">
-                    <Avatar
-                      color="initials"
-                      name={`${driver.firstName} ${driver.lastName}`}
-                    />
+                    <Avatar color="initials" name={`${driver.firstName} ${driver.lastName}`} />
                     <Text>
                       {driver.firstName} {driver.lastName}
                     </Text>
                   </Group>,
-                  driver.sex === "male" ? (
+                  driver.sex === 'male' ? (
                     <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
                       <IconGenderMale />
                     </Tooltip>
-                  ) : driver.sex === "female" ? (
+                  ) : driver.sex === 'female' ? (
                     <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
                       <IconGenderFemale />
                     </Tooltip>
@@ -123,9 +107,9 @@ const DriversPage = () => {
                       <IconGenderTransgender />
                     </Tooltip>
                   ),
-                  `${new Date(driver.birthDate).toLocaleDateString("de", {
+                  `${new Date(driver.birthDate).toLocaleDateString('de', {
                     ...DEFAULT_DATE_FORMAT,
-                    month: "long",
+                    month: 'long',
                   })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
                   `K${getJksClass({ birthDate: driver.birthDate })}`,
                   `K${getSksClass({ birthDate: driver.birthDate })}`,

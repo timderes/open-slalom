@@ -1,4 +1,4 @@
-import { Title } from "@mantine/core";
+import { Title } from '@mantine/core';
 
 type PageHeaderProps = {
   title: string;

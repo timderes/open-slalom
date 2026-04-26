@@ -1,5 +1,5 @@
-import { Text } from "@mantine/core";
-import { useOs } from "@mantine/hooks";
+import { Text } from '@mantine/core';
+import { useOs } from '@mantine/hooks';
 
 /**
  * Returns the current operating system name.

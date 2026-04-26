@@ -1,4 +1,4 @@
-import Layout from "@/components/shared/Layout";
+import Layout from '@/components/shared/Layout';
 import {
   ActionIcon,
   Avatar,
@@ -21,7 +21,7 @@ import {
   Title,
   Tooltip,
   useDrawersStack,
-} from "@mantine/core";
+} from '@mantine/core';
 import {
   IconAlertSquareRounded,
   IconBugFilled,
@@ -35,23 +35,23 @@ import {
   IconStopwatch,
   IconUserMinus,
   IconUserPlus,
-} from "@tabler/icons-react";
-import ScrollableTable from "@/components/shared/SortableTable";
-import useTraining from "@/hooks/useTraining";
+} from '@tabler/icons-react';
+import ScrollableTable from '@/components/shared/SortableTable';
+import useTraining from '@/hooks/useTraining';
 import {
   getAverageLap,
   getDriverRanking,
   getLapPenaltySeconds,
   getTotalLapTime,
-} from "@/lib/training/selectors";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import type { TrainingState } from "@/lib/training/trainingReducer";
-import { useLocalStorage } from "@mantine/hooks";
-import { formatTime } from "@/lib/time/formatTime";
+} from '@/lib/training/selectors';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import type { TrainingState } from '@/lib/training/trainingReducer';
+import { useLocalStorage } from '@mantine/hooks';
+import { formatTime } from '@/lib/time/formatTime';
 
 const ActiveTrainingPage = () => {
-  const stack = useDrawersStack(["drivers", "settings", "dev"]);
+  const stack = useDrawersStack(['drivers', 'settings', 'dev']);
   const {
     availableDrivers,
     settings,
@@ -71,7 +71,7 @@ const ActiveTrainingPage = () => {
   } = conditions;
   const router = useRouter();
   const [restoreBackup] = useLocalStorage<Partial<TrainingState> | undefined>({
-    key: "training-backup",
+    key: 'training-backup',
     defaultValue: undefined,
   });
 
@@ -90,7 +90,7 @@ const ActiveTrainingPage = () => {
           overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
           size="xl"
           title="Fahrer Management"
-          {...stack.register("drivers")}
+          {...stack.register('drivers')}
         >
           <Stack>
             {availableDrivers?.map((driver) => (
@@ -105,25 +105,19 @@ const ActiveTrainingPage = () => {
                 </Text>
                 <ActionIcon
                   color={
-                    settings.values.drivers.some((d) => d.uuid === driver.uuid)
-                      ? "red"
-                      : "blue"
+                    settings.values.drivers.some((d) => d.uuid === driver.uuid) ? 'red' : 'blue'
                   }
                   ms="auto"
                   onClick={() => {
                     // Check if driver already was added to the training before and then preserve their stints
-                    const existing = settings.values.drivers.find(
-                      (d) => d.uuid === driver.uuid,
-                    );
+                    const existing = settings.values.drivers.find((d) => d.uuid === driver.uuid);
                     actions.addDriver({
                       ...driver,
                       stints: existing ? existing.stints : [],
                     });
                   }}
                 >
-                  {settings.values.drivers.some(
-                    (d) => d.uuid === driver.uuid,
-                  ) ? (
+                  {settings.values.drivers.some((d) => d.uuid === driver.uuid) ? (
                     <IconUserMinus />
                   ) : (
                     <IconUserPlus />
@@ -137,7 +131,7 @@ const ActiveTrainingPage = () => {
           overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
           size="xl"
           title="Einstellungen"
-          {...stack.register("settings")}
+          {...stack.register('settings')}
         >
           <Stack>
             <NumberInput
@@ -145,7 +139,7 @@ const ActiveTrainingPage = () => {
               description="Anzahl der Runden die jeder Fahrer pro Stint fährt."
               min={1}
               max={99}
-              {...settings.getInputProps("lapsPerStint")}
+              {...settings.getInputProps('lapsPerStint')}
             />
             <Stack gap={0}>
               <Text fz="sm" fw="bold" opacity={0.8}>
@@ -153,16 +147,14 @@ const ActiveTrainingPage = () => {
               </Text>
               <SegmentedControl
                 color="blue"
-                data={["JKS", "SKS"]}
+                data={['JKS', 'SKS']}
                 value={settings.values.mode}
-                onChange={(value) =>
-                  settings.setFieldValue("mode", value as SlalomType)
-                }
+                onChange={(value) => settings.setFieldValue('mode', value as SlalomType)}
               />
             </Stack>
           </Stack>
         </Drawer>
-        <Drawer size="100%" title="Entwickler" {...stack.register("dev")}>
+        <Drawer size="100%" title="Entwickler" {...stack.register('dev')}>
           <Divider label="CURRENT STINT" />
           <pre>{JSON.stringify(currentStint, null, 2)}</pre>
           <Divider label="FORM" />
@@ -195,7 +187,7 @@ const ActiveTrainingPage = () => {
                     label="Fahrer"
                     withArrow
                     position="bottom"
-                    onClick={() => stack.open("drivers")}
+                    onClick={() => stack.open('drivers')}
                   >
                     <ActionIcon>
                       <IconHelmet />
@@ -205,7 +197,7 @@ const ActiveTrainingPage = () => {
                     label="Einstellungen"
                     withArrow
                     position="bottom"
-                    onClick={() => stack.open("settings")}
+                    onClick={() => stack.open('settings')}
                     disabled={isRunning}
                   >
                     <ActionIcon
@@ -220,7 +212,7 @@ const ActiveTrainingPage = () => {
                     label="Entwickler"
                     withArrow
                     position="bottom"
-                    onClick={() => stack.open("dev")}
+                    onClick={() => stack.open('dev')}
                   >
                     <ActionIcon c="orange" variant="default" w="fit-content">
                       <IconBugFilled />
@@ -229,17 +221,13 @@ const ActiveTrainingPage = () => {
                 </Group>
               </Group>
             </Grid.Col>
-            <Grid.Col
-              span={{ lg: 7, base: 12 }}
-              order={{ lg: 0, base: 1 }}
-              mb="md"
-            >
+            <Grid.Col span={{ lg: 7, base: 12 }} order={{ lg: 0, base: 1 }} mb="md">
               <Stack>
                 <Card withBorder>
                   <Group grow>
                     <Tooltip
-                      label={getDisabledReason("update")}
-                      disabled={!getDisabledReason("update")}
+                      label={getDisabledReason('update')}
+                      disabled={!getDisabledReason('update')}
                       withArrow
                     >
                       <Button
@@ -247,15 +235,15 @@ const ActiveTrainingPage = () => {
                         disabled={isRunning || !isFinished}
                         onClick={() => actions.updateCurrentDriver()}
                       >
-                        Nächster Fahrer{" "}
+                        Nächster Fahrer{' '}
                         <Kbd size="xs" ms="xs">
                           STRG+S
                         </Kbd>
                       </Button>
                     </Tooltip>
                     <Tooltip
-                      label={getDisabledReason("skip")}
-                      disabled={!getDisabledReason("skip")}
+                      label={getDisabledReason('skip')}
+                      disabled={!getDisabledReason('skip')}
                       withArrow
                     >
                       <Button
@@ -264,15 +252,15 @@ const ActiveTrainingPage = () => {
                         disabled={isRunning || !hasDrivers}
                         onClick={() => actions.skipDriver()}
                       >
-                        Fahrer überspringen{" "}
+                        Fahrer überspringen{' '}
                         <Kbd size="xs" ms="xs">
                           STRG+D
                         </Kbd>
                       </Button>
                     </Tooltip>
                     <Tooltip
-                      label={getDisabledReason("stop")}
-                      disabled={!getDisabledReason("stop")}
+                      label={getDisabledReason('stop')}
+                      disabled={!getDisabledReason('stop')}
                       withArrow
                     >
                       <Button
@@ -288,16 +276,10 @@ const ActiveTrainingPage = () => {
                 </Card>
                 <Tabs defaultValue="starterList" variant="outline">
                   <Tabs.List>
-                    <Tabs.Tab
-                      value="starterList"
-                      leftSection={<IconList size={16} />}
-                    >
+                    <Tabs.Tab value="starterList" leftSection={<IconList size={16} />}>
                       Starterliste
                     </Tabs.Tab>
-                    <Tabs.Tab
-                      value="fastestLaps"
-                      leftSection={<IconListNumbers size={16} />}
-                    >
+                    <Tabs.Tab value="fastestLaps" leftSection={<IconListNumbers size={16} />}>
                       Schnellste Runden
                     </Tabs.Tab>
                   </Tabs.List>
@@ -309,7 +291,7 @@ const ActiveTrainingPage = () => {
                           leftSection={<IconHelmet />}
                           w="fit-content"
                           mx="auto"
-                          onClick={() => stack.open("drivers")}
+                          onClick={() => stack.open('drivers')}
                         >
                           Fahrer hinzufügen
                         </Button>
@@ -327,16 +309,8 @@ const ActiveTrainingPage = () => {
                             {settings.values?.drivers.map((driver, _idx) => (
                               <Table.Tr
                                 key={driver.uuid}
-                                bg={
-                                  currentStint.currentDriverIndex === _idx
-                                    ? "blue"
-                                    : undefined
-                                }
-                                c={
-                                  currentStint.currentDriverIndex === _idx
-                                    ? "white"
-                                    : undefined
-                                }
+                                bg={currentStint.currentDriverIndex === _idx ? 'blue' : undefined}
+                                c={currentStint.currentDriverIndex === _idx ? 'white' : undefined}
                               >
                                 <Table.Td>
                                   {driver.firstName} {driver.lastName}
@@ -356,27 +330,24 @@ const ActiveTrainingPage = () => {
                       withRowBorders={false}
                       data={{
                         head: [
-                          "Position",
-                          "Fahrer",
-                          "Kart",
-                          "Rundenzeit",
-                          "Diff.",
-                          "Strafen",
-                          "Zeitpunkt",
-                          "Runden",
+                          'Position',
+                          'Fahrer',
+                          'Kart',
+                          'Rundenzeit',
+                          'Diff.',
+                          'Strafen',
+                          'Zeitpunkt',
+                          'Runden',
                         ],
                         body: (() => {
-                          const driversWithFastest = getDriverRanking(
-                            settings.values.drivers,
-                          );
-                          const bestTime =
-                            driversWithFastest[0]?.fastestLapTime;
+                          const driversWithFastest = getDriverRanking(settings.values.drivers);
+                          const bestTime = driversWithFastest[0]?.fastestLapTime;
 
                           return driversWithFastest.map(
                             ({ driver, fastestLap, fastestLapTime }, idx) => {
                               const pos = `${idx + 1}.`;
                               const name = `${driver.firstName} ${driver.lastName}`;
-                              const kart = (driver as any).kart ?? "N/A";
+                              const kart = (driver as any).kart ?? 'N/A';
                               const cones = fastestLap?.cones ?? 0;
                               const gates = fastestLap?.gates ?? 0;
                               const penalties =
@@ -385,29 +356,21 @@ const ActiveTrainingPage = () => {
                                       fastestLap,
                                       timePenalties,
                                     )}s)`
-                                  : "N/A";
+                                  : 'N/A';
                               const timeStr = fastestLap
-                                ? formatTime(
-                                    fastestLap.time_with_penalties,
-                                    "lap",
-                                  )
-                                : "N/A";
+                                ? formatTime(fastestLap.time_with_penalties, 'lap')
+                                : 'N/A';
 
                               const diffToBest =
                                 fastestLapTime !== undefined
                                   ? idx === 0 || bestTime === undefined
-                                    ? "-"
-                                    : `+${formatTime(
-                                        fastestLapTime - bestTime,
-                                        "gap",
-                                      )}`
-                                  : "N/A";
+                                    ? '-'
+                                    : `+${formatTime(fastestLapTime - bestTime, 'gap')}`
+                                  : 'N/A';
 
                               const date = fastestLap
-                                ? new Date(fastestLap.timestamp)
-                                    .toTimeString()
-                                    .split(" ")[0]
-                                : "N/A";
+                                ? new Date(fastestLap.timestamp).toTimeString().split(' ')[0]
+                                : 'N/A';
 
                               const totalRounds = (driver.stints ?? []).flatMap(
                                 (stint) => stint.laps ?? [],
@@ -440,10 +403,10 @@ const ActiveTrainingPage = () => {
                     <>
                       <IconStopwatch />
                       <Text ml="xs">
-                        Stoppuhr &mdash; Fahrer:{" "}
+                        Stoppuhr &mdash; Fahrer:{' '}
                         {currentStint.driver
                           ? `${currentStint.driver.firstName} ${currentStint.driver.lastName}`
-                          : "N/A"}
+                          : 'N/A'}
                       </Text>
                     </>
                   }
@@ -451,27 +414,26 @@ const ActiveTrainingPage = () => {
                 />
                 <Stack gap={0}>
                   <Text ff="monospace" fz="5rem" fw="bold">
-                    {formatTime(currentStint.time, "lap")}
+                    {formatTime(currentStint.time, 'lap')}
                   </Text>
                   <Text opacity={0.7}>
-                    Runde: {currentStint.currentLap} /{" "}
-                    {settings.values.lapsPerStint}
+                    Runde: {currentStint.currentLap} / {settings.values.lapsPerStint}
                   </Text>
                 </Stack>
                 <Group grow>
                   <ButtonGroup>
                     <Tooltip
-                      label={getDisabledReason("start")}
-                      disabled={!getDisabledReason("start")}
+                      label={getDisabledReason('start')}
+                      disabled={!getDisabledReason('start')}
                       withArrow
                     >
-                      <div style={{ display: "inline-block" }}>
+                      <div style={{ display: 'inline-block' }}>
                         <Button
                           leftSection={<IconFlag />}
                           disabled={isRunning || !hasDriver || isFinished}
                           onClick={() => actions.start()}
                         >
-                          Start{" "}
+                          Start{' '}
                           <Kbd size="xs" ms="xs">
                             Q
                           </Kbd>
@@ -480,16 +442,13 @@ const ActiveTrainingPage = () => {
                     </Tooltip>
 
                     <Tooltip
-                      label={getDisabledReason("lap")}
-                      disabled={!getDisabledReason("lap")}
+                      label={getDisabledReason('lap')}
+                      disabled={!getDisabledReason('lap')}
                       withArrow
                     >
-                      <div style={{ display: "inline-block" }}>
-                        <Button
-                          disabled={isFinished || !isRunning}
-                          onClick={() => actions.lap()}
-                        >
-                          {isFinalLapInThisStint ? "Stop" : "Runde"}{" "}
+                      <div style={{ display: 'inline-block' }}>
+                        <Button disabled={isFinished || !isRunning} onClick={() => actions.lap()}>
+                          {isFinalLapInThisStint ? 'Stop' : 'Runde'}{' '}
                           <Kbd size="xs" ms="xs">
                             W
                           </Kbd>
@@ -497,14 +456,14 @@ const ActiveTrainingPage = () => {
                       </div>
                     </Tooltip>
                   </ButtonGroup>
-                  <div style={{ display: "inline-block" }}>
+                  <div style={{ display: 'inline-block' }}>
                     <Button
                       leftSection={<IconClockOff />}
                       w="fit-content"
                       bg="red"
                       onClick={() => actions.reset()}
                     >
-                      Stint löschen{" "}
+                      Stint löschen{' '}
                       <Kbd size="xs" ms="xs">
                         E
                       </Kbd>
@@ -523,18 +482,13 @@ const ActiveTrainingPage = () => {
                 />
                 <Stack ta="left">
                   {(() => {
-                    const totalValidLapTime = getTotalLapTime(
-                      currentStint.laps,
-                    );
+                    const totalValidLapTime = getTotalLapTime(currentStint.laps);
                     const averageValidLap = getAverageLap(currentStint.laps);
 
                     return (
                       <Text opacity={0.7}>
-                        Gesamtzeit: {formatTime(totalValidLapTime, "lap")}{" "}
-                        &mdash; &#x00D8;{" "}
-                        {averageValidLap === undefined
-                          ? "N/A"
-                          : formatTime(averageValidLap, "lap")}
+                        Gesamtzeit: {formatTime(totalValidLapTime, 'lap')} &mdash; &#x00D8;{' '}
+                        {averageValidLap === undefined ? 'N/A' : formatTime(averageValidLap, 'lap')}
                       </Text>
                     );
                   })()}
@@ -552,8 +506,7 @@ const ActiveTrainingPage = () => {
                       </Table.Thead>
                       <Table.Tbody>
                         {currentStint.laps.map((lap, index) => {
-                          const LAP_HAS_PENALTIES =
-                            lap.cones !== 0 || lap.gates !== 0;
+                          const LAP_HAS_PENALTIES = lap.cones !== 0 || lap.gates !== 0;
 
                           return (
                             <Table.Tr key={lap.timestamp}>
@@ -561,17 +514,12 @@ const ActiveTrainingPage = () => {
                                 <Group gap={5}>
                                   {index + 1}
                                   {LAP_HAS_PENALTIES && (
-                                    <IconAlertSquareRounded
-                                      color="red"
-                                      size={24}
-                                    />
+                                    <IconAlertSquareRounded color="red" size={24} />
                                   )}
                                 </Group>
                               </Table.Td>
                               <Table.Td>
-                                <Text component="span">
-                                  {formatTime(lap.time, "lap")}
-                                </Text>
+                                <Text component="span">{formatTime(lap.time, 'lap')}</Text>
                               </Table.Td>
                               <Table.Td>
                                 {LAP_HAS_PENALTIES && (
@@ -587,34 +535,24 @@ const ActiveTrainingPage = () => {
                                   min={0}
                                   max={99}
                                   variant="unstyled"
-                                  onChange={(val) =>
-                                    actions.updateLapCones(index, val ?? 0)
-                                  }
+                                  onChange={(val) => actions.updateLapCones(index, val ?? 0)}
                                 />
                               </Table.Td>
                               <Table.Td>
                                 <NumberInput
                                   style={{
-                                    color: LAP_HAS_PENALTIES
-                                      ? "white"
-                                      : undefined,
+                                    color: LAP_HAS_PENALTIES ? 'white' : undefined,
                                   }}
                                   defaultValue={0}
                                   maw={100}
                                   min={0}
                                   max={99}
                                   variant="unstyled"
-                                  onChange={(val) =>
-                                    actions.updateLapGates(index, val ?? 0)
-                                  }
+                                  onChange={(val) => actions.updateLapGates(index, val ?? 0)}
                                 />
                               </Table.Td>
                               <Table.Td>
-                                <Checkbox
-                                  onClick={() =>
-                                    actions.toggleLapInvalid(index)
-                                  }
-                                />
+                                <Checkbox onClick={() => actions.toggleLapInvalid(index)} />
                               </Table.Td>
                             </Table.Tr>
                           );

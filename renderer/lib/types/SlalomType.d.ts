@@ -1,1 +1,1 @@
-type SlalomType = "JKS" | "SKS";
+type SlalomType = 'JKS' | 'SKS';

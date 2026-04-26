@@ -1,5 +1,5 @@
-import { Container, Text } from "@mantine/core";
-import PageHeader from "./PageHeader";
+import { Container, Text } from '@mantine/core';
+import PageHeader from './PageHeader';
 
 type EmptyQueryResultProps = {
   title: string;
