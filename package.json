@@ -11,6 +11,7 @@
     "build": "nextron build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "typecheck:renderer": "tsc --noEmit -p renderer/tsconfig.json",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
