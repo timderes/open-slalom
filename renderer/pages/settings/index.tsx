@@ -2,19 +2,63 @@ import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
 import clearDatabase from '@/lib/database/utils/clearDatabase';
 import { useEffect, useState } from 'react';
-import { Button, Code, Divider, Group, Text } from '@mantine/core';
+import {
+  Button,
+  Center,
+  Code,
+  Divider,
+  Group,
+  SegmentedControl,
+  type SegmentedControlItem,
+  Text,
+  useMantineColorScheme,
+} from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
   IconDatabaseExport,
   IconDatabaseImport,
   IconDatabaseMinus,
+  IconDeviceDesktop,
+  IconMoon,
   IconRestore,
+  IconSun,
 } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import type { TrainingState } from '@/lib/training/trainingReducer';
 import PageContent from '@/components/shared/PageContent';
+import { APP_NAME } from '@/lib/constants';
+
+const colorSchemes: SegmentedControlItem[] = [
+  {
+    label: (
+      <Center style={{ gap: 10 }}>
+        <IconSun size={16} />
+        <span>Hell</span>
+      </Center>
+    ),
+    value: 'light',
+  },
+  {
+    label: (
+      <Center style={{ gap: 10 }}>
+        <IconMoon size={16} />
+        <span>Dunkel</span>
+      </Center>
+    ),
+    value: 'dark',
+  },
+  {
+    label: (
+      <Center style={{ gap: 10 }}>
+        <IconDeviceDesktop size={16} />
+        <span>System</span>
+      </Center>
+    ),
+    value: 'auto',
+  },
+];
 
 // This page uses some hacky stuff to dynamically import the database
 // and dexie-export-import only on the client side, because both rely on
@@ -31,6 +75,7 @@ const SettingsPage = () => {
     key: 'training-backup',
     defaultValue: undefined,
   });
+  const { colorScheme, setColorScheme, clearColorScheme } = useMantineColorScheme();
 
   useEffect(() => {
     let mounted = true;
@@ -264,6 +309,13 @@ const SettingsPage = () => {
         >
           Training wiederherstellen
         </Button>
+        <Divider label="Farbeinstellungen" labelPosition="left" />
+        <Text>
+          {APP_NAME} kann in einer hellen oder dunklen Farbvariante verwendet werden. Die
+          Einstellung "System" passt die Farbvariante automatisch an die Systemeinstellung an. Die
+          gewählte Einstellung wird gespeichert und beim nächsten Start der App wiederhergestellt.
+        </Text>
+        <SegmentedControl data={colorSchemes} value={colorScheme} onChange={setColorScheme} />
       </PageContent>
     </Layout>
   );
