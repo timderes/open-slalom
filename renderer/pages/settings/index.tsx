@@ -2,18 +2,11 @@ import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
 import clearDatabase from '@/lib/database/utils/clearDatabase';
 import { useEffect, useState } from 'react';
-import { Button, Code, Divider, Group, Text } from '@mantine/core';
+import { Button, Code, Group, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import {
-  IconDatabaseExport,
-  IconDatabaseImport,
-  IconDatabaseMinus,
-  IconRestore,
-} from '@tabler/icons-react';
-import { useLocalStorage } from '@mantine/hooks';
+import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import type { TrainingState } from '@/lib/training/trainingReducer';
 import PageContent from '@/components/shared/PageContent';
 import SettingsLayout from '@/components/shared/SettingsLayout';
 
@@ -28,10 +21,6 @@ import SettingsLayout from '@/components/shared/SettingsLayout';
 const SettingsPage = () => {
   const [dbVerno, setDbVerno] = useState<number | null>(null);
   const router = useRouter();
-  const [restorableTraining] = useLocalStorage<TrainingState | undefined>({
-    key: 'training-backup',
-    defaultValue: undefined,
-  });
 
   useEffect(() => {
     let mounted = true;
@@ -203,32 +192,11 @@ const SettingsPage = () => {
     });
   };
 
-  const handleRestoreTraining = () => {
-    modals.openConfirmModal({
-      title: 'Training wiederherstellen?',
-      children: (
-        <Text>
-          Es wurde ein Backup des letzten Trainings gefunden. Möchten Sie dieses wiederherstellen?
-        </Text>
-      ),
-      labels: { confirm: 'Wiederherstellen', cancel: 'Abbrechen' },
-      color: 'red',
-      confirmProps: { color: 'red' },
-      onConfirm: () => {
-        void router.push({
-          pathname: '/trainings/active',
-          query: { restoreBackup: 'true' },
-        });
-      },
-    });
-  };
-
   return (
     <Layout currentRoute="/settings">
       <SettingsLayout currentRoute="/settings">
         <PageContent>
-          <PageHeader title="Einstellungen" />
-          <Divider label="Datenbank" labelPosition="left" />
+          <PageHeader title="Datenbank" />
           <Text>
             Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle Trainings und die Karts.
             Das löschen der Datenbank kann nicht rückgängig gemacht werden!
@@ -241,7 +209,6 @@ const SettingsPage = () => {
             <Button leftSection={<IconDatabaseExport />} onClick={() => handleDatabaseExport()}>
               Exportieren
             </Button>
-
             <Button
               leftSection={<IconDatabaseMinus />}
               color="red"
@@ -250,22 +217,6 @@ const SettingsPage = () => {
               Löschen
             </Button>
           </Group>
-          <Divider label="Training" labelPosition="left" />
-          <Text>
-            Hier können Sie das letzte Training wiederherstellen, falls die App unerwartet
-            geschlossen wurde oder abstürzt. Das Backup wird automatisch nach jedem abgeschlossenen
-            Stint erstellt. Es enthält nur die Daten des letzten Trainings und wird mit jedem neuen
-            Training überschrieben.
-          </Text>
-          <Button
-            leftSection={<IconRestore />}
-            disabled={!restorableTraining}
-            color="red"
-            w="fit-content"
-            onClick={() => handleRestoreTraining()}
-          >
-            Training wiederherstellen
-          </Button>
         </PageContent>
       </SettingsLayout>
     </Layout>

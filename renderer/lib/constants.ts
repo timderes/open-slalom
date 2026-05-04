@@ -51,7 +51,11 @@ export const APP_ROUTES = [
 export const SETTINGS_ROUTES = [
   {
     path: '/settings',
-    label: 'Allgemein',
+    label: 'Datenbank',
+  },
+  {
+    path: '/settings/restoreTraining',
+    label: 'Training wiederherstellen',
   },
   {
     path: '/settings/colorScheme',
