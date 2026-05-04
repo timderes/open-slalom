@@ -13,6 +13,7 @@ TODOs for the upcoming releases of the app.
 - [ ] feat: While the training view, allocating a kart to a driver. Before the driver stopwatch is started, it should be possible to change the kart. After the stopwatch is started, the kart should be locked in for the running stint.
 - [x] feat: Add a "trainings view" route where the user can see all trainings that have been created. In this view, the user can also delete trainings.
 - [ ] feat: Make laps per stint optional. Currently we need to pass many invalid laps, if the driver is doing less laps then the configured laps per stint. Since this can be common in trainings. We could set the laps per stint to `Infinity`. The UI then should only show the current lap instead of 1 / x laps.
+- [x] feat: Add light and dark mode to the app. (PR #11)
 
 ### Bugs
 
@@ -30,7 +31,6 @@ TODOs for the upcoming releases of the app.
 ### Features
 
 - [ ] feat: Add a overall statistics view, where the user can see the overall statistics of all trainings and drivers. This view should show the best lap time, the average lap time, the total time, the total number of laps and the total number of stints for each driver. With maybe some diagrams and charts to visualize the data.
-- [ ] feat: Add light and dark mode to the app.
 
 ### Bugs
 
