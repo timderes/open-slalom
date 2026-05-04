@@ -24,7 +24,7 @@ const theme = createTheme({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <MantineProvider deduplicateInlineStyles theme={theme}>
+    <MantineProvider deduplicateInlineStyles defaultColorScheme="auto" theme={theme}>
       <Head>
         <title>{APP_NAME}</title>
       </Head>
