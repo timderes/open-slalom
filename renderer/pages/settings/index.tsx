@@ -2,65 +2,20 @@ import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
 import clearDatabase from '@/lib/database/utils/clearDatabase';
 import { useEffect, useState } from 'react';
-import {
-  Button,
-  Center,
-  Code,
-  Divider,
-  Group,
-  SegmentedControl,
-  type SegmentedControlItem,
-  Text,
-  useMantineColorScheme,
-} from '@mantine/core';
+import { Button, Code, Divider, Group, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
   IconDatabaseExport,
   IconDatabaseImport,
   IconDatabaseMinus,
-  IconDeviceDesktop,
-  IconMoon,
   IconRestore,
-  IconSun,
 } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import type { TrainingState } from '@/lib/training/trainingReducer';
 import PageContent from '@/components/shared/PageContent';
-import { APP_NAME } from '@/lib/constants';
-
-const controlIconSize = 20; // px
-
-const colorSchemes: SegmentedControlItem[] = [
-  {
-    label: (
-      <Center style={{ gap: 10 }}>
-        <IconSun size={controlIconSize} />
-        <span>Hell</span>
-      </Center>
-    ),
-    value: 'light',
-  },
-  {
-    label: (
-      <Center style={{ gap: 10 }}>
-        <IconMoon size={controlIconSize} />
-        <span>Dunkel</span>
-      </Center>
-    ),
-    value: 'dark',
-  },
-  {
-    label: (
-      <Center style={{ gap: 10 }}>
-        <IconDeviceDesktop size={controlIconSize} />
-        <span>System</span>
-      </Center>
-    ),
-    value: 'auto',
-  },
-];
+import SettingsLayout from '@/components/shared/SettingsLayout';
 
 // This page uses some hacky stuff to dynamically import the database
 // and dexie-export-import only on the client side, because both rely on
@@ -77,7 +32,6 @@ const SettingsPage = () => {
     key: 'training-backup',
     defaultValue: undefined,
   });
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   useEffect(() => {
     let mounted = true;
@@ -271,57 +225,49 @@ const SettingsPage = () => {
 
   return (
     <Layout currentRoute="/settings">
-      <PageContent>
-        <PageHeader title="Einstellungen" />
-        <Divider label="Datenbank" labelPosition="left" />
-        <Text>
-          Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle Trainings und die Karts.
-          Das löschen der Datenbank kann nicht rückgängig gemacht werden!
-        </Text>
-        <Code>Datenbank Version: {dbVerno}</Code>
-        <Group>
-          <Button leftSection={<IconDatabaseImport />} onClick={() => handleDatabaseImport()}>
-            Datenbank importieren
-          </Button>
-          <Button leftSection={<IconDatabaseExport />} onClick={() => handleDatabaseExport()}>
-            Exportieren
-          </Button>
+      <SettingsLayout currentRoute="/settings">
+        <PageContent>
+          <PageHeader title="Einstellungen" />
+          <Divider label="Datenbank" labelPosition="left" />
+          <Text>
+            Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle Trainings und die Karts.
+            Das löschen der Datenbank kann nicht rückgängig gemacht werden!
+          </Text>
+          <Code>Datenbank Version: {dbVerno}</Code>
+          <Group>
+            <Button leftSection={<IconDatabaseImport />} onClick={() => handleDatabaseImport()}>
+              Datenbank importieren
+            </Button>
+            <Button leftSection={<IconDatabaseExport />} onClick={() => handleDatabaseExport()}>
+              Exportieren
+            </Button>
 
+            <Button
+              leftSection={<IconDatabaseMinus />}
+              color="red"
+              onClick={() => handleDeleteDatabase()}
+            >
+              Löschen
+            </Button>
+          </Group>
+          <Divider label="Training" labelPosition="left" />
+          <Text>
+            Hier können Sie das letzte Training wiederherstellen, falls die App unerwartet
+            geschlossen wurde oder abstürzt. Das Backup wird automatisch nach jedem abgeschlossenen
+            Stint erstellt. Es enthält nur die Daten des letzten Trainings und wird mit jedem neuen
+            Training überschrieben.
+          </Text>
           <Button
-            leftSection={<IconDatabaseMinus />}
+            leftSection={<IconRestore />}
+            disabled={!restorableTraining}
             color="red"
-            onClick={() => handleDeleteDatabase()}
+            w="fit-content"
+            onClick={() => handleRestoreTraining()}
           >
-            Löschen
+            Training wiederherstellen
           </Button>
-        </Group>
-        <Divider label="Training" labelPosition="left" />
-        <Text>
-          Hier können Sie das letzte Training wiederherstellen, falls die App unerwartet geschlossen
-          wurde oder abstürzt. Das Backup wird automatisch nach jedem abgeschlossenen Stint
-          erstellt. Es enthält nur die Daten des letzten Trainings und wird mit jedem neuen Training
-          überschrieben.
-        </Text>
-        <Button
-          leftSection={<IconRestore />}
-          disabled={!restorableTraining}
-          color="red"
-          w="fit-content"
-          onClick={() => handleRestoreTraining()}
-        >
-          Training wiederherstellen
-        </Button>
-        <Divider label="Farbeinstellungen" labelPosition="left" />
-        <Text>
-          {APP_NAME} kann in einer hellen oder dunklen Farbvariante verwendet werden. Die
-          Einstellung "System" passt die Farbvariante automatisch an die Systemeinstellung an.
-        </Text>
-        <Text>
-          Die gewählte Einstellung wird gespeichert und beim nächsten Start der App
-          wiederhergestellt.
-        </Text>
-        <SegmentedControl data={colorSchemes} value={colorScheme} onChange={setColorScheme} />
-      </PageContent>
+        </PageContent>
+      </SettingsLayout>
     </Layout>
   );
 };

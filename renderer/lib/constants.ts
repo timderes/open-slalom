@@ -48,6 +48,17 @@ export const APP_ROUTES = [
   },
 ];
 
+export const SETTINGS_ROUTES = [
+  {
+    path: '/settings',
+    label: 'Allgemein',
+  },
+  {
+    path: '/settings/colorScheme',
+    label: 'Farbschema',
+  },
+];
+
 // JKS class 0 only exists in North Rhine-Westphalia
 export const JKS_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7];
 export const SKS_CLASSES = [1, 2, 3, 4, 5];
