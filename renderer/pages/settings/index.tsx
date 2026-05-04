@@ -30,11 +30,13 @@ import type { TrainingState } from '@/lib/training/trainingReducer';
 import PageContent from '@/components/shared/PageContent';
 import { APP_NAME } from '@/lib/constants';
 
+const controlIconSize = 20; // px
+
 const colorSchemes: SegmentedControlItem[] = [
   {
     label: (
       <Center style={{ gap: 10 }}>
-        <IconSun size={16} />
+        <IconSun size={controlIconSize} />
         <span>Hell</span>
       </Center>
     ),
@@ -43,7 +45,7 @@ const colorSchemes: SegmentedControlItem[] = [
   {
     label: (
       <Center style={{ gap: 10 }}>
-        <IconMoon size={16} />
+        <IconMoon size={controlIconSize} />
         <span>Dunkel</span>
       </Center>
     ),
@@ -52,7 +54,7 @@ const colorSchemes: SegmentedControlItem[] = [
   {
     label: (
       <Center style={{ gap: 10 }}>
-        <IconDeviceDesktop size={16} />
+        <IconDeviceDesktop size={controlIconSize} />
         <span>System</span>
       </Center>
     ),
@@ -312,8 +314,11 @@ const SettingsPage = () => {
         <Divider label="Farbeinstellungen" labelPosition="left" />
         <Text>
           {APP_NAME} kann in einer hellen oder dunklen Farbvariante verwendet werden. Die
-          Einstellung "System" passt die Farbvariante automatisch an die Systemeinstellung an. Die
-          gewählte Einstellung wird gespeichert und beim nächsten Start der App wiederhergestellt.
+          Einstellung "System" passt die Farbvariante automatisch an die Systemeinstellung an.
+        </Text>
+        <Text>
+          Die gewählte Einstellung wird gespeichert und beim nächsten Start der App
+          wiederhergestellt.
         </Text>
         <SegmentedControl data={colorSchemes} value={colorScheme} onChange={setColorScheme} />
       </PageContent>
