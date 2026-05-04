@@ -77,7 +77,7 @@ const SettingsPage = () => {
     key: 'training-backup',
     defaultValue: undefined,
   });
-  const { colorScheme, setColorScheme, clearColorScheme } = useMantineColorScheme();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   useEffect(() => {
     let mounted = true;
