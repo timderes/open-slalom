@@ -2,7 +2,7 @@ import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
 import clearDatabase from '@/lib/database/utils/clearDatabase';
 import { useEffect, useState } from 'react';
-import { Button, ButtonGroup, Code, Text } from '@mantine/core';
+import { Alert, Button, ButtonGroup, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabler/icons-react';
@@ -18,7 +18,7 @@ import SettingsLayout from '@/components/shared/SettingsLayout';
 //
 // DON'T LIKE HOW THE CODE LOOKS HERE, BUT IT WORKS...
 const SettingsPage = () => {
-  const [dbVerno, setDbVerno] = useState<number | null>(null);
+  const [databaseVersion, setDatabaseVersion] = useState<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -26,7 +26,7 @@ const SettingsPage = () => {
       try {
         const getDatabase = (await import('@/lib/database/getDatabase')).default;
         const db = await getDatabase();
-        if (mounted) setDbVerno((db as any).verno ?? null);
+        if (mounted) setDatabaseVersion((db as any).verno ?? null);
       } catch (err) {
         // ignore (no DB in non-electron/server environments)
       }
@@ -196,11 +196,21 @@ const SettingsPage = () => {
         <PageContent>
           <PageHeader title="Datenbank" />
           <Text>
-            Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle Trainings und die Karts.
-            Das löschen der Datenbank kann nicht rückgängig gemacht werden!
+            Die Datenbank enthält gespeicherte Daten zu Fahrern, Trainings und Karts. Das Löschen
+            der Datenbank kann nicht rückgängig gemacht werden!
           </Text>
+
+          <Alert title="Achtung!" color="red">
+            Importieren Sie nur Datenbanken, die mit der gleichen oder einer älteren Version
+            erstellt wurden. Höhere Versionsnummern können zu Fehlern oder Datenverlust führen.
+            Erstellen Sie im Zweifel vorher ein Backup der aktuellen Datenbank.
+          </Alert>
+
           <Text>
-            Datenbank Version: <Code>{dbVerno}</Code>
+            Datenbankversion:{' '}
+            <Text component="span" ff="monospace">
+              {databaseVersion}
+            </Text>
           </Text>
           <ButtonGroup>
             <Button leftSection={<IconDatabaseImport />} onClick={() => handleDatabaseImport()}>
