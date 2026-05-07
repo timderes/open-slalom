@@ -2,11 +2,10 @@ import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
 import clearDatabase from '@/lib/database/utils/clearDatabase';
 import { useEffect, useState } from 'react';
-import { Button, Code, Group, Text } from '@mantine/core';
+import { Button, ButtonGroup, Code, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabler/icons-react';
-import { useRouter } from 'next/router';
 import PageContent from '@/components/shared/PageContent';
 import SettingsLayout from '@/components/shared/SettingsLayout';
 
@@ -20,7 +19,6 @@ import SettingsLayout from '@/components/shared/SettingsLayout';
 // DON'T LIKE HOW THE CODE LOOKS HERE, BUT IT WORKS...
 const SettingsPage = () => {
   const [dbVerno, setDbVerno] = useState<number | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -201,8 +199,10 @@ const SettingsPage = () => {
             Die Datenbank umfasst gespeicherte Daten über die Fahrer, alle Trainings und die Karts.
             Das löschen der Datenbank kann nicht rückgängig gemacht werden!
           </Text>
-          <Code>Datenbank Version: {dbVerno}</Code>
-          <Group>
+          <Text>
+            Datenbank Version: <Code>{dbVerno}</Code>
+          </Text>
+          <ButtonGroup>
             <Button leftSection={<IconDatabaseImport />} onClick={() => handleDatabaseImport()}>
               Datenbank importieren
             </Button>
@@ -216,7 +216,7 @@ const SettingsPage = () => {
             >
               Löschen
             </Button>
-          </Group>
+          </ButtonGroup>
         </PageContent>
       </SettingsLayout>
     </Layout>
