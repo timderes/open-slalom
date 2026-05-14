@@ -1,4 +1,3 @@
-import { DEFAULT_TIME_FORMAT } from '@/lib/constants';
 import getCurrentTime from '@/lib/time/getCurrentTime';
 import { useInterval } from '@mantine/hooks';
 import {
