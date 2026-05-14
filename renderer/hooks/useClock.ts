@@ -40,7 +40,7 @@ const ClockProvider = ({ children }: ClockProviderProps) => {
 const useClock = (): string => {
   const context = useContext(ClockContext);
 
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useClock must be used within a ClockProvider');
   }
 
