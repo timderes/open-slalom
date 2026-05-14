@@ -45,6 +45,15 @@ export default async function getDatabase() {
         });
       });
   });
+  // Remove driver class from the database since it can be calculated from the birth date
+  db.version(3).upgrade((tx) => {
+    return tx
+      .table('drivers')
+      .toCollection()
+      .modify((driver) => {
+        delete driver.driverClass;
+      });
+  });
 
   instance = db;
   return instance;

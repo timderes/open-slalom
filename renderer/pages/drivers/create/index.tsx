@@ -29,10 +29,6 @@ const CreateDriverPage = () => {
       lastName: '',
       birthDate: '',
       sex: 'male',
-      driverClass: {
-        jks: 0,
-        sks: 1,
-      },
       uuid: uuidv4(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -60,8 +56,8 @@ const CreateDriverPage = () => {
     const classJKS = getJksClass({ birthDate: date });
     const classSKS = getSksClass({ birthDate: date });
 
-    form.setFieldValue('driverClass.jks', classJKS as Driver['driverClass']['jks']);
-    form.setFieldValue('driverClass.sks', classSKS as Driver['driverClass']['sks']);
+    form.setFieldValue('driverClass.jks', classJKS);
+    form.setFieldValue('driverClass.sks', classSKS);
   };
 
   const handleCreateDriver = () => {

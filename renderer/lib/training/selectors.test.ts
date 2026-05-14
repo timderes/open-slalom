@@ -26,7 +26,6 @@ const createDriver = (uuid: string, laps: Lap[]): DriverWithStints => ({
   lastName: `Last-${uuid}`,
   birthDate: '2000-01-01',
   sex: 'other',
-  driverClass: { jks: 1, sks: 1 },
   createdAt: 1,
   updatedAt: 1,
   stints: [{ laps }],

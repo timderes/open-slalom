@@ -39,7 +39,6 @@ const DriverEditPage = () => {
       lastName: '',
       birthDate: '', // ISO string
       sex: 'male',
-      driverClass: { jks: 0, sks: 1 },
       uuid: '',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -55,7 +54,6 @@ const DriverEditPage = () => {
       lastName: driver.lastName,
       birthDate: driver.birthDate,
       sex: driver.sex,
-      driverClass: driver.driverClass,
       uuid: driver.uuid,
       createdAt: driver.createdAt,
       updatedAt: driver.updatedAt,
@@ -111,8 +109,8 @@ const DriverEditPage = () => {
     const classJKS = getJksClass({ birthDate: date });
     const classSKS = getSksClass({ birthDate: date });
 
-    form.setFieldValue('driverClass.jks', classJKS as Driver['driverClass']['jks']);
-    form.setFieldValue('driverClass.sks', classSKS as Driver['driverClass']['sks']);
+    form.setFieldValue('driverClass.jks', classJKS);
+    form.setFieldValue('driverClass.sks', classSKS);
   };
 
   const handleEditDriver = () => {
