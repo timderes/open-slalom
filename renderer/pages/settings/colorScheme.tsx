@@ -85,7 +85,6 @@ const ColorSchemeSettingsPage = () => {
           </Text>
           <SegmentedControl
             autoContrast
-            // color={theme.primaryColor}
             data={colorSchemeOptions}
             defaultValue={colorScheme}
             onChange={setColorScheme}
