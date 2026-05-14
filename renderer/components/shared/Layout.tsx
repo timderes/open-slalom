@@ -46,7 +46,7 @@ const Layout = ({ currentRoute, disableNavbar = false, children, ...props }: Lay
       <AppShell.Header className="draggable no-print">
         <Group h="100%" px="md" justify="space-between">
           <Group>
-            {disableNavbar ? null : <Burger opened={opened} onClick={toggle} size="sm" />}
+            {disableNavbar ? null : <Burger opened={!opened} onClick={toggle} size="sm" />}
             {APP_NAME}
           </Group>
           <Controls />
