@@ -20,24 +20,24 @@ const getClassByAge = ({
       return Number(classKey);
     }
   }
-  return null;
+  return '-';
 };
 
-const getJksClass = ({ birthDate }: DriverBirthDate): number | null => {
+const getJksClass = ({ birthDate }: DriverBirthDate): number | '-' => {
   const age = calculateDriverAgeBasedOfBirthYear(birthDate);
 
   if (!age || isNaN(age)) {
-    return null;
+    return '-';
   }
 
   return getClassByAge({ age, classTable: CLASS_AGE_TABLE.JKS });
 };
 
-const getSksClass = ({ birthDate }: DriverBirthDate): number | null => {
+const getSksClass = ({ birthDate }: DriverBirthDate): number | '-' => {
   const age = calculateDriverAgeBasedOfBirthYear(birthDate);
 
   if (!age || isNaN(age)) {
-    return null;
+    return '-';
   }
 
   return getClassByAge({ age, classTable: CLASS_AGE_TABLE.SKS });
