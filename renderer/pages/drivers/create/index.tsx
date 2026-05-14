@@ -1,6 +1,12 @@
 import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
-import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from '@/lib/constants';
+import {
+  GENDER_OPTIONS,
+  JKS_CLASSES,
+  MIN_JKS_DRIVER_AGE,
+  MIN_SKS_DRIVER_AGE,
+  SKS_CLASSES,
+} from '@/lib/constants';
 import database from '@/lib/database';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { Button, Group, NativeSelect, NumberInput, Stack, Text, TextInput } from '@mantine/core';
@@ -90,6 +96,8 @@ const CreateDriverPage = () => {
     });
   };
 
+  const driverAge = calculateDriverAge(form.values.birthDate) ?? 0;
+
   return (
     <Layout currentRoute="/drivers">
       <PageContent>
@@ -138,6 +146,7 @@ const CreateDriverPage = () => {
             </Group>
             <Group grow>
               <NumberInput
+                disabled={driverAge < MIN_JKS_DRIVER_AGE || !form.values.birthDate}
                 description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
                 min={Math.min(...JKS_CLASSES)}
                 max={Math.max(...JKS_CLASSES)}
@@ -146,6 +155,7 @@ const CreateDriverPage = () => {
                 key={form.key('driverClass.jks')}
               />
               <NumberInput
+                disabled={driverAge < MIN_SKS_DRIVER_AGE || !form.values.birthDate}
                 description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
                 min={Math.min(...SKS_CLASSES)}
                 max={Math.max(...SKS_CLASSES)}

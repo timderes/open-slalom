@@ -1,6 +1,7 @@
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import database from '@/lib/database';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { formatTime } from '@/lib/time/formatTime';
 import {
   getDiffToBest,
@@ -104,8 +105,8 @@ const TrainingViewPage = () => {
                   <Table.Td>
                     K
                     {training.mode === 'JKS'
-                      ? (driver.driverClass?.jks ?? 7)
-                      : (driver.driverClass?.sks ?? 5)}
+                      ? getJksClass({ birthDate: driver.birthDate })
+                      : getSksClass({ birthDate: driver.birthDate })}
                   </Table.Td>
                   <Table.Td>
                     {driver.firstName} {driver.lastName}

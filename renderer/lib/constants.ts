@@ -97,6 +97,9 @@ export const CLASS_AGE_TABLE = {
 export const MIN_DRIVER_AGE = 5; // years
 export const MAX_DRIVER_AGE = 99; // years
 
+export const MIN_JKS_DRIVER_AGE = JKS_CLASS_AGE_RANGES[0].min; // years
+export const MIN_SKS_DRIVER_AGE = SKS_CLASS_AGE_RANGES[1].min; // years
+
 export const TIME_PENALTIES_JKS = {
   HIT_CONE: 2, // seconds
   MISSED_GATE: 10, // seconds
