@@ -1,5 +1,6 @@
 import { SETTINGS_ROUTES } from '@/lib/constants';
 import { NavLink, type NavLinkProps } from '@mantine/core';
+import Link from 'next/link';
 
 type SettingsNavbarProps = {
   currentRoute: string;
@@ -12,6 +13,7 @@ const SettingsNavbar = ({ currentRoute, ...props }: SettingsNavbarProps) => {
         <NavLink
           {...props}
           autoContrast={props.autoContrast ?? true}
+          component={Link}
           active={currentRoute === route.path}
           key={route.path}
           label={route.label}
