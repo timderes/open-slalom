@@ -1,18 +1,11 @@
-import {
-  APP_NAME,
-  APP_ROUTES,
-  APP_VERSION,
-  DEFAULT_DATE_FORMAT,
-  DEFAULT_TIME_FORMAT,
-} from '@/lib/constants';
+import { APP_NAME, APP_ROUTES, APP_VERSION } from '@/lib/constants';
 import { AppShell, type AppShellProps, Burger, Group, NavLink, Text } from '@mantine/core';
-import { useDisclosure, useInterval } from '@mantine/hooks';
-
+import { useDisclosure } from '@mantine/hooks';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import Controls from '../layout/Controls';
 import NetworkStatus from '../layout/NetworkStatus';
 import OsStatus from '../layout/OsStatus';
+import dynamic from 'next/dynamic';
 
 type LayoutProps = {
   currentRoute: string;
@@ -25,30 +18,15 @@ export const APP_FOOTER_HEIGHT = 60; // px
 export const APP_NAVBAR_WIDTH = 200; // px
 export const APP_ASIDE_WIDTH = 300; // px
 
-const currentDate = new Date().toLocaleDateString('de', {
-  ...DEFAULT_DATE_FORMAT,
+const Clock = dynamic(() => import('../layout/Clock'), {
+  ssr: false,
 });
 
 /**
  * Default layout for the app. With header, footer, navbar and aside sections.
  */
 const Layout = ({ currentRoute, disableNavbar = false, children, ...props }: LayoutProps) => {
-  const [currentTime, setCurrentTime] = useState<string>();
   const [opened, { toggle }] = useDisclosure();
-
-  const interval = useInterval(() => {
-    setCurrentTime(
-      new Date().toLocaleTimeString('de', {
-        ...DEFAULT_TIME_FORMAT,
-      }),
-    );
-  }, 1000);
-
-  useEffect(() => {
-    interval.start();
-
-    return interval.stop;
-  }, []);
 
   return (
     <AppShell
@@ -90,9 +68,7 @@ const Layout = ({ currentRoute, disableNavbar = false, children, ...props }: Lay
         <Text>{APP_VERSION}</Text>
         <NetworkStatus />
         <OsStatus />
-        <Text ms="auto">
-          {currentDate ?? ''} {currentTime ?? ''}
-        </Text>
+        <Clock />
       </AppShell.Footer>
     </AppShell>
   );
