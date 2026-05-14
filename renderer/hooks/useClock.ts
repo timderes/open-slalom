@@ -14,7 +14,7 @@ type ClockProviderProps = PropsWithChildren;
 const ClockContext = createContext<string | undefined>(undefined);
 
 /**
- * Provides the current time to its children. Updates every 500ms to stay
+ * Provides the current time to its children. Updates every second to stay
  * in sync with the system clock.
  */
 const ClockProvider = ({ children }: ClockProviderProps) => {
@@ -22,7 +22,7 @@ const ClockProvider = ({ children }: ClockProviderProps) => {
 
   const interval = useInterval(() => {
     setCurrentTime(getCurrentTime());
-  }, 500); // ms
+  }, 1000); // ms
 
   useEffect(() => {
     interval.start();
