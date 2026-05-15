@@ -1,15 +1,9 @@
 import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
-import {
-  GENDER_OPTIONS,
-  JKS_CLASSES,
-  MIN_JKS_DRIVER_AGE,
-  MIN_SKS_DRIVER_AGE,
-  SKS_CLASSES,
-} from '@/lib/constants';
+import { GENDER_OPTIONS } from '@/lib/constants';
 import database from '@/lib/database';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
-import { Button, Group, NativeSelect, NumberInput, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Card, Group, NativeSelect, Stack, Text, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -20,8 +14,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from '@/lib/constants';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
+import { useState } from 'react';
+import Stat from '@/components/shared/Stat';
 
 const CreateDriverPage = () => {
+  const [driverClasses, setDriverClasses] = useState<{
+    jks: string | number;
+    sks: string | number;
+  }>({
+    jks: '-',
+    sks: '-',
+  });
   const router = useRouter();
   const form = useForm<Driver>({
     initialValues: {
@@ -56,8 +59,10 @@ const CreateDriverPage = () => {
     const classJKS = getJksClass({ birthDate: date });
     const classSKS = getSksClass({ birthDate: date });
 
-    form.setFieldValue('driverClass.jks', classJKS);
-    form.setFieldValue('driverClass.sks', classSKS);
+    setDriverClasses({
+      jks: classJKS,
+      sks: classSKS,
+    });
   };
 
   const handleCreateDriver = () => {
@@ -91,8 +96,6 @@ const CreateDriverPage = () => {
       onConfirm: () => router.push('/drivers'),
     });
   };
-
-  const driverAge = calculateDriverAge(form.values.birthDate) ?? 0;
 
   return (
     <Layout currentRoute="/drivers">
@@ -141,24 +144,18 @@ const CreateDriverPage = () => {
               />
             </Group>
             <Group grow>
-              <NumberInput
-                disabled={driverAge < MIN_JKS_DRIVER_AGE || !form.values.birthDate}
-                description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                min={Math.min(...JKS_CLASSES)}
-                max={Math.max(...JKS_CLASSES)}
-                label="Klasse JKS"
-                {...form.getInputProps('driverClass.jks')}
-                key={form.key('driverClass.jks')}
-              />
-              <NumberInput
-                disabled={driverAge < MIN_SKS_DRIVER_AGE || !form.values.birthDate}
-                description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                min={Math.min(...SKS_CLASSES)}
-                max={Math.max(...SKS_CLASSES)}
-                label="Klasse SKS"
-                {...form.getInputProps('driverClass.sks')}
-                key={form.key('driverClass.sks')}
-              />
+              <Card>
+                <Stat
+                  label="JKS"
+                  value={driverClasses.jks === '-' ? '-' : `K${driverClasses.jks}`}
+                />
+              </Card>
+              <Card>
+                <Stat
+                  label="SKS"
+                  value={driverClasses.sks === '-' ? '-' : `K${driverClasses.sks}`}
+                />
+              </Card>
             </Group>
             <Group mt="xl">
               <Button type="submit">Fahrer erstellen</Button>
