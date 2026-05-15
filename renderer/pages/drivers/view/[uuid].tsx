@@ -84,7 +84,7 @@ const DriverViewPage = () => {
             <Stat label="Geschlecht" value={translateSex(driver.sex)} />
             <Stat label="JKS" value={getJksClass({ birthDate: driver.birthDate })} />
             <Stat label="SKS" value={getSksClass({ birthDate: driver.birthDate })} />
-            <Stat label="Trainings" value={trainings?.length || 0} />
+            <Stat label="Trainings" value={trainings?.length ?? 0} />
           </Group>
         </Card>
         <Divider label="Statistiken" labelPosition="left" />
