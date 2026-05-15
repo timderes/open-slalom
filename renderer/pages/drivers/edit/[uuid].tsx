@@ -12,17 +12,9 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const DriverEditPage = () => {
-  const [driverClasses, setDriverClasses] = useState<{
-    jks: string | number;
-    sks: string | number;
-  }>({
-    jks: '-',
-    sks: '-',
-  });
-
   const router = useRouter();
   const { uuid } = router.query;
 
@@ -50,14 +42,6 @@ const DriverEditPage = () => {
       uuid: driver.uuid,
       createdAt: driver.createdAt,
       updatedAt: driver.updatedAt,
-    });
-
-    const classJKS = getJksClass({ birthDate: driver.birthDate });
-    const classSKS = getSksClass({ birthDate: driver.birthDate });
-
-    setDriverClasses({
-      jks: classJKS,
-      sks: classSKS,
     });
 
     form.resetDirty();
@@ -106,14 +90,6 @@ const DriverEditPage = () => {
 
   const handleBirthDateChange = (date: string) => {
     form.getInputProps('birthDate').onChange(date);
-
-    const classJKS = getJksClass({ birthDate: date });
-    const classSKS = getSksClass({ birthDate: date });
-
-    setDriverClasses({
-      jks: classJKS,
-      sks: classSKS,
-    });
   };
 
   const handleEditDriver = () => {
@@ -186,13 +162,17 @@ const DriverEditPage = () => {
               <Card>
                 <Stat
                   label="JKS"
-                  value={driverClasses.jks === '-' ? '-' : `K${driverClasses.jks}`}
+                  value={
+                    form.values.birthDate ? getJksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
                 />
               </Card>
               <Card>
                 <Stat
                   label="SKS"
-                  value={driverClasses.sks === '-' ? '-' : `K${driverClasses.sks}`}
+                  value={
+                    form.values.birthDate ? getSksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
                 />
               </Card>
             </Group>

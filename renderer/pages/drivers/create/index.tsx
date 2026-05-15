@@ -2,7 +2,6 @@ import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
 import { GENDER_OPTIONS } from '@/lib/constants';
 import database from '@/lib/database';
-import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { Button, Card, Group, NativeSelect, Stack, Text, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
@@ -14,17 +13,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from '@/lib/constants';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
-import { useState } from 'react';
 import Stat from '@/components/shared/Stat';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 
 const CreateDriverPage = () => {
-  const [driverClasses, setDriverClasses] = useState<{
-    jks: string | number;
-    sks: string | number;
-  }>({
-    jks: '-',
-    sks: '-',
-  });
   const router = useRouter();
   const form = useForm<Driver>({
     initialValues: {
@@ -55,14 +47,6 @@ const CreateDriverPage = () => {
 
   const handleBirthDateChange = (date: string) => {
     form.getInputProps('birthDate').onChange(date);
-
-    const classJKS = getJksClass({ birthDate: date });
-    const classSKS = getSksClass({ birthDate: date });
-
-    setDriverClasses({
-      jks: classJKS,
-      sks: classSKS,
-    });
   };
 
   const handleCreateDriver = () => {
@@ -147,13 +131,17 @@ const CreateDriverPage = () => {
               <Card>
                 <Stat
                   label="JKS"
-                  value={driverClasses.jks === '-' ? '-' : `K${driverClasses.jks}`}
+                  value={
+                    form.values.birthDate ? getJksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
                 />
               </Card>
               <Card>
                 <Stat
                   label="SKS"
-                  value={driverClasses.sks === '-' ? '-' : `K${driverClasses.sks}`}
+                  value={
+                    form.values.birthDate ? getSksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
                 />
               </Card>
             </Group>
