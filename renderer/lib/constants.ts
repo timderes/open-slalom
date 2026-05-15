@@ -97,17 +97,6 @@ export const CLASS_AGE_TABLE = {
 export const MIN_DRIVER_AGE = 5; // years
 export const MAX_DRIVER_AGE = 99; // years
 
-export const MIN_JKS_DRIVER_AGE = Math.min(
-  //
-  // Take all minimum ages from all JKS classes to determine the minimum age for JKS.
-  //
-  ...Object.values(JKS_CLASS_AGE_RANGES).map((r) => r.min),
-); // years
-
-export const MIN_SKS_DRIVER_AGE = Math.min(
-  ...Object.values(SKS_CLASS_AGE_RANGES).map((r) => r.min),
-); // years
-
 export const TIME_PENALTIES_JKS = {
   HIT_CONE: 2, // seconds
   MISSED_GATE: 10, // seconds
