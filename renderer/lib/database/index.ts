@@ -32,4 +32,14 @@ database.version(2).upgrade((tx) => {
     });
 });
 
+// Remove driver class from the database since it can be calculated from the birth date
+database.version(3).upgrade((tx) => {
+  return tx
+    .table('drivers')
+    .toCollection()
+    .modify((driver) => {
+      delete driver.driverClass;
+    });
+});
+
 export default database;

@@ -1,19 +1,11 @@
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
-import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from '@/lib/constants';
+import Stat from '@/components/shared/Stat';
+import { GENDER_OPTIONS } from '@/lib/constants';
 import database from '@/lib/database';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
-import {
-  Button,
-  Group,
-  NativeSelect,
-  NumberInput,
-  Stack,
-  TextInput,
-  Text,
-  Title,
-} from '@mantine/core';
+import { Button, Group, NativeSelect, Stack, TextInput, Text, Title, Card } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -32,7 +24,6 @@ const DriverEditPage = () => {
       lastName: '',
       birthDate: '', // ISO string
       sex: 'male',
-      driverClass: { jks: 0, sks: 1 },
       uuid: '',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -48,12 +39,11 @@ const DriverEditPage = () => {
       lastName: driver.lastName,
       birthDate: driver.birthDate,
       sex: driver.sex,
-      driverClass: driver.driverClass,
       uuid: driver.uuid,
       createdAt: driver.createdAt,
       updatedAt: driver.updatedAt,
     });
-    // Make
+
     form.resetDirty();
     form.resetTouched();
   }, [driver]);
@@ -100,12 +90,6 @@ const DriverEditPage = () => {
 
   const handleBirthDateChange = (date: string) => {
     form.getInputProps('birthDate').onChange(date);
-
-    const classJKS = getJksClass({ birthDate: date });
-    const classSKS = getSksClass({ birthDate: date });
-
-    form.setFieldValue('driverClass.jks', classJKS as Driver['driverClass']['jks']);
-    form.setFieldValue('driverClass.sks', classSKS as Driver['driverClass']['sks']);
   };
 
   const handleEditDriver = () => {
@@ -175,22 +159,22 @@ const DriverEditPage = () => {
               />
             </Group>
             <Group grow>
-              <NumberInput
-                description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                min={Math.min(...JKS_CLASSES)}
-                max={Math.max(...JKS_CLASSES)}
-                label="Klasse JKS"
-                {...form.getInputProps('driverClass.jks')}
-                key={form.key('driverClass.jks')}
-              />
-              <NumberInput
-                description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                min={Math.min(...SKS_CLASSES)}
-                max={Math.max(...SKS_CLASSES)}
-                label="Klasse SKS"
-                {...form.getInputProps('driverClass.sks')}
-                key={form.key('driverClass.sks')}
-              />
+              <Card>
+                <Stat
+                  label="JKS"
+                  value={
+                    form.values.birthDate ? getJksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
+                />
+              </Card>
+              <Card>
+                <Stat
+                  label="SKS"
+                  value={
+                    form.values.birthDate ? getSksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
+                />
+              </Card>
             </Group>
             <Group mt="xl">
               <Button type="submit">Änderungen speichern</Button>

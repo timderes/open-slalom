@@ -1,6 +1,7 @@
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import database from '@/lib/database';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { formatTime } from '@/lib/time/formatTime';
 import {
   getDiffToBest,
@@ -9,7 +10,8 @@ import {
   getDriverRanking,
   getFastestLapTimestamp,
 } from '@/lib/training/selectors';
-import { Badge, Code, Stack, Table, Text, Title } from '@mantine/core';
+import { Badge, Code, Divider, Stack, Table, Text, Title, Tooltip } from '@mantine/core';
+import { IconFlagX } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 
@@ -83,6 +85,7 @@ const TrainingViewPage = () => {
             <Table.Tr>
               <Table.Th>#</Table.Th>
               <Table.Th>Klasse</Table.Th>
+              <Table.Th>{/* Gender Indicator */}</Table.Th>
               <Table.Th>Fahrer</Table.Th>
               <Table.Th>Bestzeit</Table.Th>
               <Table.Th>Abstand</Table.Th>
@@ -103,13 +106,29 @@ const TrainingViewPage = () => {
                   <Table.Td>{index + 1}.</Table.Td>
                   <Table.Td>
                     K
-                    {training.mode === 'JKS'
-                      ? (driver.driverClass?.jks ?? 7)
-                      : (driver.driverClass?.sks ?? 5)}
+                    {(() => {
+                      // Preserve the classes as of the training date by shifting the birthDate
+                      // so that the age computed against the current date equals the age at
+                      // the training date.
+                      const trainingMs = new Date(training.createdAt).getTime();
+                      const birthMs = new Date(driver.birthDate).getTime();
+                      let birthForClass: string = String(driver.birthDate);
+
+                      if (!Number.isNaN(trainingMs) && !Number.isNaN(birthMs)) {
+                        const shifted = new Date(Date.now() - (trainingMs - birthMs));
+                        birthForClass = shifted.toISOString();
+                      }
+
+                      return training.mode === 'JKS'
+                        ? getJksClass({ birthDate: birthForClass })
+                        : getSksClass({ birthDate: birthForClass });
+                    })()}
                   </Table.Td>
+                  <Table.Td>{driver.sex === 'female' ? 'D' : undefined}</Table.Td>
                   <Table.Td>
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
+
                   <Table.Td>
                     <Text ff="monospace" fw="bold" c={index === 0 ? 'grape' : ''}>
                       {fastestLap ? formatTime(fastestLap.time_with_penalties, 'lap') : 'N/A'}
@@ -145,22 +164,38 @@ const TrainingViewPage = () => {
               const penaltyMs = Math.max(0, lap.time_with_penalties - lap.time);
 
               return (
-                <Table.Tr key={`${driver.uuid}-${stintIndex}-${lapIndex}`}>
+                <Table.Tr
+                  key={`${driver.uuid}-${stintIndex}-${lapIndex}`}
+                  opacity={lap.isInvalid ? 0.2 : 1}
+                >
                   <Table.Td>{overallLap}</Table.Td>
                   <Table.Td>{stintIndex + 1}</Table.Td>
                   <Table.Td>{lapIndex + 1}</Table.Td>
+                  <Table.Td ff="monospace">
+                    {formatTime(lap.time_with_penalties, 'lap')} &nbsp;
+                  </Table.Td>
                   <Table.Td>
-                    <Badge ff="monospace">{formatTime(lap.time_with_penalties, 'lap')}</Badge>
+                    {lap.time !== lap.time_with_penalties && (
+                      <Text c="red" fz="sm" ff="monospace">
+                        {penaltyMs / 1000}s
+                      </Text>
+                    )}
                   </Table.Td>
                   <Table.Td>{lap.cones}</Table.Td>
                   <Table.Td>{lap.gates}</Table.Td>
-                  {/*<Table.Td>{formatTime(penaltyMs, "gap")}</Table.Td>*/}
                   <Table.Td>
                     {new Date(lap.timestamp).toLocaleTimeString('de', {
                       hour: '2-digit',
                       minute: '2-digit',
                       second: '2-digit',
                     })}
+                  </Table.Td>
+                  <Table.Td w={18 * 2.5}>
+                    {lap.isInvalid ? (
+                      <Tooltip label="Ungültige Runde" withArrow>
+                        <IconFlagX size={18} style={{ cursor: 'help' }} />
+                      </Tooltip>
+                    ) : undefined}
                   </Table.Td>
                 </Table.Tr>
               );
@@ -169,9 +204,12 @@ const TrainingViewPage = () => {
 
           return (
             <div key={driver.uuid}>
-              <Title order={4} mt="md">
-                {driver.firstName} {driver.lastName} — Runden
-              </Title>
+              <Divider
+                mt="xl"
+                mb="md"
+                label={`${driver.firstName} ${driver.lastName}`}
+                labelPosition="center"
+              />
               <Table striped highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
@@ -179,10 +217,11 @@ const TrainingViewPage = () => {
                     <Table.Th>Stint</Table.Th>
                     <Table.Th>Runde</Table.Th>
                     <Table.Th>Zeit</Table.Th>
-                    <Table.Th>Pylonen-Fehler</Table.Th>
-                    <Table.Th>Tor-Fehler</Table.Th>
-                    {/*<Table.Th>Strafzeit</Table.Th>*/}
+                    <Table.Th>Strafe</Table.Th>
+                    <Table.Th>P</Table.Th>
+                    <Table.Th>T</Table.Th>
                     <Table.Th>Zeitpunkt</Table.Th>
+                    <Table.Th>{/* Invalid Flag */}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>

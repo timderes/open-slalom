@@ -87,34 +87,41 @@ const DriversPage = () => {
           data={{
             head: ['Name', '', 'Geburtsdatum', 'JKS', 'SKS'],
             body: drivers
-              ? drivers.map((driver) => [
-                  <Group gap="md">
-                    <Avatar color="initials" name={`${driver.firstName} ${driver.lastName}`} />
-                    <Text>
-                      {driver.firstName} {driver.lastName}
-                    </Text>
-                  </Group>,
-                  driver.sex === 'male' ? (
-                    <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
-                      <IconGenderMale />
-                    </Tooltip>
-                  ) : driver.sex === 'female' ? (
-                    <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
-                      <IconGenderFemale />
-                    </Tooltip>
-                  ) : (
-                    <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
-                      <IconGenderTransgender />
-                    </Tooltip>
-                  ),
-                  `${new Date(driver.birthDate).toLocaleDateString('de', {
-                    ...DEFAULT_DATE_FORMAT,
-                    month: 'long',
-                  })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
-                  `K${getJksClass({ birthDate: driver.birthDate })}`,
-                  `K${getSksClass({ birthDate: driver.birthDate })}`,
-                  tableActions(driver.uuid),
-                ])
+              ? drivers.map((driver) => {
+                  const jksClass = getJksClass({ birthDate: driver.birthDate });
+                  const sksClass = getSksClass({ birthDate: driver.birthDate });
+                  const jksDisplay = jksClass === '-' ? '-' : `K${jksClass}`;
+                  const sksDisplay = sksClass === '-' ? '-' : `K${sksClass}`;
+
+                  return [
+                    <Group gap="md">
+                      <Avatar color="initials" name={`${driver.firstName} ${driver.lastName}`} />
+                      <Text>
+                        {driver.firstName} {driver.lastName}
+                      </Text>
+                    </Group>,
+                    driver.sex === 'male' ? (
+                      <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
+                        <IconGenderMale />
+                      </Tooltip>
+                    ) : driver.sex === 'female' ? (
+                      <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
+                        <IconGenderFemale />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
+                        <IconGenderTransgender />
+                      </Tooltip>
+                    ),
+                    `${new Date(driver.birthDate).toLocaleDateString('de', {
+                      ...DEFAULT_DATE_FORMAT,
+                      month: 'long',
+                    })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
+                    jksDisplay,
+                    sksDisplay,
+                    tableActions(driver.uuid),
+                  ];
+                })
               : [],
             caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
           }}

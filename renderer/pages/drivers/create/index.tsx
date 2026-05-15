@@ -1,9 +1,8 @@
 import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
-import { GENDER_OPTIONS, JKS_CLASSES, SKS_CLASSES } from '@/lib/constants';
+import { GENDER_OPTIONS } from '@/lib/constants';
 import database from '@/lib/database';
-import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
-import { Button, Group, NativeSelect, NumberInput, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Card, Group, NativeSelect, Stack, Text, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -14,6 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from '@/lib/constants';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
+import Stat from '@/components/shared/Stat';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 
 const CreateDriverPage = () => {
   const router = useRouter();
@@ -23,10 +24,6 @@ const CreateDriverPage = () => {
       lastName: '',
       birthDate: '',
       sex: 'male',
-      driverClass: {
-        jks: 0,
-        sks: 1,
-      },
       uuid: uuidv4(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -50,12 +47,6 @@ const CreateDriverPage = () => {
 
   const handleBirthDateChange = (date: string) => {
     form.getInputProps('birthDate').onChange(date);
-
-    const classJKS = getJksClass({ birthDate: date });
-    const classSKS = getSksClass({ birthDate: date });
-
-    form.setFieldValue('driverClass.jks', classJKS as Driver['driverClass']['jks']);
-    form.setFieldValue('driverClass.sks', classSKS as Driver['driverClass']['sks']);
   };
 
   const handleCreateDriver = () => {
@@ -137,22 +128,22 @@ const CreateDriverPage = () => {
               />
             </Group>
             <Group grow>
-              <NumberInput
-                description="Die JKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                min={Math.min(...JKS_CLASSES)}
-                max={Math.max(...JKS_CLASSES)}
-                label="Klasse JKS"
-                {...form.getInputProps('driverClass.jks')}
-                key={form.key('driverClass.jks')}
-              />
-              <NumberInput
-                description="Die SKS-Klasse wird automatisch basierend auf dem Geburtsdatum berechnet. Kann allerdings manuell angepasst werden."
-                min={Math.min(...SKS_CLASSES)}
-                max={Math.max(...SKS_CLASSES)}
-                label="Klasse SKS"
-                {...form.getInputProps('driverClass.sks')}
-                key={form.key('driverClass.sks')}
-              />
+              <Card>
+                <Stat
+                  label="JKS"
+                  value={
+                    form.values.birthDate ? getJksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
+                />
+              </Card>
+              <Card>
+                <Stat
+                  label="SKS"
+                  value={
+                    form.values.birthDate ? getSksClass({ birthDate: form.values.birthDate }) : '-'
+                  }
+                />
+              </Card>
             </Group>
             <Group mt="xl">
               <Button type="submit">Fahrer erstellen</Button>

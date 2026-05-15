@@ -22,6 +22,7 @@ import { IconCode, IconPencil, IconSearch } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { formatTime } from '@/lib/time/formatTime';
+import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 
 const DriverViewPage = () => {
   const router = useRouter();
@@ -81,9 +82,9 @@ const DriverViewPage = () => {
               value={new Date(driver.birthDate).toLocaleDateString('de', DEFAULT_DATE_FORMAT)}
             />
             <Stat label="Geschlecht" value={translateSex(driver.sex)} />
-            <Stat label="JKS" value={`K${driver.driverClass.jks}`} />
-            <Stat label="SKS" value={`K${driver.driverClass.sks}`} />
-            <Stat label="Trainings" value={trainings?.length || 0} />
+            <Stat label="JKS" value={getJksClass({ birthDate: driver.birthDate })} />
+            <Stat label="SKS" value={getSksClass({ birthDate: driver.birthDate })} />
+            <Stat label="Trainings" value={trainings?.length ?? 0} />
           </Group>
         </Card>
         <Divider label="Statistiken" labelPosition="left" />
