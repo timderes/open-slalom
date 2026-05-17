@@ -60,6 +60,7 @@ const Layout = ({ currentRoute, disableNavbar = false, children, ...props }: Lay
             href={route.path}
             component={Link}
             label={route.label}
+            variant="filled"
           />
         ))}
       </AppShell.Navbar>

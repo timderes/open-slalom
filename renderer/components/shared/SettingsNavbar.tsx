@@ -18,6 +18,7 @@ const SettingsNavbar = ({ currentRoute, ...props }: SettingsNavbarProps) => {
           key={route.path}
           label={route.label}
           href={route.path}
+          variant="filled"
         />
       ))}
     </>
