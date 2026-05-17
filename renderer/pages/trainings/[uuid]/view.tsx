@@ -1,5 +1,6 @@
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
+import { DEFAULT_TIME_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { formatTime } from '@/lib/time/formatTime';
@@ -67,19 +68,14 @@ const TrainingViewPage = () => {
           <Text c="dimmed">
             Gestartet:{' '}
             {new Date(training.createdAt).toLocaleTimeString('de', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
+              ...DEFAULT_TIME_FORMAT,
             })}{' '}
             &ndash; Beendet:{' '}
             {new Date(training.updatedAt).toLocaleTimeString('de', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
+              ...DEFAULT_TIME_FORMAT,
             })}
           </Text>
         </Stack>
-
         <Table>
           <Table.Thead>
             <Table.Tr>
@@ -128,7 +124,6 @@ const TrainingViewPage = () => {
                   <Table.Td>
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
-
                   <Table.Td>
                     <Text ff="monospace" fw="bold" c={index === 0 ? 'grape' : ''}>
                       {fastestLap ? formatTime(fastestLap.time_with_penalties, 'lap') : 'N/A'}
