@@ -139,9 +139,7 @@ const TrainingViewPage = () => {
                   <Table.Td>
                     {fastestLapTimestamp
                       ? new Date(fastestLapTimestamp).toLocaleTimeString('de', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
+                          ...DEFAULT_TIME_FORMAT,
                         })
                       : 'N/A'}
                   </Table.Td>
@@ -180,9 +178,7 @@ const TrainingViewPage = () => {
                   <Table.Td>{lap.gates}</Table.Td>
                   <Table.Td>
                     {new Date(lap.timestamp).toLocaleTimeString('de', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
+                      ...DEFAULT_TIME_FORMAT,
                     })}
                   </Table.Td>
                   <Table.Td w={18 * 2.5}>
