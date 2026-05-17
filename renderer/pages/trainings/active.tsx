@@ -365,7 +365,7 @@ const ActiveTrainingPage = () => {
                                 fastestLapTime !== undefined
                                   ? idx === 0 || bestTime === undefined
                                     ? '-'
-                                    : `+${formatTime(fastestLapTime - bestTime, 'gap')}`
+                                    : `${formatTime(fastestLapTime - bestTime, 'gap')}`
                                   : 'N/A';
 
                               const date = fastestLap
