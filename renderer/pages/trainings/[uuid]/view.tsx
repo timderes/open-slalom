@@ -86,6 +86,7 @@ const TrainingViewPage = () => {
               <Table.Th>Bestzeit</Table.Th>
               <Table.Th>Abstand</Table.Th>
               <Table.Th>Intervall</Table.Th>
+              <Table.Th>&#x2205;-Zeit</Table.Th>
               <Table.Th>Runden</Table.Th>
               <Table.Th>Zeitpunkt</Table.Th>
             </Table.Tr>
@@ -134,6 +135,27 @@ const TrainingViewPage = () => {
                   </Table.Td>
                   <Table.Td>
                     {diffToPrevious !== undefined ? formatTime(diffToPrevious, 'gap') : 'N/A'}
+                  </Table.Td>
+                  <Table.Td>
+                    {/* Get average lap time, but only the valid laps */}
+                    {driver.stints.length > 0
+                      ? formatTime(
+                          driver.stints.reduce((sum, stint) => {
+                            const validLaps = stint.laps.filter((lap) => !lap.isInvalid);
+                            const stintTime = validLaps.reduce(
+                              (stintSum, lap) => stintSum + lap.time_with_penalties,
+                              0,
+                            );
+                            return sum + stintTime;
+                          }, 0) /
+                            driver.stints.reduce(
+                              (count, stint) =>
+                                count + stint.laps.filter((lap) => !lap.isInvalid).length,
+                              0,
+                            ),
+                          'lap',
+                        )
+                      : 'N/A'}
                   </Table.Td>
                   <Table.Td>{driver.stints.length * training.lapsPerStint}</Table.Td>
                   <Table.Td>
