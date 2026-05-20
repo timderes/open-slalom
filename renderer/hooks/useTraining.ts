@@ -395,8 +395,8 @@ const useTraining = () => {
       ['Q', () => handleStopwatchStart()],
       ['W', () => handleStopwatchLap()],
       ['E', () => handleStopwatchReset()],
-      ['CTRL+S', () => handleUpdateCurrentDriver()],
-      ['CTRL+D', () => handleSkipDriver()],
+      ['MOD+S', () => handleUpdateCurrentDriver()],
+      ['MOD+D', () => handleSkipDriver()],
       // ["ESC", () => handleStopTraining()],
     ],
     // This array is intentionally empty to ensure hotkey
