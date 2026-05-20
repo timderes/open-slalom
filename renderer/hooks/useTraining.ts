@@ -390,14 +390,20 @@ const useTraining = () => {
     };
   }, [stopwatch.isRunning()]);
 
-  useHotkeys([
-    ['Q', () => handleStopwatchStart()],
-    ['W', () => handleStopwatchLap()],
-    ['E', () => handleStopwatchReset()],
-    ['CTRL+S', () => handleUpdateCurrentDriver()],
-    ['CTRL+D', () => handleSkipDriver()],
-    // ["ESC", () => handleStopTraining()],
-  ]);
+  useHotkeys(
+    [
+      ['Q', () => handleStopwatchStart()],
+      ['W', () => handleStopwatchLap()],
+      ['E', () => handleStopwatchReset()],
+      ['MOD+S', () => handleUpdateCurrentDriver()],
+      ['MOD+D', () => handleSkipDriver()],
+      // ["ESC", () => handleStopTraining()],
+    ],
+    // This array is intentionally empty to ensure hotkey
+    // events are not ignored on any focused element
+    // (e.g. Checkbox or NumberInput).
+    [],
+  );
 
   return {
     availableDrivers,
