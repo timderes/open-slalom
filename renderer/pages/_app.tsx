@@ -16,7 +16,7 @@ import { DatesProvider } from '@mantine/dates';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 
-import { APP_NAME } from '@/lib/constants';
+import { APP_LANGUAGE, APP_NAME } from '@/lib/constants';
 import { ClockProvider } from '@/hooks/useClock';
 
 const theme = createTheme({
@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>{APP_NAME}</title>
       </Head>
       <Notifications limit={3} position="top-right" />
-      <DatesProvider settings={{ locale: 'de' }}>
+      <DatesProvider settings={{ locale: APP_LANGUAGE }}>
         <ModalsProvider>
           <ClockProvider>
             <Component {...pageProps} />

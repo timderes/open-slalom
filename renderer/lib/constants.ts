@@ -7,6 +7,7 @@ import pkg from '../../package.json';
 
 export const APP_NAME = pkg.productName;
 export const APP_VERSION = pkg.version;
+export const APP_LANGUAGE = 'de';
 
 export const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',

@@ -1,5 +1,5 @@
 import useClock from '@/hooks/useClock';
-import { DEFAULT_DATE_FORMAT } from '@/lib/constants';
+import { APP_LANGUAGE, DEFAULT_DATE_FORMAT } from '@/lib/constants';
 import { Text, type TextProps } from '@mantine/core';
 
 type ClockProps = TextProps;
@@ -12,7 +12,7 @@ const Clock = ({ ...props }: ClockProps) => {
   const time = useClock();
   const now = new Date();
 
-  const date = now.toLocaleDateString('de', {
+  const date = now.toLocaleDateString(APP_LANGUAGE, {
     ...DEFAULT_DATE_FORMAT,
   });
   const isoDateString = now.toISOString();

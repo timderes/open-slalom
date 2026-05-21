@@ -2,7 +2,7 @@ import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/SortableTable';
-import { DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
+import { APP_LANGUAGE, DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
 import { Avatar, AvatarGroup, Button, ButtonGroup, Group, Text, Tooltip } from '@mantine/core';
 import { modals } from '@mantine/modals';
@@ -82,7 +82,7 @@ const TrainingsIndexPage = () => {
           data={{
             head: ['Datum', 'Modus', 'Fahrer', ''], // the "" is needed for the actions column
             body: trainings?.map((training) => [
-              new Date(training.createdAt).toLocaleDateString('de', {
+              new Date(training.createdAt).toLocaleDateString(APP_LANGUAGE, {
                 ...DEFAULT_DATE_FORMAT,
                 ...DEFAULT_TIME_FORMAT,
                 // This removes the seconds from the time format,

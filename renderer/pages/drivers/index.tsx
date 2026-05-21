@@ -1,5 +1,5 @@
 import Layout from '@/components/shared/Layout';
-import { DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from '@/lib/constants';
+import { APP_LANGUAGE, DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from '@/lib/constants';
 import database from '@/lib/database';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
@@ -113,7 +113,7 @@ const DriversPage = () => {
                         <IconGenderTransgender />
                       </Tooltip>
                     ),
-                    `${new Date(driver.birthDate).toLocaleDateString('de', {
+                    `${new Date(driver.birthDate).toLocaleDateString(APP_LANGUAGE, {
                       ...DEFAULT_DATE_FORMAT,
                       month: 'long',
                     })} (${calculateDriverAge(driver.birthDate)} Jahre)`,

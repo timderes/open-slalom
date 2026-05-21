@@ -1,6 +1,6 @@
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
-import { DEFAULT_TIME_FORMAT } from '@/lib/constants';
+import { APP_LANGUAGE, DEFAULT_TIME_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { formatTime } from '@/lib/time/formatTime';
@@ -57,7 +57,7 @@ const TrainingViewPage = () => {
       <PageContent>
         <Title>
           {training.mode}-Training am{' '}
-          {new Date(training.createdAt).toLocaleDateString('de', {
+          {new Date(training.createdAt).toLocaleDateString(APP_LANGUAGE, {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -67,11 +67,11 @@ const TrainingViewPage = () => {
           <Badge>{training.drivers.length} Fahrer</Badge>
           <Text c="dimmed">
             Gestartet:{' '}
-            {new Date(training.createdAt).toLocaleTimeString('de', {
+            {new Date(training.createdAt).toLocaleTimeString(APP_LANGUAGE, {
               ...DEFAULT_TIME_FORMAT,
             })}{' '}
             &ndash; Beendet:{' '}
-            {new Date(training.updatedAt).toLocaleTimeString('de', {
+            {new Date(training.updatedAt).toLocaleTimeString(APP_LANGUAGE, {
               ...DEFAULT_TIME_FORMAT,
             })}
           </Text>
@@ -160,7 +160,7 @@ const TrainingViewPage = () => {
                   <Table.Td>{driver.stints.length * training.lapsPerStint}</Table.Td>
                   <Table.Td>
                     {fastestLapTimestamp
-                      ? new Date(fastestLapTimestamp).toLocaleTimeString('de', {
+                      ? new Date(fastestLapTimestamp).toLocaleTimeString(APP_LANGUAGE, {
                           ...DEFAULT_TIME_FORMAT,
                         })
                       : 'N/A'}
@@ -199,7 +199,7 @@ const TrainingViewPage = () => {
                   <Table.Td>{lap.cones}</Table.Td>
                   <Table.Td>{lap.gates}</Table.Td>
                   <Table.Td>
-                    {new Date(lap.timestamp).toLocaleTimeString('de', {
+                    {new Date(lap.timestamp).toLocaleTimeString(APP_LANGUAGE, {
                       ...DEFAULT_TIME_FORMAT,
                     })}
                   </Table.Td>

@@ -3,7 +3,7 @@ import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import Stat from '@/components/shared/Stat';
-import { DEFAULT_DATE_FORMAT } from '@/lib/constants';
+import { APP_LANGUAGE, DEFAULT_DATE_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
 import translateSex from '@/lib/misc/translateSex';
 import { getDriverStats } from '@/lib/training/stats/driverStats';
@@ -79,7 +79,10 @@ const DriverViewPage = () => {
           <Group flex={{ xs: 'flex-row' }} grow>
             <Stat
               label="Geburtstag"
-              value={new Date(driver.birthDate).toLocaleDateString('de', DEFAULT_DATE_FORMAT)}
+              value={new Date(driver.birthDate).toLocaleDateString(
+                APP_LANGUAGE,
+                DEFAULT_DATE_FORMAT,
+              )}
             />
             <Stat label="Geschlecht" value={translateSex(driver.sex)} />
             <Stat label="JKS" value={getJksClass({ birthDate: driver.birthDate })} />
@@ -108,7 +111,10 @@ const DriverViewPage = () => {
               {trainings.map((training) => (
                 <Table.Tr key={training.uuid}>
                   <Table.Td>
-                    {new Date(training.createdAt).toLocaleDateString('de', DEFAULT_DATE_FORMAT)}
+                    {new Date(training.createdAt).toLocaleDateString(
+                      APP_LANGUAGE,
+                      DEFAULT_DATE_FORMAT,
+                    )}
                   </Table.Td>
                   <Table.Td>{training.mode}</Table.Td>
                   <Table.Td>

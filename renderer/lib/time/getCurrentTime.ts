@@ -1,4 +1,4 @@
-import { DEFAULT_TIME_FORMAT } from '../constants';
+import { APP_LANGUAGE, DEFAULT_TIME_FORMAT } from '../constants';
 
 /**
  * Returns the current local time formatted to a german locale string.
@@ -7,7 +7,7 @@ import { DEFAULT_TIME_FORMAT } from '../constants';
  * @example getCurrentTime() // --> "14:30:45"
  */
 const getCurrentTime = () => {
-  return new Date().toLocaleTimeString('de', {
+  return new Date().toLocaleTimeString(APP_LANGUAGE, {
     ...DEFAULT_TIME_FORMAT,
   });
 };
