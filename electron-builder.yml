@@ -10,3 +10,9 @@ files:
       - package.json
       - app
 publish: null
+win:
+  icon: resources/windows/icon.ico
+mac:
+  icon: resources/macos/icon.icns
+linux:
+  icon: resources/linux/icons
