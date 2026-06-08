@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "msf-training",
-  "productName": "MSF Training",
-  "description": "Tools for organizing and managing Kartslalom training sessions by MSF Plettenberg 1930 e.V. im DMV.",
+  "name": "open-slalom",
+  "productName": "openSlalom",
+  "description": "Open-source timing and results management software for Kart Slalom competitions and training",
   "version": "1.1.2",
   "author": "Tim Deres",
   "main": "app/main.js",

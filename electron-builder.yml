@@ -1,6 +1,6 @@
-appId: com.msf.training
-productName: MSF Training
-copyright: Copyright © 2025 Tim Deres
+appId: com.open-slalom.openSlalom
+productName: openSlalom
+copyright: Copyright © 2025-2026 Tim Deres
 directories:
   output: dist
   buildResources: resources
