@@ -134,15 +134,8 @@ const ActiveTrainingPage = () => {
           {...stack.register('settings')}
         >
           <Stack>
-            <NumberInput
-              label="Runden"
-              description="Anzahl der Runden die jeder Fahrer pro Stint fährt."
-              min={1}
-              max={99}
-              {...settings.getInputProps('lapsPerStint')}
-            />
             <Stack gap={0}>
-              <Text fz="sm" fw="bold" opacity={0.8}>
+              <Text fz="sm" fw="semibold" opacity={0.8}>
                 Modus
               </Text>
               <SegmentedControl
@@ -152,6 +145,18 @@ const ActiveTrainingPage = () => {
                 onChange={(value) => settings.setFieldValue('mode', value as SlalomType)}
               />
             </Stack>
+            <NumberInput
+              label="Runden"
+              description="Anzahl der Runden die jeder Fahrer pro Stint fährt."
+              disabled={settings.values.unlimitedLapsPerStint}
+              min={1}
+              max={99}
+              {...settings.getInputProps('lapsPerStint')}
+            />
+            <Checkbox
+              label="Unbegrenzte Runden"
+              {...settings.getInputProps('unlimitedLapsPerStint', { type: 'checkbox' })}
+            />
           </Stack>
         </Drawer>
         <Drawer size="100%" title="Entwickler" {...stack.register('dev')}>
@@ -417,45 +422,50 @@ const ActiveTrainingPage = () => {
                     {formatTime(currentStint.time, 'lap')}
                   </Text>
                   <Text opacity={0.7}>
-                    Runde: {currentStint.currentLap} / {settings.values.lapsPerStint}
+                    {settings.values.unlimitedLapsPerStint
+                      ? `Runde: ${currentStint.currentLap}`
+                      : `Runde: ${currentStint.currentLap} / ${settings.values.lapsPerStint}`}
                   </Text>
                 </Stack>
-                <Group grow>
-                  <ButtonGroup>
-                    <Tooltip
-                      label={getDisabledReason('start')}
-                      disabled={!getDisabledReason('start')}
-                      withArrow
-                    >
-                      <div style={{ display: 'inline-block' }}>
-                        <Button
-                          leftSection={<IconFlag />}
-                          disabled={isRunning || !hasDriver || isFinished}
-                          onClick={() => actions.start()}
-                        >
-                          Start{' '}
-                          <Kbd size="xs" ms="xs">
-                            Q
-                          </Kbd>
-                        </Button>
-                      </div>
-                    </Tooltip>
+                <Group>
+                  <Tooltip
+                    label={getDisabledReason('start')}
+                    disabled={!getDisabledReason('start')}
+                    withArrow
+                  >
+                    <div style={{ display: 'inline-block' }}>
+                      <Button
+                        leftSection={<IconFlag />}
+                        disabled={isRunning || !hasDriver || isFinished}
+                        onClick={() => actions.start()}
+                      >
+                        Start{' '}
+                        <Kbd size="xs" ms="xs">
+                          Q
+                        </Kbd>
+                      </Button>
+                    </div>
+                  </Tooltip>
 
-                    <Tooltip
-                      label={getDisabledReason('lap')}
-                      disabled={!getDisabledReason('lap')}
-                      withArrow
-                    >
-                      <div style={{ display: 'inline-block' }}>
-                        <Button disabled={isFinished || !isRunning} onClick={() => actions.lap()}>
-                          {isFinalLapInThisStint ? 'Stop' : 'Runde'}{' '}
-                          <Kbd size="xs" ms="xs">
-                            W
-                          </Kbd>
-                        </Button>
-                      </div>
-                    </Tooltip>
-                  </ButtonGroup>
+                  <Tooltip
+                    label={getDisabledReason('lap')}
+                    disabled={!getDisabledReason('lap')}
+                    withArrow
+                  >
+                    <div style={{ display: 'inline-block' }}>
+                      <Button disabled={isFinished || !isRunning} onClick={() => actions.lap()}>
+                        {isFinalLapInThisStint ? 'Stop' : 'Runde'}{' '}
+                        <Kbd size="xs" ms="xs">
+                          W
+                        </Kbd>
+                      </Button>
+                    </div>
+                  </Tooltip>
+                  {settings.values.unlimitedLapsPerStint && (
+                    <Button color="red" onClick={() => actions.stopStint()}>
+                      Stint beenden
+                    </Button>
+                  )}
                   <div style={{ display: 'inline-block' }}>
                     <Button
                       leftSection={<IconClockOff />}

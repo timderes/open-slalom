@@ -2,6 +2,7 @@ type TrainingMode = 'JKS' | 'SKS';
 
 type Training = {
   lapsPerStint: number;
+  unlimitedLapsPerStint: boolean;
   mode: TrainingMode;
   drivers: DriverWithStints[];
   uuid: string; // UUID v4

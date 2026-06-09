@@ -12,6 +12,7 @@ export type TrainingState = {
   laps: Lap[];
   currentLap: number;
   lapsPerStint: number;
+  unlimitedLapsPerStint: boolean;
   mode: SlalomType;
 
   time: number;
@@ -27,6 +28,7 @@ export type TrainingAction =
   | { type: 'TICK'; payload: number }
   | { type: 'SET_DRIVERS'; payload: DriverWithStints[] }
   | { type: 'SET_LAPS_PER_STINT'; payload: number }
+  | { type: 'SET_UNLIMITED_LAPS'; payload: boolean }
   | { type: 'SET_MODE'; payload: SlalomType }
   | { type: 'UPDATE_LAP_CONES'; payload: { index: number; cones: number } }
   | { type: 'UPDATE_LAP_GATES'; payload: { index: number; gates: number } }
@@ -45,6 +47,7 @@ export const initialState: TrainingState = {
   laps: [],
   currentLap: 1,
   lapsPerStint: 3,
+  unlimitedLapsPerStint: false,
   mode: 'JKS',
 
   time: 0,
@@ -77,7 +80,10 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
     case 'ADD_LAP': {
       if (!state.isRunning) return state;
 
-      const isFinalLap = state.currentLap === state.lapsPerStint;
+      // If unlimited mode is enabled we never auto-stop the stopwatch when
+      // adding laps. For finite mode we stop when reaching the configured
+      // lapsPerStint.
+      const isFinalLap = !state.unlimitedLapsPerStint && state.currentLap >= state.lapsPerStint;
 
       const newLap: Lap = {
         time: state.time,
@@ -141,6 +147,13 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
       return {
         ...state,
         lapsPerStint: action.payload,
+      };
+    }
+
+    case 'SET_UNLIMITED_LAPS': {
+      return {
+        ...state,
+        unlimitedLapsPerStint: action.payload,
       };
     }
 
@@ -221,6 +234,7 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
         laps: payload.laps ?? state.laps,
         currentLap: payload.currentLap ?? state.currentLap,
         lapsPerStint: payload.lapsPerStint ?? state.lapsPerStint,
+        unlimitedLapsPerStint: payload.unlimitedLapsPerStint ?? state.unlimitedLapsPerStint,
         mode: payload.mode ?? state.mode,
         time: payload.time ?? state.time,
         isRunning: false,

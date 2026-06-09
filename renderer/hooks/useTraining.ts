@@ -29,6 +29,7 @@ const useTraining = () => {
   const settings = useForm<Training>({
     initialValues: {
       lapsPerStint: 3,
+      unlimitedLapsPerStint: false,
       drivers: [],
       mode: 'JKS',
       uuid: uuidv4(),
@@ -43,13 +44,25 @@ const useTraining = () => {
   const [state, dispatch] = useReducer(trainingReducer, {
     ...initialState,
     lapsPerStint: settings.values.lapsPerStint,
+    unlimitedLapsPerStint: !!settings.values.unlimitedLapsPerStint,
   });
+
+  const lapLimit = settings.values.unlimitedLapsPerStint ? Infinity : settings.values.lapsPerStint;
 
   const hasDriver = !!state.currentDriver;
   const hasDrivers = settings.values.drivers.length > 0;
   const isRunning = stopwatch.isRunning();
-  const isFinished = state.laps.length === settings.values.lapsPerStint;
-  const isFinalLapInThisStint = state.currentLap === settings.values.lapsPerStint;
+
+  // In unlimited mode a stint is considered finished when the stopwatch has been
+  // stopped and at least one lap was recorded. For finite mode we rely on the
+  // lap limit comparison.
+  const isFinished = settings.values.unlimitedLapsPerStint
+    ? !isRunning && state.laps.length > 0
+    : state.laps.length >= lapLimit;
+
+  const isFinalLapInThisStint = settings.values.unlimitedLapsPerStint
+    ? false
+    : state.currentLap >= lapLimit;
   const trainingHasFinishedStints = settings.values.drivers.some(
     (driver) => (driver.stints?.length ?? 0) > 0,
   );
@@ -173,6 +186,19 @@ const useTraining = () => {
 
     stopwatch.stop();
     stopwatch.start();
+  };
+
+  const handleStopwatchStop = () => {
+    if (!isRunning) {
+      notifyError('Stoppuhr nicht gestartet', 'Bitte zuerst Start drücken.');
+      return;
+    }
+
+    // Stop the running stint without adding an extra lap. In unlimited mode
+    // this is used to mark the stint as finished so it can be saved.
+    stopwatch.stop();
+    applyAction({ type: 'STOP' });
+    notifyInfo('Stint beendet', 'Der Stint wurde beendet.');
   };
 
   const handleAddDriver = (driver: DriverWithStints) => {
@@ -316,6 +342,9 @@ const useTraining = () => {
     if (typeof backup.lapsPerStint === 'number') {
       settings.setFieldValue('lapsPerStint', backup.lapsPerStint);
     }
+    if (typeof backup.unlimitedLapsPerStint === 'boolean') {
+      settings.setFieldValue('unlimitedLapsPerStint', backup.unlimitedLapsPerStint);
+    }
     if (backup.mode) {
       settings.setFieldValue('mode', backup.mode);
     }
@@ -361,6 +390,10 @@ const useTraining = () => {
       payload: settings.values.lapsPerStint,
     });
   }, [settings.values.lapsPerStint]);
+
+  useEffect(() => {
+    applyAction({ type: 'SET_UNLIMITED_LAPS', payload: !!settings.values.unlimitedLapsPerStint });
+  }, [settings.values.unlimitedLapsPerStint]);
 
   useEffect(() => {
     applyAction({
@@ -428,6 +461,7 @@ const useTraining = () => {
     actions: {
       start: handleStopwatchStart,
       lap: handleStopwatchLap,
+      stopStint: handleStopwatchStop,
       reset: handleStopwatchReset,
       addDriver: handleAddDriver,
       updateCurrentDriver: handleUpdateCurrentDriver,

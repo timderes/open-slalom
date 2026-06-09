@@ -157,7 +157,9 @@ const TrainingViewPage = () => {
                         )
                       : 'N/A'}
                   </Table.Td>
-                  <Table.Td>{driver.stints.length * training.lapsPerStint}</Table.Td>
+                  <Table.Td>
+                    {driver.stints.map((stint) => stint.laps.length).reduce((a, b) => a + b, 0)}
+                  </Table.Td>
                   <Table.Td>
                     {fastestLapTimestamp
                       ? new Date(fastestLapTimestamp).toLocaleTimeString(APP_LANGUAGE, {
