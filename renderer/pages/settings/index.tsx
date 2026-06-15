@@ -12,15 +12,12 @@ import { APP_NAME } from '@/lib/constants';
 import database from '@/lib/database';
 
 const SettingsPage = () => {
-  const [databaseVersion, setDatabaseVersion] = useState<number | null>(null);
+  const [databaseVersion, setDatabaseVersion] = useState<number>(undefined);
 
   useEffect(() => {
-    setDatabaseVersion(database.verno ?? null);
+    setDatabaseVersion(database.verno ?? undefined);
   }, []);
 
-  // -----------------------------
-  // DELETE DATABASE
-  // -----------------------------
   const handleDeleteDatabase = () => {
     modals.openConfirmModal({
       title: 'Datenbank wirklich löschen?',
@@ -51,9 +48,6 @@ const SettingsPage = () => {
     });
   };
 
-  // -----------------------------
-  // EXPORT DATABASE
-  // -----------------------------
   const handleDatabaseExport = async () => {
     try {
       const { exportDB } = await import('dexie-export-import');
@@ -86,9 +80,6 @@ const SettingsPage = () => {
     }
   };
 
-  // -----------------------------
-  // IMPORT DATABASE
-  // -----------------------------
   const handleDatabaseImport = () => {
     modals.openConfirmModal({
       title: 'Datenbank importieren?',
@@ -151,40 +142,31 @@ const SettingsPage = () => {
     });
   };
 
-  // -----------------------------
-  // UI
-  // -----------------------------
   return (
     <Layout currentRoute="/settings">
       <SettingsLayout currentRoute="/settings">
         <PageContent>
           <PageHeader title="Datenbank" />
-
           <Text>
-            Die Datenbank enthält lokale Daten zu Fahrern, Trainings und Karts. Das Löschen ist
-            irreversibel.
+            Die Datenbank enthält lokale Daten zu Fahrern, Trainings und Karts. Das Löschen ist kann
+            nicht rückgängig gemacht werden.
           </Text>
-
           <Alert title="Achtung!" color="red">
             Importieren Sie nur Backups aus kompatiblen Versionen, um Datenverlust zu vermeiden.
           </Alert>
-
           <Text mt="md">
             Datenbankversion:{' '}
             <Text component="span" ff="monospace">
-              {databaseVersion ?? 'unknown'}
+              {databaseVersion ?? 'Unbekannte Version'}
             </Text>
           </Text>
-
           <ButtonGroup mt="md">
             <Button leftSection={<IconDatabaseImport />} onClick={handleDatabaseImport}>
               Importieren
             </Button>
-
             <Button leftSection={<IconDatabaseExport />} onClick={handleDatabaseExport}>
               Exportieren
             </Button>
-
             <Button color="red" leftSection={<IconDatabaseMinus />} onClick={handleDeleteDatabase}>
               Löschen
             </Button>
