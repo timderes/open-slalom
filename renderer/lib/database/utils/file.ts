@@ -34,10 +34,13 @@ export const importFromFile = () => {
     throw new Error("IPC is not available. Can't import database from file.");
   }
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<boolean>((resolve, reject) => {
     window.ipc.once('open-file', async (bufferData: ArrayBuffer | null) => {
       try {
-        if (!bufferData) return resolve();
+        if (!bufferData) {
+          resolve(false);
+          return;
+        }
 
         const blob = new Blob([new Uint8Array(bufferData)], {
           type: 'application/json',
@@ -47,7 +50,7 @@ export const importFromFile = () => {
           clearTablesBeforeImport: true,
         });
 
-        resolve();
+        resolve(true);
       } catch (err) {
         reject(err);
       }

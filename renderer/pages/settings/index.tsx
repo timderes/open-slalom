@@ -68,13 +68,21 @@ const SettingsPage = () => {
       labels: { confirm: 'Importieren', cancel: 'Abbrechen' },
       onConfirm: async () => {
         try {
-          await dbService.importFromFile();
+          const imported = await dbService.importFromFile();
 
-          notifications.show({
-            title: 'Import erfolgreich',
-            message: 'Datenbank wurde wiederhergestellt.',
-            color: 'green',
-          });
+          if (imported) {
+            notifications.show({
+              title: 'Import erfolgreich',
+              message: 'Datenbank wurde wiederhergestellt.',
+              color: 'green',
+            });
+          } else {
+            notifications.show({
+              title: 'Import abgebrochen',
+              message: 'Es wurde keine Datei ausgewählt.',
+              color: 'yellow',
+            });
+          }
         } catch (err) {
           console.error(err);
 
