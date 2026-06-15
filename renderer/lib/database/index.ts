@@ -1,9 +1,9 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { APP_NAME } from '../constants';
 
-const LOWER_CASED_APP_NAME = APP_NAME.toLowerCase().replace(/\s+/g, '-');
+const DB_NAME = APP_NAME.toLowerCase().replace(/\s+/g, '-');
 
-const database = new Dexie(LOWER_CASED_APP_NAME) as Dexie & {
+const database = new Dexie(DB_NAME) as Dexie & {
   drivers: EntityTable<Driver, 'uuid'>;
   karts: EntityTable<Kart, 'uuid'>;
   trainings: EntityTable<Training, 'uuid'>;
@@ -15,8 +15,7 @@ database.version(1).stores({
   trainings: '&uuid',
 });
 
-// This upgrade adds the "isInvalid" property to all existing laps in the database,
-// defaulting to `false`. This change was merged with PR #3.
+// upgrade 2
 database.version(2).upgrade((tx) => {
   return tx
     .table('trainings')
@@ -32,7 +31,7 @@ database.version(2).upgrade((tx) => {
     });
 });
 
-// Remove driver class from the database since it can be calculated from the birth date
+// upgrade 3
 database.version(3).upgrade((tx) => {
   return tx
     .table('drivers')
