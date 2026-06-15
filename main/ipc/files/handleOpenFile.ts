@@ -25,7 +25,12 @@ const handleOpenFile = () => {
         return;
       }
 
-      event.reply('open-file', Array.from(data));
+      // Sending the buffer directly can include unrelated bytes
+      // before and after the actual file contents. So we slice
+      // the buffer to only include the relevant portion
+      const buffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+
+      event.reply('open-file', buffer);
     });
   });
 };
