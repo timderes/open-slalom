@@ -10,13 +10,13 @@ export const exportToFile = async () => {
     .toLocaleDateString(undefined, {
       ...DEFAULT_DATE_FORMAT,
     })
-    .replace(/\./g, '-');
+    .replace(/[^\d]+/g, '-');
 
   const time = now
     .toLocaleTimeString(undefined, {
       ...DEFAULT_TIME_FORMAT,
     })
-    .replace(/:/g, '-');
+    .replace(/[^\d]+/g, '-');
 
   const blob = await exportDatabase();
   const fileName = `${APP_NAME}-datenbank-${date}_${time}`;
