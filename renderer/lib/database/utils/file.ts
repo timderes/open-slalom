@@ -3,7 +3,10 @@ import importDatabase from './import';
 import { APP_NAME, DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
 
 export const exportToFile = async () => {
-  if (typeof window === 'undefined' || !window?.ipc) return;
+  if (typeof window === 'undefined' || !window?.ipc) {
+    throw new Error("IPC is not available. Can't export database to file.");
+  }
+
   const now = new Date();
 
   const date = now
@@ -27,7 +30,9 @@ export const exportToFile = async () => {
 };
 
 export const importFromFile = () => {
-  if (typeof window === 'undefined' || !window?.ipc) return;
+  if (typeof window === 'undefined' || !window?.ipc) {
+    throw new Error("IPC is not available. Can't import database from file.");
+  }
 
   return new Promise<void>((resolve, reject) => {
     window.ipc.once('open-file', async (bufferData: ArrayBuffer | null) => {
