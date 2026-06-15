@@ -1,12 +1,25 @@
 import exportDatabase from './export';
 import importDatabase from './import';
-import { APP_NAME } from '@/lib/constants';
+import { APP_NAME, DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
 
 export const exportToFile = async () => {
   if (typeof window === 'undefined' || !window?.ipc) return;
+  const now = new Date();
+
+  const date = now
+    .toLocaleDateString(undefined, {
+      ...DEFAULT_DATE_FORMAT,
+    })
+    .replace(/\./g, '-');
+
+  const time = now
+    .toLocaleTimeString(undefined, {
+      ...DEFAULT_TIME_FORMAT,
+    })
+    .replace(/:/g, '-');
 
   const blob = await exportDatabase();
-  const fileName = `${APP_NAME}-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+  const fileName = `${APP_NAME}-datenbank-${date}_${time}`;
 
   const bufferData = await blob.arrayBuffer();
 
