@@ -30,7 +30,7 @@ TODOs for the upcoming releases of the app.
 
 ### Bugs
 
-- [ ] bug(refactor): Currently there are two files initializing the database connection. This can lead to problems because if the connection is initialized twice, it can cause conflicts and errors. The app should have a single point of initialization for the database connection to avoid these problems.
+- [x] bug(refactor): Currently there are two files initializing the database connection. This can lead to problems because if the connection is initialized twice, it can cause conflicts and errors. The app should have a single point of initialization for the database connection to avoid these problems.
 
 ### Misc
 
