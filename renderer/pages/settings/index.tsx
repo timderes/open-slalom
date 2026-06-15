@@ -8,6 +8,7 @@ import { notifications } from '@mantine/notifications';
 import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabler/icons-react';
 import PageContent from '@/components/shared/PageContent';
 import SettingsLayout from '@/components/shared/SettingsLayout';
+import { APP_NAME } from '@/lib/constants';
 
 // This page uses some hacky stuff to dynamically import the database
 // and dexie-export-import only on the client side, because both rely on
@@ -73,9 +74,7 @@ const SettingsPage = () => {
       const db = await getDatabase();
       const { exportDB } = await import('dexie-export-import');
       const blob = await exportDB(db, {});
-      const fileName = `msf-training-db-backup-${new Date()
-        .toISOString()
-        .replace(/[:.]/g, '-')}.json`;
+      const fileName = `${APP_NAME}-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
 
       const bufferData = await blob.arrayBuffer();
 
