@@ -25,7 +25,7 @@ const handleOpenFile = () => {
         return;
       }
 
-      event.reply('open-file', Array.from(data));
+      event.reply('open-file', data.buffer);
     });
   });
 };

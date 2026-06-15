@@ -6,7 +6,6 @@ import { notifications } from '@mantine/notifications';
 import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabler/icons-react';
 import PageContent from '@/components/shared/PageContent';
 import SettingsLayout from '@/components/shared/SettingsLayout';
-import { APP_NAME } from '@/lib/constants';
 import dbService from '@/lib/database/utils/service';
 
 const SettingsPage = () => {
@@ -44,21 +43,13 @@ const SettingsPage = () => {
 
   const handleDatabaseExport = async () => {
     try {
-      const blob = await dbService.export();
-      const fileName = `${APP_NAME}-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-      const bufferData = await blob.arrayBuffer();
+      await dbService.exportToFile();
 
-      if (typeof window !== 'undefined' && (window as any).ipc?.send) {
-        window.ipc.send('save-file', { fileName, bufferData });
-
-        notifications.show({
-          title: 'Export gestartet',
-          message: 'Bitte Speicherort auswählen.',
-          color: 'green',
-        });
-      } else {
-        throw new Error('IPC not available');
-      }
+      notifications.show({
+        title: 'Export gestartet',
+        message: 'Bitte Speicherort auswählen.',
+        color: 'green',
+      });
     } catch (err) {
       console.error(err);
 
@@ -70,61 +61,29 @@ const SettingsPage = () => {
     }
   };
 
-  const handleDatabaseImport = () => {
+  const handleDatabaseImport = async () => {
     modals.openConfirmModal({
       title: 'Datenbank importieren?',
       children: <Text>Bestehende Daten werden überschrieben. Möchten Sie fortfahren?</Text>,
       labels: { confirm: 'Importieren', cancel: 'Abbrechen' },
-      onConfirm: () => {
-        if (typeof window === 'undefined') return;
+      onConfirm: async () => {
+        try {
+          await dbService.importFromFile();
 
-        window.ipc.once('open-file', async (bufferData) => {
-          if (!bufferData) {
-            notifications.show({
-              title: 'Import abgebrochen',
-              message: 'Keine Datei ausgewählt.',
-              color: 'yellow',
-            });
-            return;
-          }
+          notifications.show({
+            title: 'Import erfolgreich',
+            message: 'Datenbank wurde wiederhergestellt.',
+            color: 'green',
+          });
+        } catch (err) {
+          console.error(err);
 
-          try {
-            const blob = new Blob([new Uint8Array(bufferData as number[])], {
-              type: 'application/json',
-            });
-            // Try safe import first
-            try {
-              await dbService.import(blob, {
-                clearTablesBeforeImport: true,
-              });
-            } catch (err) {
-              console.warn('Retry import without clearing tables', err);
-
-              await dbService.import(blob, {
-                clearTablesBeforeImport: false,
-              });
-            }
-
-            notifications.show({
-              title: 'Import erfolgreich',
-              message: 'Datenbank wurde wiederhergestellt.',
-              color: 'green',
-            });
-          } catch (err) {
-            console.error(err);
-
-            notifications.show({
-              title: 'Import fehlgeschlagen',
-              message: 'Ungültige oder beschädigte Datei.',
-              color: 'red',
-            });
-          }
-        });
-
-        window.ipc.send('open-file', {
-          title: 'Datenbank importieren',
-          filters: [{ name: 'JSON', extensions: ['json'] }],
-        });
+          notifications.show({
+            title: 'Import fehlgeschlagen',
+            message: 'Ungültige oder beschädigte Datei.',
+            color: 'red',
+          });
+        }
       },
     });
   };
@@ -135,7 +94,7 @@ const SettingsPage = () => {
         <PageContent>
           <PageHeader title="Datenbank" />
           <Text>
-            Die Datenbank enthält lokale Daten zu Fahrern, Trainings und Karts. Das Löschen ist kann
+            Die Datenbank enthält lokale Daten zu Fahrern, Trainings und Karts. Das Löschen kann
             nicht rückgängig gemacht werden.
           </Text>
           <Alert title="Achtung!" color="red">
