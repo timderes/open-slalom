@@ -11,7 +11,7 @@ import {
   getDriverRanking,
   getFastestLapTimestamp,
 } from '@/lib/training/selectors';
-import { Badge, Code, Divider, Stack, Table, Text, Title, Tooltip } from '@mantine/core';
+import { Badge, Code, Divider, Skeleton, Stack, Table, Text, Title, Tooltip } from '@mantine/core';
 import { IconFlagX } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
@@ -34,16 +34,28 @@ const TrainingViewPage = () => {
     );
   }
 
-  const training = useLiveQuery(() => database.trainings.get(uuid.toString()));
+  const training = useLiveQuery(() => database.trainings.get(uuid.toString()), [uuid], undefined);
 
-  if (!training) {
+  if (training === undefined) {
+    return (
+      <Layout currentRoute="/trainings">
+        <PageContent>
+          <Skeleton height={32} radius="sm" />
+          <Skeleton height={12} mt={6} radius="sm" />
+          <Skeleton height={12} mt={6} width="70%" radius="sm" />
+          <Skeleton height={400} mt={20} radius="sm" />
+        </PageContent>
+      </Layout>
+    );
+  }
+
+  if (training === null) {
     return (
       <Layout currentRoute="/trainings">
         <PageContent>
           <Title>Training nicht gefunden!</Title>
           <Text>
-            Das Training mit der UUID <Code>{uuid}</Code> konnte nicht gefunden. Es könnte gelöscht
-            worden sein oder die UUID ist ungültig.
+            Das Training mit der UUID <Code>{uuid}</Code> existiert nicht mehr.
           </Text>
         </PageContent>
       </Layout>
