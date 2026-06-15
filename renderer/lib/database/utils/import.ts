@@ -1,8 +1,13 @@
 import database from '../index';
-import { importInto } from 'dexie-export-import';
+import { type ImportOptions } from 'dexie-export-import';
 
-export async function importDatabase(blob: Blob) {
+const importDatabase = async (blob: Blob, options?: ImportOptions) => {
+  const { importInto } = await import('dexie-export-import');
+
   return importInto(database, blob, {
     clearTablesBeforeImport: true,
+    ...options,
   });
-}
+};
+
+export default importDatabase;

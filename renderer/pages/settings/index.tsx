@@ -1,7 +1,5 @@
 import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
-import clearDatabase from '@/lib/database/utils/clear';
-import { useEffect, useState } from 'react';
 import { Alert, Button, ButtonGroup, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -9,14 +7,10 @@ import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabl
 import PageContent from '@/components/shared/PageContent';
 import SettingsLayout from '@/components/shared/SettingsLayout';
 import { APP_NAME } from '@/lib/constants';
-import database from '@/lib/database';
+import dbService from '@/lib/database/utils/service';
 
 const SettingsPage = () => {
-  const [databaseVersion, setDatabaseVersion] = useState<number>(undefined);
-
-  useEffect(() => {
-    setDatabaseVersion(database.verno ?? undefined);
-  }, []);
+  const databaseVersion = dbService.getVersion() ?? 'Unbekannte Version';
 
   const handleDeleteDatabase = () => {
     modals.openConfirmModal({
@@ -28,7 +22,7 @@ const SettingsPage = () => {
       confirmProps: { color: 'red' },
       onConfirm: async () => {
         try {
-          await clearDatabase();
+          await dbService.clear();
 
           notifications.show({
             title: 'Datenbank gelöscht',
@@ -50,12 +44,8 @@ const SettingsPage = () => {
 
   const handleDatabaseExport = async () => {
     try {
-      const { exportDB } = await import('dexie-export-import');
-
-      const blob = await exportDB(database);
-
+      const blob = await dbService.export();
       const fileName = `${APP_NAME}-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-
       const bufferData = await blob.arrayBuffer();
 
       if (typeof window !== 'undefined' && (window as any).ipc?.send) {
@@ -102,18 +92,15 @@ const SettingsPage = () => {
             const blob = new Blob([new Uint8Array(bufferData as number[])], {
               type: 'application/json',
             });
-
-            const { importInto } = await import('dexie-export-import');
-
             // Try safe import first
             try {
-              await importInto(database, blob, {
+              await dbService.import(blob, {
                 clearTablesBeforeImport: true,
               });
             } catch (err) {
               console.warn('Retry import without clearing tables', err);
 
-              await importInto(database, blob, {
+              await dbService.import(blob, {
                 clearTablesBeforeImport: false,
               });
             }
@@ -157,7 +144,7 @@ const SettingsPage = () => {
           <Text mt="md">
             Datenbankversion:{' '}
             <Text component="span" ff="monospace">
-              {databaseVersion ?? 'Unbekannte Version'}
+              {databaseVersion}
             </Text>
           </Text>
           <ButtonGroup mt="md">

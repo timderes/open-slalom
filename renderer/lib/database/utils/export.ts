@@ -1,6 +1,10 @@
 import database from '../index';
-import { exportDB } from 'dexie-export-import';
+import { type ExportOptions } from 'dexie-export-import';
 
-export async function exportDatabase() {
-  return exportDB(database);
-}
+const exportDatabase = async (options?: ExportOptions) => {
+  const { exportDB } = await import('dexie-export-import');
+
+  return exportDB(database, { ...options });
+};
+
+export default exportDatabase;
