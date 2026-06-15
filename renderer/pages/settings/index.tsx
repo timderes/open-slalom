@@ -43,19 +43,27 @@ const SettingsPage = () => {
 
   const handleDatabaseExport = async () => {
     try {
-      await dbService.exportToFile();
+      const exported = await dbService.exportToFile();
 
-      notifications.show({
-        title: 'Export gestartet',
-        message: 'Bitte Speicherort auswählen.',
-        color: 'green',
-      });
+      if (exported) {
+        notifications.show({
+          title: 'Export erfolgreich',
+          message: 'Datenbank wurde exportiert.',
+          color: 'green',
+        });
+      } else {
+        notifications.show({
+          title: 'Export abgebrochen',
+          message: 'Datei wurde nicht gespeichert.',
+          color: 'red',
+        });
+      }
     } catch (err) {
       console.error(err);
 
       notifications.show({
         title: 'Export fehlgeschlagen',
-        message: 'Die Datenbank konnte nicht exportiert werden.',
+        message: 'Datenbank konnte nicht exportiert werden.',
         color: 'red',
       });
     }
