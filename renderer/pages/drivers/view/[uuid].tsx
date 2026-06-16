@@ -14,6 +14,7 @@ import {
   Card,
   Divider,
   Group,
+  Skeleton,
   Table,
   Text,
   Tooltip,
@@ -28,14 +29,28 @@ const DriverViewPage = () => {
   const router = useRouter();
   const { uuid } = router.query;
 
-  const driver = useLiveQuery(() => database.drivers.get(uuid.toString()));
+  const driver = useLiveQuery(() => database.drivers.get(uuid.toString()), [uuid], undefined);
   const trainings = useLiveQuery(() =>
     database.trainings
       .filter((training) => training.drivers.some((driver) => driver.uuid === uuid.toString()))
       .toArray(),
   );
 
-  if (!driver) {
+  if (driver === undefined) {
+    return (
+      <Layout currentRoute="/drivers">
+        <PageContent>
+          <Group>
+            <Skeleton height={50} circle mb="xl" />
+            <Skeleton height={20} width={100} radius="sm" />
+          </Group>
+          <Skeleton height={100} mt={8} radius="sm" />
+        </PageContent>
+      </Layout>
+    );
+  }
+
+  if (driver === null) {
     return (
       <Layout currentRoute="/drivers">
         <EmptyQueryResult title="Fahrer nicht gefunden">
@@ -98,39 +113,44 @@ const DriverViewPage = () => {
           <Stat label="Torfehler" value={driverStats.hitGates} />
         </Group>
         <Divider label="Trainings" labelPosition="left" />
-        {trainings && trainings.length > 0 && (
-          <Table mt="md">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Datum</Table.Th>
-                <Table.Th>Modus</Table.Th>
-                <Table.Th>{/* Actions */}</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {trainings.map((training) => (
-                <Table.Tr key={training.uuid}>
-                  <Table.Td>
-                    {new Date(training.createdAt).toLocaleDateString(
-                      APP_LANGUAGE,
-                      DEFAULT_DATE_FORMAT,
-                    )}
-                  </Table.Td>
-                  <Table.Td>{training.mode}</Table.Td>
-                  <Table.Td>
-                    <Button
-                      size="xs"
-                      onClick={() => router.push(`/trainings/${training.uuid}/view`)}
-                    >
-                      <IconSearch />
-                    </Button>
-                  </Table.Td>
+        {trainings === undefined ? (
+          <Skeleton height={300} mt={8} radius="sm" />
+        ) : (
+          trainings &&
+          trainings.length > 0 && (
+            <Table mt="md">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Datum</Table.Th>
+                  <Table.Th>Modus</Table.Th>
+                  <Table.Th>{/* Actions */}</Table.Th>
                 </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+              </Table.Thead>
+              <Table.Tbody>
+                {trainings.map((training) => (
+                  <Table.Tr key={training.uuid}>
+                    <Table.Td>
+                      {new Date(training.createdAt).toLocaleDateString(
+                        APP_LANGUAGE,
+                        DEFAULT_DATE_FORMAT,
+                      )}
+                    </Table.Td>
+                    <Table.Td>{training.mode}</Table.Td>
+                    <Table.Td>
+                      <Button
+                        size="xs"
+                        onClick={() => router.push(`/trainings/${training.uuid}/view`)}
+                      >
+                        <IconSearch />
+                      </Button>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          )
         )}
-        {!trainings || trainings.length === 0 ? (
+        {!trainings === null && trainings?.length === 0 ? (
           <Text>{driver.firstName} hat noch an keinem Training teilgenommen.</Text>
         ) : null}
       </PageContent>
