@@ -4,7 +4,7 @@ import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/SortableTable';
 import database from '@/lib/database';
-import { Button, ButtonGroup, Center, Group, Loader, Skeleton, Text } from '@mantine/core';
+import { Button, ButtonGroup, Group, Skeleton, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { IconPencil, IconTrash, IconUserSearch } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
