@@ -6,7 +6,7 @@ TODOs for the upcoming releases of the app.
 
 ### Features
 
-- [ ] feat: While the training view, allocating a kart to a driver. Before the driver stopwatch is started, it should be possible to change the kart. After the stopwatch is started, the kart should be locked in for the running stint.
+- [ ] feat: When a driver left the training early, the user should be able to mark the driver. So the app automatically skips the driver. This can be done by eg. adding a checkbox. It should be possible to "re-enable" the driver, in case the user marked the driver by accident or the driver wants to continue the training later. Also drivers, that left the training should be "grayed out" in the UI, so the user can easily see which drivers are still active in the training and which drivers left the training.
 - [x] feat: Add a "trainings view" route where the user can see all trainings that have been created. In this view, the user can also delete trainings.
 - [x] feat: Make laps per stint optional. Currently we need to pass many invalid laps, if the driver is doing less laps then the configured laps per stint. Since this can be common in trainings. We could set the laps per stint to `Infinity`. The UI then should only show the current lap instead of 1 / x laps.
 - [x] feat: Add light and dark mode to the app. (PR #11)
@@ -26,6 +26,7 @@ TODOs for the upcoming releases of the app.
 
 ### Features
 
+- [ ] feat: While the training view, allocating a kart to a driver. Before the driver stopwatch is started, it should be possible to change the kart. After the stopwatch is started, the kart should be locked in for the running stint.
 - [ ] feat: Add a overall statistics view, where the user can see the overall statistics of all trainings and drivers. This view should show the best lap time, the average lap time, the total time, the total number of laps and the total number of stints for each driver. With maybe some diagrams and charts to visualize the data.
 
 ### Bugs
@@ -35,3 +36,7 @@ TODOs for the upcoming releases of the app.
 ### Misc
 
 _Currently none_
+
+## 1.4.0
+
+- [ ] feat: Championship mode: In this mode, the user can create a championship and add trainings to the championship. The app then calculates the points for each driver based on their performance in the trainings and shows the championship standings. This can be a great feature for users who want to organize a series of trainings and keep track of the performance of their drivers over time.
