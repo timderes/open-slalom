@@ -30,10 +30,13 @@ const DriverViewPage = () => {
   const { uuid } = router.query;
 
   const driver = useLiveQuery(() => database.drivers.get(uuid.toString()), [uuid], undefined);
-  const trainings = useLiveQuery(() =>
-    database.trainings
-      .filter((training) => training.drivers.some((driver) => driver.uuid === uuid.toString()))
-      .toArray(),
+  const trainings = useLiveQuery(
+    () =>
+      database.trainings
+        .filter((training) => training.drivers.some((driver) => driver.uuid === uuid.toString()))
+        .toArray(),
+    [uuid],
+    undefined,
   );
 
   if (driver === undefined) {
@@ -150,7 +153,7 @@ const DriverViewPage = () => {
             </Table>
           )
         )}
-        {trainings && trainings?.length === 0 ? (
+        {trainings?.length === 0 ? (
           <Text>{driver.firstName} hat noch an keinem Training teilgenommen.</Text>
         ) : null}
       </PageContent>
