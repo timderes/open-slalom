@@ -150,7 +150,7 @@ const DriverViewPage = () => {
             </Table>
           )
         )}
-        {!trainings === null && trainings?.length === 0 ? (
+        {trainings && trainings?.length === 0 ? (
           <Text>{driver.firstName} hat noch an keinem Training teilgenommen.</Text>
         ) : null}
       </PageContent>
