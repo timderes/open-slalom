@@ -1,5 +1,5 @@
-import { Container, Text } from '@mantine/core';
-import PageHeader from './PageHeader';
+import { Container, Stack, Text, Title } from '@mantine/core';
+import { IconFileUnknown } from '@tabler/icons-react';
 
 type EmptyQueryResultProps = {
   title: string;
@@ -7,9 +7,12 @@ type EmptyQueryResultProps = {
 
 const EmptyQueryResult = ({ children, title }: EmptyQueryResultProps) => {
   return (
-    <Container my="sm">
-      <PageHeader title={title} />
-      <Text>{children}</Text>
+    <Container component={Stack} my="xl">
+      <IconFileUnknown size={96} style={{ margin: '0 auto' }} />
+      <Title order={2} ta="center">
+        {title}
+      </Title>
+      <Text ta="center">{children}</Text>
     </Container>
   );
 };
