@@ -1,10 +1,20 @@
+import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/SortableTable';
 import { APP_LANGUAGE, DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
-import { Avatar, AvatarGroup, Button, ButtonGroup, Group, Text, Tooltip } from '@mantine/core';
+import {
+  Avatar,
+  AvatarGroup,
+  Button,
+  ButtonGroup,
+  Group,
+  Skeleton,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconPencil, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
@@ -13,7 +23,7 @@ import { useRouter } from 'next/router';
 
 const TrainingsIndexPage = () => {
   const router = useRouter();
-  const trainings = useLiveQuery(() => database.trainings.toArray(), [])?.sort((a, b) => {
+  const trainings = useLiveQuery(() => database.trainings.toArray(), undefined)?.sort((a, b) => {
     if (a.createdAt < b.createdAt) return 1;
     if (a.createdAt > b.createdAt) return -1;
     return 0;
@@ -75,45 +85,64 @@ const TrainingsIndexPage = () => {
             Neues Training
           </Button>
         </Group>
-        <ScrollableTable
-          striped
-          highlightOnHover
-          withRowBorders={false}
-          data={{
-            head: ['Datum', 'Modus', 'Fahrer', ''], // the "" is needed for the actions column
-            body: trainings?.map((training) => [
-              new Date(training.createdAt).toLocaleDateString(APP_LANGUAGE, {
-                ...DEFAULT_DATE_FORMAT,
-                ...DEFAULT_TIME_FORMAT,
-                // This removes the seconds from the time format,
-                // as they are not needed in the table view
-                second: undefined,
-              }),
-              training.mode,
-              <AvatarGroup>
-                {(training.drivers ?? []).slice(0, 7).map((driver) => (
-                  <Tooltip
-                    key={driver.uuid}
-                    label={`${driver.firstName} ${driver.lastName}`}
-                    withArrow
-                  >
-                    <Avatar name={`${driver.firstName} ${driver.lastName}`} color="initials" />
-                  </Tooltip>
-                ))}
-                {(training.drivers?.length ?? 0) > 7 && (
-                  <Tooltip
-                    label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
-                    withArrow
-                  >
-                    <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
-                  </Tooltip>
-                )}
-              </AvatarGroup>,
-              <TableActions uuid={training.uuid} />,
-            ]),
-            caption: `${trainings?.length || 0} Trainings wurden gefunden`,
-          }}
-        />
+        {trainings === undefined ? (
+          <Skeleton height={400} radius="sm" />
+        ) : trainings.length === 0 ? (
+          <EmptyQueryResult title="Es gibt keine aufgezeichneten Trainings">
+            Es wurden keine Trainings gefunden.
+            <Button
+              onClick={() => router.push('/trainings/active')}
+              variant="filled"
+              w="fit-content"
+              display="block"
+              mx="auto"
+              mt="xl"
+              size="md"
+            >
+              Neues Training starten
+            </Button>
+          </EmptyQueryResult>
+        ) : (
+          <ScrollableTable
+            striped
+            highlightOnHover
+            withRowBorders={false}
+            data={{
+              head: ['Datum', 'Modus', 'Fahrer', ''], // the "" is needed for the actions column
+              body: trainings?.map((training) => [
+                new Date(training.createdAt).toLocaleDateString(APP_LANGUAGE, {
+                  ...DEFAULT_DATE_FORMAT,
+                  ...DEFAULT_TIME_FORMAT,
+                  // This removes the seconds from the time format,
+                  // as they are not needed in the table view
+                  second: undefined,
+                }),
+                training.mode,
+                <AvatarGroup>
+                  {(training.drivers ?? []).slice(0, 7).map((driver) => (
+                    <Tooltip
+                      key={driver.uuid}
+                      label={`${driver.firstName} ${driver.lastName}`}
+                      withArrow
+                    >
+                      <Avatar name={`${driver.firstName} ${driver.lastName}`} color="initials" />
+                    </Tooltip>
+                  ))}
+                  {(training.drivers?.length ?? 0) > 7 && (
+                    <Tooltip
+                      label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
+                      withArrow
+                    >
+                      <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
+                    </Tooltip>
+                  )}
+                </AvatarGroup>,
+                <TableActions uuid={training.uuid} />,
+              ]),
+              caption: `${trainings?.length || 0} Trainings wurden gefunden`,
+            }}
+          />
+        )}
       </PageContent>
     </Layout>
   );

@@ -4,7 +4,7 @@ import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import Stat from '@/components/shared/Stat';
 import database from '@/lib/database';
-import { ActionIcon, Card, Group, Tooltip } from '@mantine/core';
+import { ActionIcon, Card, Group, Skeleton, Tooltip } from '@mantine/core';
 import { IconCode } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
@@ -13,9 +13,20 @@ const KartViewPage = () => {
   const router = useRouter();
   const { uuid } = router.query;
 
-  const kart = useLiveQuery(() => database.karts.get(uuid.toString()));
+  const kart = useLiveQuery(() => database.karts.get(uuid.toString()), [uuid], undefined);
 
-  if (!kart) {
+  if (kart === undefined) {
+    return (
+      <Layout currentRoute="/karts">
+        <PageContent>
+          <Skeleton height={32} radius="sm" />
+          <Skeleton height={100} mt={8} radius="sm" />
+        </PageContent>
+      </Layout>
+    );
+  }
+
+  if (kart === null) {
     return (
       <Layout currentRoute="/karts">
         <EmptyQueryResult title="Kart nicht gefunden">

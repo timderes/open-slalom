@@ -1,9 +1,10 @@
+import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/SortableTable';
 import database from '@/lib/database';
-import { Button, ButtonGroup, Group, Text } from '@mantine/core';
+import { Button, ButtonGroup, Group, Skeleton, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { IconPencil, IconTrash, IconUserSearch } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -11,7 +12,7 @@ import { useRouter } from 'next/router';
 
 const KartsPage = () => {
   const router = useRouter();
-  const karts = useLiveQuery(() => database.karts.toArray(), []);
+  const karts = useLiveQuery(() => database.karts.toArray(), undefined);
 
   const tableActions = (uuid: Kart['uuid']) => {
     return (
@@ -55,24 +56,43 @@ const KartsPage = () => {
             Kart anlegen
           </Button>
         </Group>
-        <ScrollableTable
-          striped
-          highlightOnHover
-          withRowBorders={false}
-          data={{
-            head: ['Kart', 'Type', 'Chassis', 'Motor', ''],
-            body: karts
-              ? karts.map((kart) => [
-                  `${kart.name}`,
-                  kart.type,
-                  kart.chassis,
-                  kart.engine,
-                  tableActions(kart.uuid),
-                ])
-              : [],
-            caption: `${karts?.length || 0} Karts wurden gefunden`,
-          }}
-        />
+        {karts === undefined ? (
+          <Skeleton height={400} radius="sm" />
+        ) : karts.length === 0 ? (
+          <EmptyQueryResult title="Wo sind die Karts?">
+            Es wurden keine Karts gefunden.
+            <Button
+              onClick={() => router.push('/karts/create')}
+              variant="filled"
+              w="fit-content"
+              display="block"
+              mx="auto"
+              mt="xl"
+              size="md"
+            >
+              Kart anlegen
+            </Button>
+          </EmptyQueryResult>
+        ) : (
+          <ScrollableTable
+            striped
+            highlightOnHover
+            withRowBorders={false}
+            data={{
+              head: ['Kart', 'Typ', 'Chassis', 'Motor', ''],
+              body: karts
+                ? karts.map((kart) => [
+                    `${kart.name}`,
+                    kart.type,
+                    kart.chassis,
+                    kart.engine,
+                    tableActions(kart.uuid),
+                  ])
+                : [],
+              caption: `${karts?.length ?? 0} Karts wurden gefunden`,
+            }}
+          />
+        )}
       </PageContent>
     </Layout>
   );

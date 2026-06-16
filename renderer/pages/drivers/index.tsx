@@ -3,7 +3,7 @@ import { APP_LANGUAGE, DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from '@/lib/
 import database from '@/lib/database';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
-import { Avatar, Button, ButtonGroup, Group, Text, Tooltip } from '@mantine/core';
+import { Avatar, Button, ButtonGroup, Group, Skeleton, Text, Tooltip } from '@mantine/core';
 import {
   IconGenderFemale,
   IconGenderMale,
@@ -19,10 +19,11 @@ import { modals } from '@mantine/modals';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/SortableTable';
 import PageContent from '@/components/shared/PageContent';
+import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 
 const DriversPage = () => {
   const router = useRouter();
-  const drivers = useLiveQuery(() => database.drivers.toArray(), [])?.sort((a, b) => {
+  const drivers = useLiveQuery(() => database.drivers.toArray(), undefined)?.sort((a, b) => {
     // Sort by last name, then first name
     if (a.lastName.toLowerCase() < b.lastName.toLowerCase()) return -1;
     if (a.lastName.toLowerCase() > b.lastName.toLowerCase()) return 1;
@@ -80,52 +81,72 @@ const DriversPage = () => {
             Fahrer anlegen
           </Button>
         </Group>
-        <ScrollableTable
-          striped
-          highlightOnHover
-          withRowBorders={false}
-          data={{
-            head: ['Name', '', 'Geburtsdatum', 'JKS', 'SKS'],
-            body: drivers
-              ? drivers.map((driver) => {
-                  const jksClass = getJksClass({ birthDate: driver.birthDate });
-                  const sksClass = getSksClass({ birthDate: driver.birthDate });
-                  const jksDisplay = jksClass === '-' ? '-' : `K${jksClass}`;
-                  const sksDisplay = sksClass === '-' ? '-' : `K${sksClass}`;
+        {drivers === undefined ? (
+          <Skeleton height={400} radius="sm" />
+        ) : drivers.length === 0 ? (
+          <EmptyQueryResult title="Leeres Starterfeld">
+            Es wurden keine Fahrer gefunden.
+            <Button
+              leftSection={<IconHelmet />}
+              onClick={() => router.push('/drivers/create')}
+              variant="filled"
+              w="fit-content"
+              display="block"
+              mx="auto"
+              mt="xl"
+              size="md"
+            >
+              Fahrer anlegen
+            </Button>
+          </EmptyQueryResult>
+        ) : (
+          <ScrollableTable
+            striped
+            highlightOnHover
+            withRowBorders={false}
+            data={{
+              head: ['Name', '', 'Geburtsdatum', 'JKS', 'SKS'],
+              body: drivers
+                ? drivers.map((driver) => {
+                    const jksClass = getJksClass({ birthDate: driver.birthDate });
+                    const sksClass = getSksClass({ birthDate: driver.birthDate });
+                    const jksDisplay = jksClass === '-' ? '-' : `K${jksClass}`;
+                    const sksDisplay = sksClass === '-' ? '-' : `K${sksClass}`;
 
-                  return [
-                    <Group gap="md">
-                      <Avatar color="initials" name={`${driver.firstName} ${driver.lastName}`} />
-                      <Text>
-                        {driver.firstName} {driver.lastName}
-                      </Text>
-                    </Group>,
-                    driver.sex === 'male' ? (
-                      <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
-                        <IconGenderMale />
-                      </Tooltip>
-                    ) : driver.sex === 'female' ? (
-                      <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
-                        <IconGenderFemale />
-                      </Tooltip>
-                    ) : (
-                      <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
-                        <IconGenderTransgender />
-                      </Tooltip>
-                    ),
-                    `${new Date(driver.birthDate).toLocaleDateString(APP_LANGUAGE, {
-                      ...DEFAULT_DATE_FORMAT,
-                      month: 'long',
-                    })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
-                    jksDisplay,
-                    sksDisplay,
-                    tableActions(driver.uuid),
-                  ];
-                })
-              : [],
-            caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
-          }}
-        />
+                    return [
+                      <Group gap="md">
+                        <Avatar color="initials" name={`${driver.firstName} ${driver.lastName}`} />
+                        <Text>
+                          {driver.firstName} {driver.lastName}
+                        </Text>
+                      </Group>,
+                      driver.sex === 'male' ? (
+                        <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
+                          <IconGenderMale />
+                        </Tooltip>
+                      ) : driver.sex === 'female' ? (
+                        <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
+                          <IconGenderFemale />
+                        </Tooltip>
+                      ) : (
+                        <Tooltip label="Divers" {...DEFAULT_TOOLTIP_PROPS}>
+                          <IconGenderTransgender />
+                        </Tooltip>
+                      ),
+                      `${new Date(driver.birthDate).toLocaleDateString(APP_LANGUAGE, {
+                        ...DEFAULT_DATE_FORMAT,
+                        month: 'long',
+                      })} (${calculateDriverAge(driver.birthDate)} Jahre)`,
+                      jksDisplay,
+                      sksDisplay,
+                      tableActions(driver.uuid),
+                    ];
+                  })
+                : [],
+              caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
+            }}
+          />
+        )}
       </PageContent>
     </Layout>
   );
