@@ -201,7 +201,7 @@ const useTraining = () => {
     notifyInfo('Stint beendet', 'Der Stint wurde beendet.');
   };
 
-  const handleAddDriver = (driver: DriverWithStints) => {
+  const handleAddDriver = (driver: TrainingDriver) => {
     const exists = settings.values.drivers.some((d) => d.uuid === driver.uuid);
     const updatedDrivers = exists
       ? settings.values.drivers.filter((d) => d.uuid !== driver.uuid)
@@ -289,6 +289,14 @@ const useTraining = () => {
     }
 
     updateCurrentStateToNextDriver();
+  };
+
+  const toggleDriverActiveState = (driverUuid: string) => {
+    settings.setFieldValue('drivers', (prevDrivers) =>
+      prevDrivers.map((driver) =>
+        driver.uuid === driverUuid ? { ...driver, isActive: !driver.isActive } : driver,
+      ),
+    );
   };
 
   const handleStopTraining = () => {
@@ -466,6 +474,7 @@ const useTraining = () => {
       addDriver: handleAddDriver,
       updateCurrentDriver: handleUpdateCurrentDriver,
       skipDriver: handleSkipDriver,
+      toggleDriverActive: toggleDriverActiveState,
       stopTraining: handleStopTraining,
       updateLapCones,
       updateLapGates,

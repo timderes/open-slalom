@@ -6,7 +6,7 @@ TODOs for the upcoming releases of the app.
 
 ### Features
 
-- [ ] feat: When a driver left the training early, the user should be able to mark the driver. So the app automatically skips the driver. This can be done by eg. adding a checkbox. It should be possible to "re-enable" the driver, in case the user marked the driver by accident or the driver wants to continue the training later. Also drivers, that left the training should be "grayed out" in the UI, so the user can easily see which drivers are still active in the training and which drivers left the training.
+- [x] feat: When a driver left the training early, the user should be able to mark the driver. So the app automatically skips the driver. This can be done by eg. adding a checkbox. It should be possible to "re-enable" the driver, in case the user marked the driver by accident or the driver wants to continue the training later. Also drivers, that left the training should be "grayed out" in the UI, so the user can easily see which drivers are still active in the training and which drivers left the training.
 - [x] feat: Add a "trainings view" route where the user can see all trainings that have been created. In this view, the user can also delete trainings.
 - [x] feat: Make laps per stint optional. Currently we need to pass many invalid laps, if the driver is doing less laps then the configured laps per stint. Since this can be common in trainings. We could set the laps per stint to `Infinity`. The UI then should only show the current lap instead of 1 / x laps.
 - [x] feat: Add light and dark mode to the app. (PR #11)

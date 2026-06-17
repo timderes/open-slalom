@@ -12,6 +12,7 @@ type Driver = {
 /**
  * Extends the default driver profile with an array of laps.
  */
-type DriverWithStints = Driver & {
+type TrainingDriver = Driver & {
   stints: { laps: Lap[] }[];
+  isActive: boolean; // Indicates that the driver is still participating in the training
 };

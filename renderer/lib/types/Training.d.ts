@@ -4,7 +4,7 @@ type Training = {
   lapsPerStint: number;
   unlimitedLapsPerStint: boolean;
   mode: TrainingMode;
-  drivers: DriverWithStints[];
+  drivers: TrainingDriver[];
   uuid: string; // UUID v4
   createdAt: number; // Unix timestamp
   updatedAt: number; // Unix timestamp
