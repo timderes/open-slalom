@@ -5,9 +5,9 @@ import { TIME_PENALTIES_JKS, TIME_PENALTIES_SKS } from '@/lib/constants';
 // =========================
 
 export type TrainingState = {
-  drivers: DriverWithStints[];
+  drivers: TrainingDriver[];
   currentDriverIndex: number;
-  currentDriver?: DriverWithStints;
+  currentDriver?: TrainingDriver;
 
   laps: Lap[];
   currentLap: number;
@@ -26,7 +26,7 @@ export type TrainingAction =
   | { type: 'RESET' }
   | { type: 'SKIP' }
   | { type: 'TICK'; payload: number }
-  | { type: 'SET_DRIVERS'; payload: DriverWithStints[] }
+  | { type: 'SET_DRIVERS'; payload: TrainingDriver[] }
   | { type: 'SET_LAPS_PER_STINT'; payload: number }
   | { type: 'SET_UNLIMITED_LAPS'; payload: boolean }
   | { type: 'SET_MODE'; payload: SlalomType }
@@ -115,7 +115,23 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
     case 'SKIP': {
       if (state.drivers.length === 0) return state;
 
-      const nextIndex = (state.currentDriverIndex + 1) % state.drivers.length;
+      let nextIndex = (state.currentDriverIndex + 1) % state.drivers.length;
+
+      // When the next driver is not active, increase by one more until we find an
+      // active driver or loop back to the start
+      if (!state.drivers[nextIndex].isActive) {
+        const startingIndex = nextIndex;
+
+        do {
+          nextIndex = (nextIndex + 1) % state.drivers.length;
+        } while (nextIndex !== startingIndex && !state.drivers[nextIndex].isActive);
+
+        // If we looped back to the starting index and didn't find any active driver,
+        // return the current state
+        if (!state.drivers[nextIndex].isActive) {
+          return state;
+        }
+      }
 
       return {
         ...state,

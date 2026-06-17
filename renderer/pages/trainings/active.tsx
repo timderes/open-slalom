@@ -113,6 +113,7 @@ const ActiveTrainingPage = () => {
                     actions.addDriver({
                       ...driver,
                       stints: existing ? existing.stints : [],
+                      isActive: existing ? existing.isActive : true,
                     });
                   }}
                 >
@@ -307,6 +308,7 @@ const ActiveTrainingPage = () => {
                             <Table.Tr>
                               <Table.Th>Fahrer</Table.Th>
                               <Table.Th>Kart</Table.Th>
+                              <Table.Th>Fährt noch</Table.Th>
                             </Table.Tr>
                           </Table.Thead>
                           <Table.Tbody>
@@ -315,11 +317,23 @@ const ActiveTrainingPage = () => {
                                 key={driver.uuid}
                                 bg={currentStint.currentDriverIndex === _idx ? 'blue' : undefined}
                                 c={currentStint.currentDriverIndex === _idx ? 'white' : undefined}
+                                style={{
+                                  opacity: driver.isActive ? 1 : 0.3,
+                                  transition: 'opacity 150ms ease',
+                                }}
                               >
                                 <Table.Td>
                                   {driver.firstName} {driver.lastName}
                                 </Table.Td>
                                 <Table.Td>N/A</Table.Td>
+                                <Table.Td>
+                                  <Checkbox
+                                    checked={driver.isActive}
+                                    onChange={() => {
+                                      actions.toggleDriverActive(driver.uuid);
+                                    }}
+                                  />
+                                </Table.Td>
                               </Table.Tr>
                             ))}
                           </Table.Tbody>
