@@ -328,6 +328,7 @@ const ActiveTrainingPage = () => {
                                 <Table.Td>N/A</Table.Td>
                                 <Table.Td>
                                   <Checkbox
+                                    disabled={currentStint.currentDriverIndex === _idx}
                                     checked={driver.isActive}
                                     onChange={() => {
                                       actions.toggleDriverActive(driver.uuid);
