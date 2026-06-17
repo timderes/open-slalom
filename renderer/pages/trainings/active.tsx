@@ -36,7 +36,6 @@ import {
   IconUserMinus,
   IconUserPlus,
 } from '@tabler/icons-react';
-import ScrollableTable from '@/components/shared/SortableTable';
 import useTraining from '@/hooks/useTraining';
 import {
   getAverageLap,
@@ -329,73 +328,76 @@ const ActiveTrainingPage = () => {
                     )}
                   </Tabs.Panel>
                   <Tabs.Panel value="fastestLaps" my="lg">
-                    <ScrollableTable
-                      striped
-                      highlightOnHover
-                      withRowBorders={false}
-                      data={{
-                        head: [
-                          'Position',
-                          'Fahrer',
-                          'Kart',
-                          'Rundenzeit',
-                          'Diff.',
-                          'Strafen',
-                          'Zeitpunkt',
-                          'Runden',
-                        ],
-                        body: (() => {
-                          const driversWithFastest = getDriverRanking(settings.values.drivers);
-                          const bestTime = driversWithFastest[0]?.fastestLapTime;
+                    <Table.ScrollContainer minWidth="auto" maxHeight={600}>
+                      <Table
+                        striped
+                        highlightOnHover
+                        stickyHeader
+                        withRowBorders={false}
+                        data={{
+                          head: [
+                            'Position',
+                            'Fahrer',
+                            'Kart',
+                            'Rundenzeit',
+                            'Diff.',
+                            'Strafen',
+                            'Zeitpunkt',
+                            'Runden',
+                          ],
+                          body: (() => {
+                            const driversWithFastest = getDriverRanking(settings.values.drivers);
+                            const bestTime = driversWithFastest[0]?.fastestLapTime;
 
-                          return driversWithFastest.map(
-                            ({ driver, fastestLap, fastestLapTime }, idx) => {
-                              const pos = `${idx + 1}.`;
-                              const name = `${driver.firstName} ${driver.lastName}`;
-                              const kart = (driver as any).kart ?? 'N/A';
-                              const cones = fastestLap?.cones ?? 0;
-                              const gates = fastestLap?.gates ?? 0;
-                              const penalties =
-                                fastestLap !== undefined
-                                  ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
-                                      fastestLap,
-                                      timePenalties,
-                                    )}s)`
-                                  : 'N/A';
-                              const timeStr = fastestLap
-                                ? formatTime(fastestLap.time_with_penalties, 'lap')
-                                : 'N/A';
-
-                              const diffToBest =
-                                fastestLapTime !== undefined
-                                  ? idx === 0 || bestTime === undefined
-                                    ? '-'
-                                    : `${formatTime(fastestLapTime - bestTime, 'gap')}`
+                            return driversWithFastest.map(
+                              ({ driver, fastestLap, fastestLapTime }, idx) => {
+                                const pos = `${idx + 1}.`;
+                                const name = `${driver.firstName} ${driver.lastName}`;
+                                const kart = (driver as any).kart ?? 'N/A';
+                                const cones = fastestLap?.cones ?? 0;
+                                const gates = fastestLap?.gates ?? 0;
+                                const penalties =
+                                  fastestLap !== undefined
+                                    ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
+                                        fastestLap,
+                                        timePenalties,
+                                      )}s)`
+                                    : 'N/A';
+                                const timeStr = fastestLap
+                                  ? formatTime(fastestLap.time_with_penalties, 'lap')
                                   : 'N/A';
 
-                              const date = fastestLap
-                                ? new Date(fastestLap.timestamp).toTimeString().split(' ')[0]
-                                : 'N/A';
+                                const diffToBest =
+                                  fastestLapTime !== undefined
+                                    ? idx === 0 || bestTime === undefined
+                                      ? '-'
+                                      : `${formatTime(fastestLapTime - bestTime, 'gap')}`
+                                    : 'N/A';
 
-                              const totalRounds = (driver.stints ?? []).flatMap(
-                                (stint) => stint.laps ?? [],
-                              ).length;
+                                const date = fastestLap
+                                  ? new Date(fastestLap.timestamp).toTimeString().split(' ')[0]
+                                  : 'N/A';
 
-                              return [
-                                pos,
-                                name,
-                                kart,
-                                timeStr,
-                                diffToBest,
-                                penalties,
-                                date,
-                                totalRounds,
-                              ];
-                            },
-                          );
-                        })(),
-                      }}
-                    />
+                                const totalRounds = (driver.stints ?? []).flatMap(
+                                  (stint) => stint.laps ?? [],
+                                ).length;
+
+                                return [
+                                  pos,
+                                  name,
+                                  kart,
+                                  timeStr,
+                                  diffToBest,
+                                  penalties,
+                                  date,
+                                  totalRounds,
+                                ];
+                              },
+                            );
+                          })(),
+                        }}
+                      />
+                    </Table.ScrollContainer>
                   </Tabs.Panel>
                 </Tabs>
               </Stack>
