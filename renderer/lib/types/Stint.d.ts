@@ -6,7 +6,7 @@
 type Stint = {
   currentDriverIndex: number; // Index of the driver currently on track
   currentLap: number; // Current lap number within the stint (starting from 1)
-  driver?: DriverWithStints; // Optional reference to the driver currently on track (can be undefined if no driver is assigned yet)
+  driver?: TrainingDriver; // Optional reference to the driver currently on track (can be undefined if no driver is assigned yet)
   laps: Lap[]; // Array of laps completed in this stint
   time: number; // Total elapsed time for the stint
 };

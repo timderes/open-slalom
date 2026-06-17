@@ -1,5 +1,5 @@
 type DriverRankingEntry = {
-  driver: DriverWithStints;
+  driver: TrainingDriver;
   fastestLap?: Lap;
   fastestLapTime?: number;
 };
@@ -39,13 +39,12 @@ export const getTotalLapTime = (laps: Lap[], key: 'time' | 'time_with_penalties'
   return validLaps.reduce((sum, lap) => sum + lap[key], 0);
 };
 
-export const getDriverLaps = (driver: DriverWithStints) =>
+export const getDriverLaps = (driver: TrainingDriver) =>
   (driver.stints ?? []).flatMap((stint) => stint.laps ?? []);
 
-export const getDriverFastestLap = (driver: DriverWithStints) =>
-  getFastestLap(getDriverLaps(driver));
+export const getDriverFastestLap = (driver: TrainingDriver) => getFastestLap(getDriverLaps(driver));
 
-export const getDriverRanking = (drivers: DriverWithStints[]) =>
+export const getDriverRanking = (drivers: TrainingDriver[]) =>
   drivers
     .map((driver, index) => {
       const fastestLap = getDriverFastestLap(driver);
@@ -69,7 +68,7 @@ export const getDriverRanking = (drivers: DriverWithStints[]) =>
     })
     .map(({ index, ...entry }): DriverRankingEntry => entry);
 
-export const getDiffToBest = (driver: DriverWithStints, drivers: DriverWithStints[]) => {
+export const getDiffToBest = (driver: TrainingDriver, drivers: TrainingDriver[]) => {
   const driverFastest = getDriverFastestLap(driver);
 
   if (!driverFastest) {
@@ -86,7 +85,7 @@ export const getDiffToBest = (driver: DriverWithStints, drivers: DriverWithStint
   return driverFastest.time_with_penalties - best.time_with_penalties;
 };
 
-export const getDiffToPrevious = (driver: DriverWithStints, drivers: DriverWithStints[]) => {
+export const getDiffToPrevious = (driver: TrainingDriver, drivers: TrainingDriver[]) => {
   const ranking = getDriverRanking(drivers);
   const index = ranking.findIndex((entry) => entry.driver.uuid === driver.uuid);
 
@@ -108,7 +107,7 @@ export const getDiffToPrevious = (driver: DriverWithStints, drivers: DriverWithS
   return current.time_with_penalties - previous.time_with_penalties;
 };
 
-export const getFastestLapTimestamp = (driver: DriverWithStints) =>
+export const getFastestLapTimestamp = (driver: TrainingDriver) =>
   getDriverFastestLap(driver)?.timestamp;
 
 export const getLapPenaltySeconds = (lap: Lap, penalties: TimePenalties) =>

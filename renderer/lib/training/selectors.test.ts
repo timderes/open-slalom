@@ -20,7 +20,7 @@ const createLap = (overrides: Partial<Lap>): Lap => ({
   ...overrides,
 });
 
-const createDriver = (uuid: string, laps: Lap[]): DriverWithStints => ({
+const createDriver = (uuid: string, laps: Lap[]): TrainingDriver => ({
   uuid,
   firstName: `First-${uuid}`,
   lastName: `Last-${uuid}`,
@@ -29,6 +29,7 @@ const createDriver = (uuid: string, laps: Lap[]): DriverWithStints => ({
   createdAt: 1,
   updatedAt: 1,
   stints: [{ laps }],
+  isActive: true,
 });
 
 describe('training selectors', () => {

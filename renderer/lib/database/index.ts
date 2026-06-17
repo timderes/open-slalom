@@ -21,7 +21,7 @@ database.version(2).upgrade((tx) => {
     .table('trainings')
     .toCollection()
     .modify((training) => {
-      training.drivers.forEach((d: DriverWithStints) => {
+      training.drivers.forEach((d: TrainingDriver) => {
         d.stints.forEach((s) => {
           s.laps.forEach((l) => {
             l.isInvalid = false;

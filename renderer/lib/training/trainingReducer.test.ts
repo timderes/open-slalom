@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { initialState, trainingReducer } from './trainingReducer';
 
-const createDriver = (uuid: string): DriverWithStints => ({
+const createDriver = (uuid: string): TrainingDriver => ({
   uuid,
   firstName: `First-${uuid}`,
   lastName: `Last-${uuid}`,
@@ -10,6 +10,7 @@ const createDriver = (uuid: string): DriverWithStints => ({
   createdAt: 1,
   updatedAt: 1,
   stints: [],
+  isActive: true,
 });
 
 const createRunningState = (mode: SlalomType = 'JKS') => {
