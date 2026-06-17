@@ -41,4 +41,14 @@ database.version(3).upgrade((tx) => {
     });
 });
 
+database.version(4).upgrade((tx) => {
+  return tx
+    .table('drivers')
+    .toCollection()
+    .modify((driver) => {
+      driver.gender = driver.sex;
+      delete driver.sex;
+    });
+});
+
 export default database;
