@@ -17,7 +17,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { modals } from '@mantine/modals';
 import PageHeader from '@/components/shared/PageHeader';
-import ScrollableTable from '@/components/shared/SortableTable';
+import ScrollableTable from '@/components/shared/ScrollableTable';
 import PageContent from '@/components/shared/PageContent';
 import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 

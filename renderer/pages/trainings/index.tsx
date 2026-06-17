@@ -2,7 +2,7 @@ import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
-import ScrollableTable from '@/components/shared/SortableTable';
+import ScrollableTable from '@/components/shared/ScrollableTable';
 import { APP_LANGUAGE, DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
 import {

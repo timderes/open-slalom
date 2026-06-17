@@ -2,7 +2,7 @@ import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
-import ScrollableTable from '@/components/shared/SortableTable';
+import ScrollableTable from '@/components/shared/ScrollableTable';
 import database from '@/lib/database';
 import { Button, ButtonGroup, Group, Skeleton, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
