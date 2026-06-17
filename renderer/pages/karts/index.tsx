@@ -89,7 +89,7 @@ const KartsPage = () => {
                     tableActions(kart.uuid),
                   ])
                 : [],
-              caption: `${karts?.length ?? 0} Karts wurden gefunden`,
+              caption: `${karts.length} ${karts.length === 1 ? 'Kart' : 'Karts'} wurden gefunden`,
             }}
           />
         )}

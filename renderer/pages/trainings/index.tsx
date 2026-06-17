@@ -139,7 +139,7 @@ const TrainingsIndexPage = () => {
                 </AvatarGroup>,
                 <TableActions uuid={training.uuid} />,
               ]),
-              caption: `${trainings?.length || 0} Trainings wurden gefunden`,
+              caption: `${trainings.length} ${trainings.length === 1 ? 'Training' : 'Trainings'} wurden gefunden`,
             }}
           />
         )}

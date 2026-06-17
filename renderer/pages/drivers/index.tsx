@@ -143,7 +143,7 @@ const DriversPage = () => {
                     ];
                   })
                 : [],
-              caption: `${drivers?.length || 0} Fahrer wurden gefunden`,
+              caption: `${drivers.length} Fahrer wurden gefunden`,
             }}
           />
         )}
