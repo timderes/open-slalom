@@ -3,7 +3,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import { GENDER_OPTIONS } from '@/lib/constants';
 import database from '@/lib/database';
 import { Button, Card, Group, NativeSelect, Stack, Text, TextInput } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
+import { DateInput, DatePickerInput } from '@mantine/dates';
 import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -15,6 +15,7 @@ import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
 import Stat from '@/components/shared/Stat';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
+import dayjs from 'dayjs';
 
 const CreateDriverPage = () => {
   const router = useRouter();
@@ -29,8 +30,8 @@ const CreateDriverPage = () => {
       updatedAt: Date.now(),
     },
     validate: {
-      firstName: hasLength({ min: 2, max: 99 }, 'Dieses Feld darf nicht leer sein.'),
-      lastName: hasLength({ min: 2, max: 99 }, 'Dieses Feld darf nicht leer sein.'),
+      firstName: hasLength({ min: 2, max: 99 }, 'Der Vorname muss 2 bis 99 Zeichen lang sein.'),
+      lastName: hasLength({ min: 2, max: 99 }, 'Der Nachname muss 2 bis 99 Zeichen lang sein.'),
       birthDate: (value) => {
         const age = calculateDriverAge(value);
         return (
@@ -111,7 +112,8 @@ const CreateDriverPage = () => {
               />
             </Group>
             <Group grow>
-              <DateInput
+              <DatePickerInput
+                clearable
                 valueFormat="DD. MMMM YYYY"
                 value={form.values.birthDate}
                 onChange={(e) => handleBirthDateChange(e)}

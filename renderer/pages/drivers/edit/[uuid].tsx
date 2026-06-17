@@ -2,12 +2,13 @@ import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import Stat from '@/components/shared/Stat';
-import { GENDER_OPTIONS } from '@/lib/constants';
+import { GENDER_OPTIONS, MAX_DRIVER_AGE, MIN_DRIVER_AGE } from '@/lib/constants';
 import database from '@/lib/database';
+import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { Button, Group, NativeSelect, Stack, TextInput, Text, Title, Card } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { useForm } from '@mantine/form';
+import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -28,6 +29,21 @@ const DriverEditPage = () => {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
+    validate: {
+      firstName: hasLength({ min: 2, max: 99 }, 'Der Vorname muss 2 bis 99 Zeichen lang sein.'),
+      lastName: hasLength({ min: 2, max: 99 }, 'Der Nachname muss 2 bis 99 Zeichen lang sein.'),
+      birthDate: (value) => {
+        const age = calculateDriverAge(value);
+        return (
+          isInRange(
+            { min: MIN_DRIVER_AGE, max: MAX_DRIVER_AGE },
+            `Ungültiges Geburtsdatum. Fahrer müssen zwischen ${MIN_DRIVER_AGE} und ${MAX_DRIVER_AGE} Jahre alt sein.`,
+          )(age) || isNotEmpty('Dieses Feld darf nicht leer sein.')(value)
+        );
+      },
+      sex: isNotEmpty('Dieses Feld darf nicht leer sein.'),
+    },
+    validateInputOnChange: true,
   });
 
   const driver = useLiveQuery(() => database.drivers.get(uuid as string), [uuid]);
