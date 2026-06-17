@@ -133,7 +133,7 @@ const TrainingViewPage = () => {
                         : getSksClass({ birthDate: birthForClass });
                     })()}
                   </Table.Td>
-                  <Table.Td>{driver.sex === 'female' ? 'D' : undefined}</Table.Td>
+                  <Table.Td>{driver.gender === 'female' ? 'D' : undefined}</Table.Td>
                   <Table.Td>
                     {driver.firstName} {driver.lastName}
                   </Table.Td>

@@ -6,7 +6,7 @@ const createDriver = (uuid: string): DriverWithStints => ({
   firstName: `First-${uuid}`,
   lastName: `Last-${uuid}`,
   birthDate: '2000-01-01',
-  sex: 'other',
+  gender: 'other',
   createdAt: 1,
   updatedAt: 1,
   stints: [],

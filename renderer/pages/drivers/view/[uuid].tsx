@@ -5,7 +5,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import Stat from '@/components/shared/Stat';
 import { APP_LANGUAGE, DEFAULT_DATE_FORMAT } from '@/lib/constants';
 import database from '@/lib/database';
-import translateSex from '@/lib/misc/translateSex';
+import translateGender from '@/lib/misc/translateGender';
 import { getDriverStats } from '@/lib/training/stats/driverStats';
 import {
   ActionIcon,
@@ -102,7 +102,7 @@ const DriverViewPage = () => {
                 DEFAULT_DATE_FORMAT,
               )}
             />
-            <Stat label="Geschlecht" value={translateSex(driver.sex)} />
+            <Stat label="Geschlecht" value={translateGender(driver.gender)} />
             <Stat label="JKS" value={getJksClass({ birthDate: driver.birthDate })} />
             <Stat label="SKS" value={getSksClass({ birthDate: driver.birthDate })} />
             <Stat label="Trainings" value={trainings?.length ?? 0} />

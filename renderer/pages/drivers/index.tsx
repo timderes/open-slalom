@@ -120,11 +120,11 @@ const DriversPage = () => {
                           {driver.firstName} {driver.lastName}
                         </Text>
                       </Group>,
-                      driver.sex === 'male' ? (
+                      driver.gender === 'male' ? (
                         <Tooltip label="Männlich" {...DEFAULT_TOOLTIP_PROPS}>
                           <IconGenderMale />
                         </Tooltip>
-                      ) : driver.sex === 'female' ? (
+                      ) : driver.gender === 'female' ? (
                         <Tooltip label="Weiblich" {...DEFAULT_TOOLTIP_PROPS}>
                           <IconGenderFemale />
                         </Tooltip>

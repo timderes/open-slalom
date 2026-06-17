@@ -24,7 +24,7 @@ const DriverEditPage = () => {
       firstName: '',
       lastName: '',
       birthDate: '', // ISO string
-      sex: 'male',
+      gender: 'male',
       uuid: '',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -41,7 +41,7 @@ const DriverEditPage = () => {
           )(age) || isNotEmpty('Dieses Feld darf nicht leer sein.')(value)
         );
       },
-      sex: isNotEmpty('Dieses Feld darf nicht leer sein.'),
+      gender: isNotEmpty('Dieses Feld darf nicht leer sein.'),
     },
     validateInputOnChange: true,
   });
@@ -54,7 +54,7 @@ const DriverEditPage = () => {
       firstName: driver.firstName,
       lastName: driver.lastName,
       birthDate: driver.birthDate,
-      sex: driver.sex,
+      gender: driver.gender,
       uuid: driver.uuid,
       createdAt: driver.createdAt,
       updatedAt: driver.updatedAt,
@@ -170,8 +170,8 @@ const DriverEditPage = () => {
               <NativeSelect
                 label="Geschlecht"
                 data={GENDER_OPTIONS}
-                key={form.key('sex')}
-                {...form.getInputProps('sex')}
+                key={form.key('gender')}
+                {...form.getInputProps('gender')}
               />
             </Group>
             <Group grow>

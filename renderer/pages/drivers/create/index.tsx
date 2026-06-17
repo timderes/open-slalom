@@ -24,7 +24,7 @@ const CreateDriverPage = () => {
       firstName: '',
       lastName: '',
       birthDate: '',
-      sex: 'male',
+      gender: 'male',
       uuid: uuidv4(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -41,7 +41,7 @@ const CreateDriverPage = () => {
           )(age) || isNotEmpty('Dieses Feld darf nicht leer sein.')(value)
         );
       },
-      sex: isNotEmpty('Dieses Feld darf nicht leer sein.'),
+      gender: isNotEmpty('Dieses Feld darf nicht leer sein.'),
     },
     validateInputOnChange: true,
   });
@@ -125,8 +125,8 @@ const CreateDriverPage = () => {
               <NativeSelect
                 label="Geschlecht"
                 data={GENDER_OPTIONS}
-                key={form.key('sex')}
-                {...form.getInputProps('sex')}
+                key={form.key('gender')}
+                {...form.getInputProps('gender')}
               />
             </Group>
             <Group grow>
