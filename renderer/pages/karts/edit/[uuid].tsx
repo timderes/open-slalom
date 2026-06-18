@@ -1,16 +1,21 @@
+import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import database from '@/lib/database';
-import { Button, Group, SegmentedControl, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Group, SegmentedControl, Skeleton, Stack, Text, TextInput } from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-const CreateKartPage = () => {
+const KartEditPage = () => {
   const router = useRouter();
+  const { uuid } = router.query;
+
   const form = useForm<Kart>({
     initialValues: {
       name: '',
@@ -39,26 +44,38 @@ const CreateKartPage = () => {
     validateInputOnChange: true,
   });
 
-  const handleCreateKart = () => {
+  const kart = useLiveQuery(() => database.karts.get(uuid?.toString() ?? ''), [uuid], undefined);
+  useEffect(() => {
+    if (!kart) return;
+
+    form.setValues({
+      ...kart,
+    });
+
+    form.resetDirty();
+    form.resetTouched();
+  }, [kart]);
+
+  const handleEditKart = () => {
     database.karts
-      .add(form.values)
+      .update(uuid?.toString() ?? '', form.values)
       .then(() => {
         const { name } = form.values;
 
         notifications.show({
-          title: 'Kart angelegt',
-          message: `${name} wurde erfolgreich angelegt.`,
+          title: 'Kart bearbeitet',
+          message: `${name} wurde erfolgreich bearbeitet.`,
           color: 'green',
         });
 
         router.push('/karts');
       })
       .catch((error) => {
-        console.error('Error creating kart:', error);
+        console.error('Error updating kart:', error);
 
         notifications.show({
-          title: 'Fehler beim Anlegen des Karts',
-          message: `Das Kart konnte nicht angelegt werden. Fehler: ${error}`,
+          title: 'Fehler beim Bearbeiten des Karts',
+          message: `${kart.name} konnte nicht bearbeitet werden. Fehler: ${error}`,
           color: 'red',
         });
       });
@@ -72,7 +89,7 @@ const CreateKartPage = () => {
     }
 
     modals.openConfirmModal({
-      title: 'Kart nicht anlegen?',
+      title: 'Kart nicht bearbeiten?',
       centered: true,
       children: <Text>Bereits eingetragende Informationen werden nicht gespeichert!</Text>,
       labels: { confirm: 'Ja', cancel: 'Nein' },
@@ -80,13 +97,36 @@ const CreateKartPage = () => {
     });
   };
 
+  if (kart === undefined) {
+    return (
+      <Layout currentRoute="/karts">
+        <PageContent>
+          <Skeleton height={32} radius="sm" />
+          <Skeleton height={12} mt={6} radius="sm" />
+          <Skeleton height={12} mt={6} width="70%" radius="sm" />
+          <Skeleton height={400} mt={20} radius="sm" />
+        </PageContent>
+      </Layout>
+    );
+  }
+
+  if (!kart) {
+    return (
+      <Layout currentRoute="/karts">
+        <EmptyQueryResult title="Kart nicht gefunden!">
+          Kein Kart für UUID {uuid} gefunden.
+        </EmptyQueryResult>
+      </Layout>
+    );
+  }
+
   return (
     <Layout currentRoute="/karts">
       <PageContent>
-        <PageHeader title="Kart anlegen" />
+        <PageHeader title="Kart bearbeiten" />
         <form
           onSubmit={form.onSubmit(
-            () => handleCreateKart(),
+            () => handleEditKart(),
             (errors) => {
               // Focus first invalid field
               const getFirstErrorField = Object.keys(errors)[0];
@@ -124,7 +164,7 @@ const CreateKartPage = () => {
               />
             </Group>
             <Group mt="xl">
-              <Button type="submit">Kart erstellen</Button>
+              <Button type="submit">Änderungen speichern</Button>
               <Button ms="auto" variant="subtle" onClick={() => handleGoBack()}>
                 Zurück
               </Button>
@@ -136,4 +176,4 @@ const CreateKartPage = () => {
   );
 };
 
-export default CreateKartPage;
+export default KartEditPage;
