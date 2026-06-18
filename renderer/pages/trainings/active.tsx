@@ -3,16 +3,16 @@ import {
   ActionIcon,
   Avatar,
   Button,
-  ButtonGroup,
   Card,
   Checkbox,
+  type ComboboxData,
   Container,
   Divider,
   Drawer,
   Grid,
   Group,
+  Indicator,
   Kbd,
-  List,
   NumberInput,
   SegmentedControl,
   Select,
@@ -86,12 +86,13 @@ const ActiveTrainingPage = () => {
     }
   }, [restoreBackup]);
 
-  const kartOptions = useMemo(
+  const kartOptions: ComboboxData = useMemo(
     () =>
       availableKarts
         ?.map((kart) => ({
           value: kart.uuid,
-          label: kart.name,
+          label: `${kart.name} (${kart.type})`,
+          disabled: kart.type !== settings.values.mode,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) ?? [],
     [availableKarts],
@@ -368,6 +369,9 @@ const ActiveTrainingPage = () => {
                                 </Table.Td>
                                 <Table.Td>
                                   <Select
+                                    allowDeselect
+                                    clearable
+                                    searchable
                                     data={kartOptions}
                                     placeholder="Kart auswählen"
                                     disabled={isRunning && currentStint.currentDriverIndex === _idx}
@@ -409,25 +413,40 @@ const ActiveTrainingPage = () => {
                                 Keine Fahrer
                               </Text>
                             ) : (
-                              <Table striped highlightOnHover withTableBorder>
-                                <Table.Thead>
-                                  <Table.Tr>
-                                    <Table.Th w={50}>#</Table.Th>
-                                    <Table.Th>Fahrer</Table.Th>
-                                  </Table.Tr>
-                                </Table.Thead>
-
-                                <Table.Tbody>
-                                  {drivers.map((driver, idx) => (
-                                    <Table.Tr key={driver.uuid}>
-                                      <Table.Td>{idx + 1}</Table.Td>
-                                      <Table.Td>
-                                        {driver.firstName} {driver.lastName}
-                                      </Table.Td>
+                              <Table.ScrollContainer minWidth="auto" maxHeight={600}>
+                                <Table striped highlightOnHover>
+                                  <Table.Thead>
+                                    <Table.Tr>
+                                      <Table.Th w={50}>#</Table.Th>
+                                      <Table.Th>Fahrer</Table.Th>
                                     </Table.Tr>
-                                  ))}
-                                </Table.Tbody>
-                              </Table>
+                                  </Table.Thead>
+                                  <Table.Tbody>
+                                    {drivers.map((driver, idx) => (
+                                      <Table.Tr
+                                        key={driver.uuid}
+                                        style={{
+                                          opacity: driver.isActive ? 1 : 0.3,
+                                          transition: 'opacity 150ms ease',
+                                        }}
+                                      >
+                                        <Table.Td>{idx + 1}</Table.Td>
+                                        <Table.Td>
+                                          <Indicator
+                                            position="middle-start"
+                                            offset={-16}
+                                            disabled={currentStint.driver.uuid !== driver.uuid}
+                                            color="blue"
+                                            processing
+                                          >
+                                            {driver.firstName} {driver.lastName}
+                                          </Indicator>
+                                        </Table.Td>
+                                      </Table.Tr>
+                                    ))}
+                                  </Table.Tbody>
+                                </Table>
+                              </Table.ScrollContainer>
                             )}
                           </div>
                         );
