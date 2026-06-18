@@ -88,7 +88,7 @@ const DriverViewPage = () => {
             </ActionIcon>
           </Tooltip>
           <Tooltip label={`UUID: ${driver.uuid}`} withArrow position="bottom">
-            <ActionIcon c="gray" variant="transparent" w="fit-content">
+            <ActionIcon color="gray" variant="transparent" w="fit-content">
               <IconCode />
             </ActionIcon>
           </Tooltip>
