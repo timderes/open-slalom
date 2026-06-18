@@ -6,7 +6,7 @@ import ScrollableTable from '@/components/shared/ScrollableTable';
 import database from '@/lib/database';
 import { Button, ButtonGroup, Group, Skeleton, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconPencil, IconTrash, IconUserSearch } from '@tabler/icons-react';
+import { IconPencil, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 
@@ -18,7 +18,7 @@ const KartsPage = () => {
     return (
       <ButtonGroup ms="auto" w="fit-content" key={uuid}>
         <Button onClick={() => router.push(`/karts/view/${uuid}`)}>
-          <IconUserSearch />
+          <IconSearch />
         </Button>
         <Button onClick={() => router.push(`/karts/edit/${uuid}`)}>
           <IconPencil />
