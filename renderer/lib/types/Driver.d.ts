@@ -15,4 +15,5 @@ type Driver = {
 type TrainingDriver = Driver & {
   stints: { laps: Lap[] }[];
   isActive: boolean; // Indicates that the driver is still participating in the training
+  kartUuid?: string;
 };

@@ -26,7 +26,7 @@ TODOs for the upcoming releases of the app.
 
 ### Features
 
-- [ ] feat: While the training view, allocating a kart to a driver. Before the driver stopwatch is started, it should be possible to change the kart. After the stopwatch is started, the kart should be locked in for the running stint.
+- [x] feat: While the training view, allocating a kart to a driver. Before the driver stopwatch is started, it should be possible to change the kart. After the stopwatch is started, the kart should be locked in for the running stint.
 - [ ] feat: Add a overall statistics view, where the user can see the overall statistics of all trainings and drivers. This view should show the best lap time, the average lap time, the total time, the total number of laps and the total number of stints for each driver. With maybe some diagrams and charts to visualize the data.
 
 ### Bugs

@@ -24,7 +24,10 @@ type DisabledReasonKey = 'start' | 'lap' | 'update' | 'skip' | 'stop';
 
 const useTraining = () => {
   const router = useRouter();
-  const availableDrivers = useLiveQuery(() => database.drivers.toArray(), []);
+
+  const availableDrivers = useLiveQuery(() => database.drivers.toArray(), [], undefined);
+  const availableKarts = useLiveQuery(() => database.karts.toArray(), [], undefined);
+
   const stopwatch = useStopwatch();
   const settings = useForm<Training>({
     initialValues: {
@@ -388,6 +391,17 @@ const useTraining = () => {
     });
   };
 
+  const updateDriverKart = (driverUuid: string, kartUuid: string) => {
+    settings.setFieldValue('drivers', (prevDrivers) =>
+      prevDrivers.map((driver) => (driver.uuid === driverUuid ? { ...driver, kartUuid } : driver)),
+    );
+
+    applyAction({
+      type: 'UPDATE_DRIVER_KART',
+      payload: { driverUuid, kartUuid },
+    });
+  };
+
   useEffect(() => {
     applyAction({ type: 'SET_DRIVERS', payload: settings.values.drivers });
   }, [settings.values.drivers]);
@@ -448,6 +462,7 @@ const useTraining = () => {
 
   return {
     availableDrivers,
+    availableKarts,
     settings,
     timePenalties,
     currentStint: {
@@ -479,6 +494,7 @@ const useTraining = () => {
       updateLapCones,
       updateLapGates,
       toggleLapInvalid,
+      updateDriverKart,
       restoreBackup: handleRestoreTraining,
     },
   };

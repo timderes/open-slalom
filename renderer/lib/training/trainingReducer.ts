@@ -33,7 +33,9 @@ export type TrainingAction =
   | { type: 'UPDATE_LAP_CONES'; payload: { index: number; cones: number } }
   | { type: 'UPDATE_LAP_GATES'; payload: { index: number; gates: number } }
   | { type: 'TOGGLE_LAP_INVALID'; payload: { index: number } }
-  | { type: 'RESTORE'; payload: Partial<TrainingState> };
+  | { type: 'RESTORE'; payload: Partial<TrainingState> }
+  | { type: 'UPDATE_DRIVER_KART'; payload: { driverUuid: string; kartUuid: string | undefined } }
+  | { type: 'SET_STINT_KART'; payload: { kartUuid: string } };
 
 // =========================
 // INITIAL STATE
@@ -234,6 +236,35 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
       return {
         ...state,
         laps: updatedLaps,
+      };
+    }
+
+    case 'UPDATE_DRIVER_KART': {
+      const updatedDrivers = state.drivers.map((driver) =>
+        driver.uuid === action.payload.driverUuid
+          ? { ...driver, kartUuid: action.payload.kartUuid }
+          : driver,
+      );
+
+      const currentDriver =
+        state.currentDriver?.uuid === action.payload.driverUuid
+          ? { ...state.currentDriver, kartUuid: action.payload.kartUuid }
+          : state.currentDriver;
+
+      return {
+        ...state,
+        drivers: updatedDrivers,
+        currentDriver,
+      };
+    }
+
+    case 'SET_STINT_KART': {
+      return {
+        ...state,
+        currentDriver: {
+          ...state.currentDriver,
+          kartUuid: action.payload.kartUuid,
+        },
       };
     }
 

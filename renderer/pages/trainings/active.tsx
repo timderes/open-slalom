@@ -12,8 +12,11 @@ import {
   Grid,
   Group,
   Kbd,
+  List,
   NumberInput,
   SegmentedControl,
+  Select,
+  SimpleGrid,
   Stack,
   Table,
   Tabs,
@@ -44,7 +47,7 @@ import {
   getTotalLapTime,
 } from '@/lib/training/selectors';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { TrainingState } from '@/lib/training/trainingReducer';
 import { useLocalStorage } from '@mantine/hooks';
 import { formatTime } from '@/lib/time/formatTime';
@@ -53,6 +56,7 @@ const ActiveTrainingPage = () => {
   const stack = useDrawersStack(['drivers', 'settings', 'dev']);
   const {
     availableDrivers,
+    availableKarts,
     settings,
     timePenalties,
     currentStint,
@@ -81,6 +85,31 @@ const ActiveTrainingPage = () => {
       actions.restoreBackup(restoreBackup);
     }
   }, [restoreBackup]);
+
+  const kartOptions = useMemo(
+    () =>
+      availableKarts
+        ?.map((kart) => ({
+          value: kart.uuid,
+          label: kart.name,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)) ?? [],
+    [availableKarts],
+  );
+
+  const driversByKart = settings.values?.drivers.reduce(
+    (acc, driver) => {
+      if (!driver.kartUuid) return acc;
+
+      if (!acc[driver.kartUuid]) {
+        acc[driver.kartUuid] = [];
+      }
+
+      acc[driver.kartUuid].push(driver);
+      return acc;
+    },
+    {} as Record<string, TrainingDriver[]>,
+  );
 
   return (
     <>
@@ -284,6 +313,9 @@ const ActiveTrainingPage = () => {
                     <Tabs.Tab value="starterList" leftSection={<IconList size={16} />}>
                       Starterliste
                     </Tabs.Tab>
+                    <Tabs.Tab value="driverKartList" leftSection={<IconList size={16} />}>
+                      Fahrer & Karts
+                    </Tabs.Tab>
                     <Tabs.Tab value="fastestLaps" leftSection={<IconListNumbers size={16} />}>
                       Schnellste Runden
                     </Tabs.Tab>
@@ -325,7 +357,17 @@ const ActiveTrainingPage = () => {
                                 <Table.Td>
                                   {driver.firstName} {driver.lastName}
                                 </Table.Td>
-                                <Table.Td>N/A</Table.Td>
+                                <Table.Td>
+                                  <Select
+                                    data={kartOptions}
+                                    placeholder="Kart auswählen"
+                                    disabled={isRunning}
+                                    value={driver.kartUuid}
+                                    onChange={(value) => {
+                                      actions.updateDriverKart(driver.uuid, value);
+                                    }}
+                                  />
+                                </Table.Td>
                                 <Table.Td>
                                   <Checkbox
                                     disabled={currentStint.currentDriverIndex === _idx}
@@ -341,6 +383,47 @@ const ActiveTrainingPage = () => {
                         </Table>
                       </Table.ScrollContainer>
                     )}
+                  </Tabs.Panel>
+                  <Tabs.Panel value="driverKartList" my="lg">
+                    <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+                      {Object.entries(driversByKart ?? {}).map(([kartUuid, drivers]) => {
+                        const kart = availableKarts.find((k) => k.uuid === kartUuid);
+
+                        return (
+                          <div key={kartUuid}>
+                            <Title order={4} mb="sm">
+                              {kart?.name ?? 'Unbekanntes Kart'}
+                            </Title>
+
+                            {drivers.length === 0 ? (
+                              <Text size="sm" c="dimmed">
+                                Keine Fahrer
+                              </Text>
+                            ) : (
+                              <Table striped highlightOnHover withTableBorder>
+                                <Table.Thead>
+                                  <Table.Tr>
+                                    <Table.Th w={50}>#</Table.Th>
+                                    <Table.Th>Fahrer</Table.Th>
+                                  </Table.Tr>
+                                </Table.Thead>
+
+                                <Table.Tbody>
+                                  {drivers.map((driver, idx) => (
+                                    <Table.Tr key={driver.uuid}>
+                                      <Table.Td>{idx + 1}</Table.Td>
+                                      <Table.Td>
+                                        {driver.firstName} {driver.lastName}
+                                      </Table.Td>
+                                    </Table.Tr>
+                                  ))}
+                                </Table.Tbody>
+                              </Table>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </SimpleGrid>
                   </Tabs.Panel>
                   <Tabs.Panel value="fastestLaps" my="lg">
                     <Table.ScrollContainer minWidth="auto" maxHeight={600}>
@@ -368,7 +451,7 @@ const ActiveTrainingPage = () => {
                               ({ driver, fastestLap, fastestLapTime }, idx) => {
                                 const pos = `${idx + 1}.`;
                                 const name = `${driver.firstName} ${driver.lastName}`;
-                                const kart = (driver as any).kart ?? 'N/A';
+                                const kart = 'N/A';
                                 const cones = fastestLap?.cones ?? 0;
                                 const gates = fastestLap?.gates ?? 0;
                                 const penalties =
