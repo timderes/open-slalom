@@ -18,8 +18,10 @@ const CreateKartPage = () => {
       chassis: '',
       type: 'JKS',
       history: {
-        laps: 0,
-        totalTrainingsSessions: 0,
+        usageByDriver: {},
+        trainingUuids: [],
+        totalLaps: 0,
+        totalStints: 0,
         totalTime: 0,
         firstTraining: undefined,
         lastTraining: undefined,
