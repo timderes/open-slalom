@@ -5,9 +5,10 @@ import PageHeader from '@/components/shared/PageHeader';
 import Stat from '@/components/shared/Stat';
 import database from '@/lib/database';
 import { formatTime } from '@/lib/time/formatTime';
-import { ActionIcon, Card, Group, Skeleton, Tooltip, Table } from '@mantine/core';
+import { ActionIcon, Card, Group, Skeleton, Tooltip, Table, Anchor } from '@mantine/core';
 import { IconCode } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 const KartViewPage = () => {
@@ -15,8 +16,9 @@ const KartViewPage = () => {
   const { uuid } = router.query;
 
   const kart = useLiveQuery(() => database.karts.get(uuid?.toString() ?? ''), [uuid], undefined);
+  const drivers = useLiveQuery(() => database.drivers.toArray(), [], undefined);
 
-  if (kart === undefined) {
+  if (kart === undefined || drivers === undefined) {
     return (
       <Layout currentRoute="/karts">
         <PageContent>
@@ -102,7 +104,7 @@ const KartViewPage = () => {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Fahrer UUID</Table.Th>
+                <Table.Th>Fahrer</Table.Th>
                 <Table.Th>Stints</Table.Th>
                 <Table.Th>Runden</Table.Th>
                 <Table.Th>Zeit</Table.Th>
@@ -117,14 +119,25 @@ const KartViewPage = () => {
                   </Table.Td>
                 </Table.Tr>
               ) : (
-                driverEntries.map(([driverUuid, stats]) => (
-                  <Table.Tr key={driverUuid}>
-                    <Table.Td>{driverUuid}</Table.Td>
-                    <Table.Td>{stats.stints}</Table.Td>
-                    <Table.Td>{stats.laps}</Table.Td>
-                    <Table.Td>{formatTime(stats.totalTime, 'duration')}</Table.Td>
-                  </Table.Tr>
-                ))
+                driverEntries.map(([driverUuid, stats]) => {
+                  const driver = drivers.find((d) => d.uuid === driverUuid);
+
+                  const driverName = driver
+                    ? `${driver.firstName ?? ''} ${driver.lastName ?? ''}`.trim()
+                    : 'Unbekannter Fahrer';
+                  return (
+                    <Table.Tr key={driverUuid}>
+                      <Table.Td>
+                        <Anchor component={Link} href={`/drivers/view/${driverUuid}`}>
+                          {driverName}
+                        </Anchor>
+                      </Table.Td>
+                      <Table.Td>{stats.stints}</Table.Td>
+                      <Table.Td>{stats.laps}</Table.Td>
+                      <Table.Td>{formatTime(stats.totalTime, 'duration')}</Table.Td>
+                    </Table.Tr>
+                  );
+                })
               )}
             </Table.Tbody>
           </Table>
