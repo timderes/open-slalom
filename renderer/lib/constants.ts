@@ -36,12 +36,20 @@ export const APP_ROUTES = [
     label: 'Trainings',
   },
   {
+    path: '/championships',
+    label: 'Meisterschaften',
+  },
+  {
     path: '/drivers',
     label: 'Fahrer',
   },
   {
     path: '/karts',
     label: 'Karts',
+  },
+  {
+    path: '/statistics',
+    label: 'Statistiken',
   },
   {
     path: '/settings',
