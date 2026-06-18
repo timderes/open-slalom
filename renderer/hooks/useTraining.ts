@@ -139,6 +139,13 @@ const useTraining = () => {
       return;
     }
 
+    // Ensure the current stint has the selected kartUuid set on the reducer so
+    // it is preserved when the stint is saved to the driver's history.
+    const currentDriverInSettings = settings.values.drivers[state.currentDriverIndex];
+    const selectedKartUuid = currentDriverInSettings?.kartUuid ?? state.currentDriver?.kartUuid;
+
+    applyAction({ type: 'SET_STINT_KART', payload: { kartUuid: selectedKartUuid } });
+
     stopwatch.stop();
     stopwatch.start();
     applyAction({ type: 'START' });
@@ -237,7 +244,10 @@ const useTraining = () => {
         driver.uuid === state.currentDriver?.uuid
           ? {
               ...driver,
-              stints: [...(driver.stints ?? []), { laps: state.laps }],
+              stints: [
+                ...(driver.stints ?? []),
+                { laps: state.laps, kartUuid: state.currentDriver?.kartUuid },
+              ],
               updatedAt: Date.now(),
             }
           : driver,

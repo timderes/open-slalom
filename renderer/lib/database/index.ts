@@ -51,4 +51,17 @@ database.version(4).upgrade((tx) => {
     });
 });
 
+database.version(5).upgrade((tx) => {
+  return tx
+    .table('trainings')
+    .toCollection()
+    .modify((training) => {
+      training.drivers.forEach((d: TrainingDriver) => {
+        d.stints.forEach((s) => {
+          s.kartUuid = d.kartUuid ?? undefined;
+        });
+      });
+    });
+});
+
 export default database;

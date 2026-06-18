@@ -35,7 +35,7 @@ export type TrainingAction =
   | { type: 'TOGGLE_LAP_INVALID'; payload: { index: number } }
   | { type: 'RESTORE'; payload: Partial<TrainingState> }
   | { type: 'UPDATE_DRIVER_KART'; payload: { driverUuid: string; kartUuid: string | undefined } }
-  | { type: 'SET_STINT_KART'; payload: { kartUuid: string } };
+  | { type: 'SET_STINT_KART'; payload: { kartUuid?: string } };
 
 // =========================
 // INITIAL STATE

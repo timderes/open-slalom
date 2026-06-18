@@ -2,6 +2,7 @@ type DriverRankingEntry = {
   driver: TrainingDriver;
   fastestLap?: Lap;
   fastestLapTime?: number;
+  fastestKartUuid?: string;
 };
 
 type TimePenalties = {
@@ -47,12 +48,31 @@ export const getDriverFastestLap = (driver: TrainingDriver) => getFastestLap(get
 export const getDriverRanking = (drivers: TrainingDriver[]) =>
   drivers
     .map((driver, index) => {
-      const fastestLap = getDriverFastestLap(driver);
+      // Find the fastest lap across all stints and keep the kartUuid of that stint
+      let fastestLap: Lap | undefined;
+      let fastestLapTime: number | undefined;
+      let fastestKartUuid: string | undefined;
+
+      (driver.stints ?? []).forEach((stint) => {
+        const stintFastest = getFastestLap(stint.laps ?? []);
+
+        if (!stintFastest) return;
+
+        if (
+          fastestLap === undefined ||
+          stintFastest.time_with_penalties < (fastestLap?.time_with_penalties ?? Infinity)
+        ) {
+          fastestLap = stintFastest;
+          fastestLapTime = stintFastest.time_with_penalties;
+          fastestKartUuid = (stint as any).kartUuid ?? driver.kartUuid;
+        }
+      });
 
       return {
         driver,
         fastestLap,
-        fastestLapTime: fastestLap?.time_with_penalties,
+        fastestLapTime,
+        fastestKartUuid,
         index,
       };
     })

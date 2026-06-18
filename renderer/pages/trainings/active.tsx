@@ -97,18 +97,27 @@ const ActiveTrainingPage = () => {
     [availableKarts],
   );
 
-  const driversByKart = settings.values?.drivers.reduce(
-    (acc, driver) => {
-      if (!driver.kartUuid) return acc;
+  const driversByKart = useMemo(
+    () =>
+      settings.values?.drivers.reduce(
+        (acc, driver) => {
+          if (!driver.kartUuid) return acc;
 
-      if (!acc[driver.kartUuid]) {
-        acc[driver.kartUuid] = [];
-      }
+          if (!acc[driver.kartUuid]) {
+            acc[driver.kartUuid] = [];
+          }
 
-      acc[driver.kartUuid].push(driver);
-      return acc;
-    },
-    {} as Record<string, TrainingDriver[]>,
+          acc[driver.kartUuid].push(driver);
+          return acc;
+        },
+        {} as Record<string, TrainingDriver[]>,
+      ),
+    [settings.values.drivers],
+  );
+
+  const driversWithFastest = useMemo(
+    () => getDriverRanking(settings.values.drivers),
+    [settings.values.drivers],
   );
 
   return (
@@ -314,7 +323,7 @@ const ActiveTrainingPage = () => {
                       Starterliste
                     </Tabs.Tab>
                     <Tabs.Tab value="driverKartList" leftSection={<IconList size={16} />}>
-                      Fahrer & Karts
+                      Karts
                     </Tabs.Tab>
                     <Tabs.Tab value="fastestLaps" leftSection={<IconListNumbers size={16} />}>
                       Schnellste Runden
@@ -361,7 +370,7 @@ const ActiveTrainingPage = () => {
                                   <Select
                                     data={kartOptions}
                                     placeholder="Kart auswählen"
-                                    disabled={isRunning}
+                                    disabled={isRunning && currentStint.currentDriverIndex === _idx}
                                     value={driver.kartUuid}
                                     onChange={(value) => {
                                       actions.updateDriverKart(driver.uuid, value);
@@ -444,22 +453,21 @@ const ActiveTrainingPage = () => {
                             'Runden',
                           ],
                           body: (() => {
-                            const driversWithFastest = getDriverRanking(settings.values.drivers);
                             const bestTime = driversWithFastest[0]?.fastestLapTime;
 
                             return driversWithFastest.map(
-                              ({ driver, fastestLap, fastestLapTime }, idx) => {
+                              ({ driver, fastestLap, fastestLapTime, fastestKartUuid }, idx) => {
                                 const pos = `${idx + 1}.`;
                                 const name = `${driver.firstName} ${driver.lastName}`;
-                                const kart = 'N/A';
+                                const kart = fastestKartUuid
+                                  ? (availableKarts.find((k) => k.uuid === fastestKartUuid)?.name ??
+                                    'N/A')
+                                  : 'N/A';
                                 const cones = fastestLap?.cones ?? 0;
                                 const gates = fastestLap?.gates ?? 0;
                                 const penalties =
                                   fastestLap !== undefined
-                                    ? `${cones}P ${gates}T (+${getLapPenaltySeconds(
-                                        fastestLap,
-                                        timePenalties,
-                                      )}s)`
+                                    ? `${cones}P ${gates}T (+${getLapPenaltySeconds(fastestLap, timePenalties)}s)`
                                     : 'N/A';
                                 const timeStr = fastestLap
                                   ? formatTime(fastestLap.time_with_penalties, 'lap')
