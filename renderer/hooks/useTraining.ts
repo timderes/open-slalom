@@ -25,8 +25,12 @@ type DisabledReasonKey = 'start' | 'lap' | 'update' | 'skip' | 'stop';
 const useTraining = () => {
   const router = useRouter();
 
-  const availableDrivers = useLiveQuery(() => database.drivers.toArray(), [], undefined);
-  const availableKarts = useLiveQuery(() => database.karts.toArray(), [], undefined);
+  const availableDrivers = useLiveQuery(() => database.drivers.toArray(), [], undefined) as
+    | Driver[]
+    | undefined;
+  const availableKarts = useLiveQuery(() => database.karts.toArray(), [], undefined) as
+    | Kart[]
+    | undefined;
 
   const stopwatch = useStopwatch();
   const settings = useForm<Training>({

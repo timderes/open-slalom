@@ -95,7 +95,7 @@ const ActiveTrainingPage = () => {
           disabled: kart.type !== settings.values.mode,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) ?? [],
-    [availableKarts],
+    [availableKarts, settings.values.mode],
   );
 
   const driversByKart = useMemo(
