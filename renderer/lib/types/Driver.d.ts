@@ -13,6 +13,8 @@ type Driver = {
  * Extends the default driver profile with an array of laps.
  */
 type TrainingDriver = Driver & {
-  stints: { laps: Lap[] }[];
+  // Saved stints stored on the driver; minimal shape with laps and optional kartUuid
+  stints: { laps: Lap[]; kartUuid?: string }[];
   isActive: boolean; // Indicates that the driver is still participating in the training
+  kartUuid?: string;
 };

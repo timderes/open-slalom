@@ -35,8 +35,9 @@ const TrainingViewPage = () => {
   }
 
   const training = useLiveQuery(() => database.trainings.get(uuid.toString()), [uuid], undefined);
+  const karts = useLiveQuery(() => database.karts.toArray(), [], undefined);
 
-  if (training === undefined) {
+  if (training === undefined || karts === undefined) {
     return (
       <Layout currentRoute="/trainings">
         <PageContent>
@@ -95,6 +96,7 @@ const TrainingViewPage = () => {
               <Table.Th>Klasse</Table.Th>
               <Table.Th>{/* Gender Indicator */}</Table.Th>
               <Table.Th>Fahrer</Table.Th>
+              <Table.Th>Kart</Table.Th>
               <Table.Th>Bestzeit</Table.Th>
               <Table.Th>Abstand</Table.Th>
               <Table.Th>Intervall</Table.Th>
@@ -109,6 +111,7 @@ const TrainingViewPage = () => {
               const diffToBest = getDiffToBest(driver, training.drivers);
               const diffToPrevious = getDiffToPrevious(driver, training.drivers);
               const fastestLapTimestamp = getFastestLapTimestamp(driver);
+              const kartFastestLap = karts.find((kart) => kart.uuid === driver.kartUuid)?.name;
 
               return (
                 <Table.Tr key={driver.uuid}>
@@ -137,6 +140,7 @@ const TrainingViewPage = () => {
                   <Table.Td>
                     {driver.firstName} {driver.lastName}
                   </Table.Td>
+                  <Table.Td>{kartFastestLap ?? 'N/A'}</Table.Td>
                   <Table.Td>
                     <Text ff="monospace" fw="bold" c={index === 0 ? 'grape' : ''}>
                       {fastestLap ? formatTime(fastestLap.time_with_penalties, 'lap') : 'N/A'}
@@ -187,8 +191,9 @@ const TrainingViewPage = () => {
 
         {/* Tables for each driver with all Laps + penalties and timestamps */}
         {sortiedDrivers.map((driver) => {
-          const rows = driver.stints.flatMap((stint, stintIndex) =>
-            stint.laps.map((lap, lapIndex) => {
+          const rows = driver.stints.flatMap((stint, stintIndex) => {
+            const kartUsedInStint = karts.find((kart) => kart.uuid === stint.kartUuid)?.name;
+            return stint.laps.map((lap, lapIndex) => {
               const overallLap = stintIndex * training.lapsPerStint + lapIndex + 1;
               const penaltyMs = Math.max(0, lap.time_with_penalties - lap.time);
 
@@ -200,6 +205,7 @@ const TrainingViewPage = () => {
                   <Table.Td>{overallLap}</Table.Td>
                   <Table.Td>{stintIndex + 1}</Table.Td>
                   <Table.Td>{lapIndex + 1}</Table.Td>
+                  <Table.Td>{kartUsedInStint ?? 'N/A'}</Table.Td>
                   <Table.Td ff="monospace">
                     {formatTime(lap.time_with_penalties, 'lap')} &nbsp;
                   </Table.Td>
@@ -226,8 +232,8 @@ const TrainingViewPage = () => {
                   </Table.Td>
                 </Table.Tr>
               );
-            }),
-          );
+            });
+          });
 
           return (
             <div key={driver.uuid}>
@@ -243,6 +249,7 @@ const TrainingViewPage = () => {
                     <Table.Th>#</Table.Th>
                     <Table.Th>Stint</Table.Th>
                     <Table.Th>Runde</Table.Th>
+                    <Table.Th>Kart</Table.Th>
                     <Table.Th>Zeit</Table.Th>
                     <Table.Th>Strafe</Table.Th>
                     <Table.Th>P</Table.Th>

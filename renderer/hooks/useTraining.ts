@@ -24,7 +24,10 @@ type DisabledReasonKey = 'start' | 'lap' | 'update' | 'skip' | 'stop';
 
 const useTraining = () => {
   const router = useRouter();
-  const availableDrivers = useLiveQuery(() => database.drivers.toArray(), []);
+
+  const availableDrivers = useLiveQuery(() => database.drivers.toArray(), [], undefined);
+  const availableKarts = useLiveQuery(() => database.karts.toArray(), [], undefined);
+
   const stopwatch = useStopwatch();
   const settings = useForm<Training>({
     initialValues: {
@@ -136,6 +139,13 @@ const useTraining = () => {
       return;
     }
 
+    // Ensure the current stint has the selected kartUuid set on the reducer so
+    // it is preserved when the stint is saved to the driver's history.
+    const currentDriverInSettings = settings.values.drivers[state.currentDriverIndex];
+    const selectedKartUuid = currentDriverInSettings?.kartUuid ?? state.currentDriver?.kartUuid;
+
+    applyAction({ type: 'SET_STINT_KART', payload: { kartUuid: selectedKartUuid } });
+
     stopwatch.stop();
     stopwatch.start();
     applyAction({ type: 'START' });
@@ -215,7 +225,7 @@ const useTraining = () => {
     applyAction({ type: 'SKIP' });
   };
 
-  const handleUpdateCurrentDriver = () => {
+  const handleUpdateCurrentDriver = async () => {
     if (!hasDriver) {
       notifyError('Kein Fahrer', 'Es ist kein Fahrer aktiv.');
       return;
@@ -234,12 +244,84 @@ const useTraining = () => {
         driver.uuid === state.currentDriver?.uuid
           ? {
               ...driver,
-              stints: [...(driver.stints ?? []), { laps: state.laps }],
+              stints: [
+                ...(driver.stints ?? []),
+                { laps: state.laps, kartUuid: state.currentDriver?.kartUuid },
+              ],
               updatedAt: Date.now(),
             }
           : driver,
       ),
     );
+
+    // Save stint data to kart history
+    if (state.currentDriver?.kartUuid) {
+      // Do NOT read the freshly appended stint from state.drivers here —
+      // settings.setFieldValue updates the form values and the reducer is
+      // synchronized via useEffect. Reading state.drivers immediately can
+      // miss the just-appended stint. Construct the saved-stint from the
+      // current reducer state instead (laps + current kartUuid).
+      const stint = { laps: state.laps, kartUuid: state.currentDriver.kartUuid } as {
+        laps: Lap[];
+        kartUuid?: string;
+      };
+
+      if (!stint || (stint.laps?.length ?? 0) === 0) {
+        // Nothing to save
+        // (This can happen if the user somehow triggered an update without laps)
+      } else {
+        const kartUuid = state.currentDriver.kartUuid;
+        const driverUuid = state.currentDriver.uuid;
+
+        const kart = await database.karts.get(kartUuid);
+        if (kart) {
+          const history = kart.history ?? {
+            totalLaps: 0,
+            totalStints: 0,
+            totalTrainingsSessions: 0,
+            totalTime: 0,
+            firstTraining: Date.now(),
+            lastTraining: Date.now(),
+            usageByDriver: {},
+          };
+
+          const addedLaps = stint.laps.reduce((acc, l) => acc + (Number(l.time) ? 1 : 1), 0);
+          const addedTime = stint.laps.reduce((acc, l) => acc + (Number(l.time) || 0), 0);
+
+          const prevDriverUsage = history.usageByDriver?.[driverUuid] ?? {
+            stints: 0,
+            laps: 0,
+            totalTime: 0,
+          };
+          const trainingId = settings.values.uuid;
+          const sessions = kart.history?.trainingUuids ?? [];
+          const safeSessions: string[] = Array.isArray(sessions) ? sessions : [];
+          const updatedSessions = safeSessions.includes(trainingId)
+            ? safeSessions
+            : [...safeSessions, trainingId];
+
+          const updatedHistory: KartHistory = {
+            ...history,
+            totalLaps: (history.totalLaps ?? 0) + addedLaps,
+            totalStints: (history.totalStints ?? 0) + 1,
+            totalTime: (history.totalTime ?? 0) + addedTime,
+            trainingUuids: updatedSessions,
+            firstTraining: history.firstTraining ?? Date.now(),
+            lastTraining: Date.now(),
+            usageByDriver: {
+              ...(history.usageByDriver ?? {}),
+              [driverUuid]: {
+                stints: (prevDriverUsage.stints ?? 0) + 1,
+                laps: (prevDriverUsage.laps ?? 0) + addedLaps,
+                totalTime: (prevDriverUsage.totalTime ?? 0) + addedTime,
+              },
+            },
+          };
+
+          await database.karts.put({ ...kart, history: updatedHistory, updatedAt: Date.now() });
+        }
+      }
+    }
 
     updateCurrentStateToNextDriver();
 
@@ -388,6 +470,17 @@ const useTraining = () => {
     });
   };
 
+  const updateDriverKart = (driverUuid: string, kartUuid: string) => {
+    settings.setFieldValue('drivers', (prevDrivers) =>
+      prevDrivers.map((driver) => (driver.uuid === driverUuid ? { ...driver, kartUuid } : driver)),
+    );
+
+    applyAction({
+      type: 'UPDATE_DRIVER_KART',
+      payload: { driverUuid, kartUuid },
+    });
+  };
+
   useEffect(() => {
     applyAction({ type: 'SET_DRIVERS', payload: settings.values.drivers });
   }, [settings.values.drivers]);
@@ -448,6 +541,7 @@ const useTraining = () => {
 
   return {
     availableDrivers,
+    availableKarts,
     settings,
     timePenalties,
     currentStint: {
@@ -479,6 +573,7 @@ const useTraining = () => {
       updateLapCones,
       updateLapGates,
       toggleLapInvalid,
+      updateDriverKart,
       restoreBackup: handleRestoreTraining,
     },
   };

@@ -12,7 +12,9 @@ import { useRouter } from 'next/router';
 
 const KartsPage = () => {
   const router = useRouter();
-  const karts = useLiveQuery(() => database.karts.toArray(), undefined);
+  const karts = useLiveQuery(() => database.karts.toArray(), undefined)?.sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
 
   const tableActions = (uuid: Kart['uuid']) => {
     return (

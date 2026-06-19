@@ -9,4 +9,5 @@ type Stint = {
   driver?: TrainingDriver; // Optional reference to the driver currently on track (can be undefined if no driver is assigned yet)
   laps: Lap[]; // Array of laps completed in this stint
   time: number; // Total elapsed time for the stint
+  kartUuid?: string; // Optional kart UUID associated with the stint (can be undefined if no kart is assigned yet)
 };

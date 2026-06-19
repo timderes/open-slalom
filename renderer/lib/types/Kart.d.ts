@@ -5,14 +5,23 @@ type Kart = {
   updatedAt: number; // Unix timestamp
   engine: string;
   chassis: string;
-  type: SlalomType; // JKS | SKS
+  type: SlalomType;
   history: KartHistory;
 };
 
 type KartHistory = {
-  laps: number; // Total number of laps
-  totalTrainingsSessions: number; // Total number of training sessions
+  totalLaps: number;
+  trainingUuids: Training['uuid'][];
   totalTime: number;
-  firstTraining: number; // Unix timestamp
-  lastTraining: number; // Unix timestamp
+  totalStints: number;
+  usageByDriver?: Record<
+    Driver['uuid'],
+    {
+      stints: number;
+      laps: number;
+      totalTime: number;
+    }
+  >;
+  firstTraining?: number; // Unix timestamp
+  lastTraining?: number; // Unix timestamp
 };

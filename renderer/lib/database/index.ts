@@ -51,4 +51,34 @@ database.version(4).upgrade((tx) => {
     });
 });
 
+database.version(5).upgrade((tx) => {
+  return Promise.all([
+    tx
+      .table('trainings')
+      .toCollection()
+      .modify((training) => {
+        training.drivers.forEach((d: TrainingDriver) => {
+          d.stints.forEach((s) => {
+            s.kartUuid = d.kartUuid ?? undefined;
+          });
+        });
+      }),
+
+    tx
+      .table('karts')
+      .toCollection()
+      .modify((kart) => {
+        kart.history = {
+          totalLaps: kart.history?.totalLaps ?? 0,
+          totalStints: kart.history?.totalStints ?? 0,
+          trainingUuids: kart.history?.trainingUuids ?? [],
+          totalTime: kart.history?.totalTime ?? 0,
+          firstTraining: kart.history?.firstTraining ?? undefined,
+          lastTraining: kart.history?.lastTraining ?? undefined,
+          usageByDriver: kart.history?.usageByDriver ?? {},
+        };
+      }),
+  ]);
+});
+
 export default database;
