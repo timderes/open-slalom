@@ -259,6 +259,8 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
     }
 
     case 'SET_STINT_KART': {
+      if (!state.currentDriver) return state;
+
       return {
         ...state,
         currentDriver: {
