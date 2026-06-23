@@ -84,7 +84,7 @@ export const JKS_CLASS_AGE_RANGES = {
   4: { min: 14, max: 15 },
   5: { min: 16, max: 18 },
   6: { min: 19, max: 23 },
-  7: { min: 19, max: null }, // adults / trainer class (open upper bound)
+  7: { min: 24, max: null }, // adults / trainer class (open upper bound)
 };
 
 export const SKS_CLASS_AGE_RANGES = {
