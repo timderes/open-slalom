@@ -1,10 +1,6 @@
 import { calculateDriverAgeBasedOfBirthYear } from './calculateDriverAge';
 import { CLASS_AGE_TABLE } from '../constants';
 
-type DriverBirthDate = {
-  birthDate: Driver['birthDate'];
-};
-
 const getClassByAge = ({
   age,
   classTable,
@@ -23,7 +19,7 @@ const getClassByAge = ({
   return '-';
 };
 
-const getJksClass = ({ birthDate }: DriverBirthDate): number | '-' => {
+const getJksClass = ({ birthDate }: { birthDate: Driver['birthDate'] }): number | '-' => {
   const age = calculateDriverAgeBasedOfBirthYear(birthDate);
 
   if (!age || isNaN(age)) {
@@ -33,7 +29,7 @@ const getJksClass = ({ birthDate }: DriverBirthDate): number | '-' => {
   return getClassByAge({ age, classTable: CLASS_AGE_TABLE.JKS });
 };
 
-const getSksClass = ({ birthDate }: DriverBirthDate): number | '-' => {
+const getSksClass = ({ birthDate }: { birthDate: Driver['birthDate'] }): number | '-' => {
   const age = calculateDriverAgeBasedOfBirthYear(birthDate);
 
   if (!age || isNaN(age)) {
