@@ -3,13 +3,23 @@ import { APP_LANGUAGE, DEFAULT_DATE_FORMAT, DEFAULT_TOOLTIP_PROPS } from '@/lib/
 import database from '@/lib/database';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
-import { Avatar, Button, ButtonGroup, Group, Skeleton, Text, Tooltip } from '@mantine/core';
+import {
+  Avatar,
+  Button,
+  ButtonGroup,
+  EmptyState,
+  Group,
+  Skeleton,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import {
   IconGenderFemale,
   IconGenderMale,
   IconGenderTransgender,
   IconHelmet,
   IconPencil,
+  IconSearch,
   IconTrash,
   IconUserSearch,
 } from '@tabler/icons-react';
@@ -19,7 +29,6 @@ import { modals } from '@mantine/modals';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/ScrollableTable';
 import PageContent from '@/components/shared/PageContent';
-import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 
 const DriversPage = () => {
   const router = useRouter();
@@ -84,21 +93,19 @@ const DriversPage = () => {
         {drivers === undefined ? (
           <Skeleton height={400} radius="sm" />
         ) : drivers.length === 0 ? (
-          <EmptyQueryResult title="Leeres Starterfeld">
-            Es wurden keine Fahrer gefunden.
-            <Button
-              leftSection={<IconHelmet />}
-              onClick={() => router.push('/drivers/create')}
-              variant="filled"
-              w="fit-content"
-              display="block"
-              mx="auto"
-              mt="xl"
-              size="md"
-            >
-              Fahrer anlegen
-            </Button>
-          </EmptyQueryResult>
+          <EmptyState
+            icon={<IconSearch />}
+            title="Keine Fahrer gefunden!"
+            description="Wurden bereits Fahrer angelegt? Überprüfe die Filtereinstellungen oder lege einen neuen Fahrer an."
+            size="lg"
+            withIndicatorBackground
+          >
+            <EmptyState.Actions>
+              <Button onClick={() => router.push('/drivers/create')} variant="filled">
+                Fahrer anlegen
+              </Button>
+            </EmptyState.Actions>
+          </EmptyState>
         ) : (
           <ScrollableTable
             striped

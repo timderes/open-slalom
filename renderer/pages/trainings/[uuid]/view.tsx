@@ -34,7 +34,7 @@ const TrainingViewPage = () => {
     );
   }
 
-  const training = useLiveQuery(() => database.trainings.get(uuid.toString()), [uuid], undefined);
+  const training = useLiveQuery(() => database.trainings.get(uuid?.toString()), [uuid], undefined);
   const karts = useLiveQuery(() => database.karts.toArray(), [], undefined);
 
   if (training === undefined || karts === undefined) {

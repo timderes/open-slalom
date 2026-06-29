@@ -1,10 +1,9 @@
-import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/ScrollableTable';
 import database from '@/lib/database';
-import { Button, ButtonGroup, Group, Skeleton, Text } from '@mantine/core';
+import { Button, ButtonGroup, EmptyState, Group, Skeleton, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { IconPencil, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -61,20 +60,19 @@ const KartsPage = () => {
         {karts === undefined ? (
           <Skeleton height={400} radius="sm" />
         ) : karts.length === 0 ? (
-          <EmptyQueryResult title="Wo sind die Karts?">
-            Es wurden keine Karts gefunden.
-            <Button
-              onClick={() => router.push('/karts/create')}
-              variant="filled"
-              w="fit-content"
-              display="block"
-              mx="auto"
-              mt="xl"
-              size="md"
-            >
-              Kart anlegen
-            </Button>
-          </EmptyQueryResult>
+          <EmptyState
+            icon={<IconSearch />}
+            title="Keine Karts gefunden!"
+            description="Wurden bereits Karts angelegt? Überprüfe die Filtereinstellungen oder lege ein neues Kart an."
+            size="lg"
+            withIndicatorBackground
+          >
+            <EmptyState.Actions>
+              <Button onClick={() => router.push('/karts/create')} variant="filled">
+                Kart anlegen
+              </Button>
+            </EmptyState.Actions>
+          </EmptyState>
         ) : (
           <ScrollableTable
             striped

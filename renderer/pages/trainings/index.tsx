@@ -1,4 +1,3 @@
-import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
@@ -10,6 +9,7 @@ import {
   AvatarGroup,
   Button,
   ButtonGroup,
+  EmptyState,
   Group,
   Skeleton,
   Text,
@@ -88,20 +88,19 @@ const TrainingsIndexPage = () => {
         {trainings === undefined ? (
           <Skeleton height={400} radius="sm" />
         ) : trainings.length === 0 ? (
-          <EmptyQueryResult title="Es gibt keine aufgezeichneten Trainings">
-            Es wurden keine Trainings gefunden.
-            <Button
-              onClick={() => router.push('/trainings/active')}
-              variant="filled"
-              w="fit-content"
-              display="block"
-              mx="auto"
-              mt="xl"
-              size="md"
-            >
-              Neues Training starten
-            </Button>
-          </EmptyQueryResult>
+          <EmptyState
+            icon={<IconSearch />}
+            title="Keine Trainings gefunden!"
+            description="Wurden bereits Trainings abgeschlossen? Überprüfe die Filtereinstellungen oder starte ein neues Training an."
+            size="lg"
+            withIndicatorBackground
+          >
+            <EmptyState.Actions>
+              <Button onClick={() => router.push('/trainings/active')} variant="filled">
+                Neues Training starten
+              </Button>
+            </EmptyState.Actions>
+          </EmptyState>
         ) : (
           <ScrollableTable
             striped

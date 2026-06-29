@@ -1,4 +1,3 @@
-import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
@@ -13,13 +12,14 @@ import {
   Button,
   Card,
   Divider,
+  EmptyState,
   Group,
   Skeleton,
   Table,
   Text,
   Tooltip,
 } from '@mantine/core';
-import { IconCode, IconPencil, IconSearch } from '@tabler/icons-react';
+import { IconCode, IconPencil, IconSearch, IconZoomQuestion } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { formatTime } from '@/lib/time/formatTime';
@@ -29,11 +29,11 @@ const DriverViewPage = () => {
   const router = useRouter();
   const { uuid } = router.query;
 
-  const driver = useLiveQuery(() => database.drivers.get(uuid.toString()), [uuid], undefined);
+  const driver = useLiveQuery(() => database.drivers.get(uuid?.toString()), [uuid], undefined);
   const trainings = useLiveQuery(
     () =>
       database.trainings
-        .filter((training) => training.drivers.some((driver) => driver.uuid === uuid.toString()))
+        .filter((training) => training.drivers.some((driver) => driver.uuid === uuid?.toString()))
         .toArray(),
     [uuid],
     undefined,
@@ -56,9 +56,19 @@ const DriverViewPage = () => {
   if (driver === null) {
     return (
       <Layout currentRoute="/drivers">
-        <EmptyQueryResult title="Fahrer nicht gefunden">
-          Die Daten für den Fahrer mit der UUID <code>{uuid}</code> konnten nicht geladen werden.
-        </EmptyQueryResult>
+        <EmptyState
+          icon={<IconZoomQuestion />}
+          title="Der Fahrer konnte nicht gefunden werden!"
+          description={`Möglicherweise wurde er gelöscht oder die UUID ist ungültig. (UUID: ${uuid})`}
+          size="lg"
+          withIndicatorBackground
+        >
+          <EmptyState.Actions>
+            <Button onClick={() => router.push('/drivers')} variant="filled">
+              Zurück zu den Fahrern
+            </Button>
+          </EmptyState.Actions>
+        </EmptyState>
       </Layout>
     );
   }

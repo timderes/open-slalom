@@ -1,12 +1,21 @@
-import EmptyQueryResult from '@/components/shared/EmptyQueryResult';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import database from '@/lib/database';
-import { Button, Group, SegmentedControl, Skeleton, Stack, Text, TextInput } from '@mantine/core';
+import {
+  Button,
+  EmptyState,
+  Group,
+  SegmentedControl,
+  Skeleton,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
+import { IconZoomQuestion } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -113,9 +122,19 @@ const KartEditPage = () => {
   if (!kart) {
     return (
       <Layout currentRoute="/karts">
-        <EmptyQueryResult title="Kart nicht gefunden!">
-          Kein Kart für UUID {uuid} gefunden.
-        </EmptyQueryResult>
+        <EmptyState
+          icon={<IconZoomQuestion />}
+          title="Bearbeiten des Karts nicht möglich"
+          description={`Möglicherweise wurde es gelöscht oder die UUID ist ungültig. (UUID: ${uuid})`}
+          size="lg"
+          withIndicatorBackground
+        >
+          <EmptyState.Actions>
+            <Button onClick={() => router.push('/karts')} variant="filled">
+              Zurück zu den Karts
+            </Button>
+          </EmptyState.Actions>
+        </EmptyState>
       </Layout>
     );
   }
