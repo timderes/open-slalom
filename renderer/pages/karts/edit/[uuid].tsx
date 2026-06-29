@@ -165,7 +165,7 @@ const KartEditPage = () => {
                 color="blue"
                 data={['JKS', 'SKS']}
                 value={form.values.type}
-                onChange={(value) => form.setFieldValue('type', value as SlalomType)}
+                onChange={(value) => form.setFieldValue('type', value)}
               />
             </Group>
             <Group grow>

@@ -181,7 +181,7 @@ const ActiveTrainingPage = () => {
                 color="blue"
                 data={['JKS', 'SKS']}
                 value={settings.values.mode}
-                onChange={(value) => settings.setFieldValue('mode', value as SlalomType)}
+                onChange={(value) => settings.setFieldValue('mode', value)}
               />
             </Stack>
             <NumberInput

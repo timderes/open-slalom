@@ -1,9 +1,7 @@
-type TrainingMode = 'JKS' | 'SKS';
-
 type Training = {
   lapsPerStint: number;
   unlimitedLapsPerStint: boolean;
-  mode: TrainingMode;
+  mode: SlalomType;
   drivers: TrainingDriver[];
   uuid: string; // UUID v4
   createdAt: number; // Unix timestamp
