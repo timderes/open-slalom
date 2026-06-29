@@ -2,7 +2,7 @@
  * App-wide constants that can be used throughout the app.
  */
 
-import type { ComboboxData, TooltipProps } from '@mantine/core';
+import type { ComboboxStringGroupData, TooltipProps } from '@mantine/core';
 import pkg from '../../package.json';
 
 export const APP_NAME = pkg.productName;
@@ -124,7 +124,7 @@ export const DEFAULT_STOPWATCH_INTERVAL = 50; // ms
 /**
  * Available genders for drivers. Together with their labels for display in the UI.
  */
-export const GENDER_OPTIONS: ComboboxData = [
+export const GENDER_OPTIONS: ComboboxStringGroupData = [
   {
     label: 'Männlich',
     value: 'male',
