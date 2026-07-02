@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
@@ -6,15 +6,22 @@ import Stat from '@/components/shared/Stat';
 import database from '@/lib/database';
 import { formatTime } from '@/lib/time/formatTime';
 
-import { Divider, Grid, Skeleton, Table } from '@mantine/core';
+import { Divider, Grid, MultiSelect, Skeleton, Table } from '@mantine/core';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 // TODO: Messy route... We need to refactor it later
 // TODO: Add JKS/SKS filtering and date range filtering
 const StatisticsPage = () => {
+  const [modes, setMode] = useState(['JKS', 'SKS']);
   const drivers = useLiveQuery(() => database.drivers.toArray(), []);
   const karts = useLiveQuery(() => database.karts.toArray(), []);
-  const trainings = useLiveQuery(() => database.trainings.toArray(), []);
+  const trainings = useLiveQuery(async () => {
+    const all = await database.trainings.toArray();
+
+    if (modes.length === 0) return all;
+
+    return all.filter((t) => modes.includes(t.mode));
+  }, [modes]);
 
   const stats = useMemo(() => {
     if (!trainings) return undefined;
@@ -91,7 +98,6 @@ const StatisticsPage = () => {
             d.cones += coneCount;
             d.gates += gateCount;
 
-            // 👉 DRIVING TIME FIX (correct source)
             const lapTime = Number(lap.time ?? 0);
             d.drivingTime += lapTime;
 
@@ -164,6 +170,16 @@ const StatisticsPage = () => {
     };
   }, [trainings, drivers, karts]);
 
+  const handleFiltering = (values: string[]) => {
+    console.log('Filtering by modes:', values);
+
+    if (values.length === 0) {
+      return;
+    }
+
+    setMode(values);
+  };
+
   if (
     drivers === undefined ||
     karts === undefined ||
@@ -173,7 +189,7 @@ const StatisticsPage = () => {
     return (
       <Layout currentRoute="/statistics">
         <PageContent fluid>
-          <PageHeader title="Statistiken (Alle Trainings - JKS & SKS)" />
+          <PageHeader title="Statistiken" />
           <Grid>
             <Grid.Col span={4}>
               <Skeleton height={100} />
@@ -203,7 +219,13 @@ const StatisticsPage = () => {
   return (
     <Layout currentRoute="/statistics">
       <PageContent fluid>
-        <PageHeader title="Statistiken (Alle Trainings - JKS & SKS)" />
+        <PageHeader title="Statistiken" />
+        <MultiSelect
+          label="Modus"
+          data={['JKS', 'SKS']}
+          defaultValue={modes}
+          onChange={(values) => handleFiltering(values)}
+        />
 
         <Grid>
           <Grid.Col span={4}>
