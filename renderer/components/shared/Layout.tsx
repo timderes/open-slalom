@@ -1,4 +1,11 @@
-import { APP_NAME, APP_ROUTES, APP_VERSION } from '@/lib/constants';
+import {
+  APP_FOOTER_HEIGHT,
+  APP_HEADER_HEIGHT,
+  APP_NAME,
+  APP_NAVBAR_WIDTH,
+  APP_ROUTES,
+  APP_VERSION,
+} from '@/lib/constants';
 import { AppShell, type AppShellProps, Burger, Group, NavLink, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Link from 'next/link';
@@ -12,11 +19,6 @@ type LayoutProps = {
   disableNavbar?: boolean;
 } & AppShellProps &
   React.PropsWithChildren;
-
-export const APP_HEADER_HEIGHT = 60; // px
-export const APP_FOOTER_HEIGHT = 60; // px
-export const APP_NAVBAR_WIDTH = 200; // px
-export const APP_ASIDE_WIDTH = 300; // px
 
 const Clock = dynamic(() => import('../layout/Clock'), {
   ssr: false,

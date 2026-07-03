@@ -9,6 +9,12 @@ export const APP_NAME = pkg.productName;
 export const APP_VERSION = pkg.version;
 export const APP_LANGUAGE = 'de';
 
+export const APP_HEADER_HEIGHT = 60; // px
+export const APP_FOOTER_HEIGHT = 60; // px
+export const APP_NAVBAR_WIDTH = 200; // px
+export const APP_ASIDE_WIDTH = 300; // px
+export const APP_MAIN_HEIGHT = `calc(100dvh - ${APP_HEADER_HEIGHT}px - ${APP_FOOTER_HEIGHT}px)`; // px
+
 export const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: '2-digit',
