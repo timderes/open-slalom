@@ -23,7 +23,7 @@ const theme = createTheme({
 });
 
 /**
- * The custom App component initialize pages. Here we  place global CSS imports
+ * The custom App component initialize pages. Here we place global CSS imports
  * and wrap the app with providers that should be available on all pages.
  *
  * @see {@link https://nextjs.org/docs/pages/building-your-application/routing/custom-app}
