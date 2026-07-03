@@ -13,6 +13,11 @@ export const APP_HEADER_HEIGHT = 60; // px
 export const APP_FOOTER_HEIGHT = 60; // px
 export const APP_NAVBAR_WIDTH = 200; // px
 export const APP_ASIDE_WIDTH = 300; // px
+
+/**
+ * The height of the main content area of the app, calculated as the
+ * full viewport height minus the header and footer heights.
+ */
 export const APP_MAIN_HEIGHT = `calc(100dvh - ${APP_HEADER_HEIGHT}px - ${APP_FOOTER_HEIGHT}px)`; // px
 
 export const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
