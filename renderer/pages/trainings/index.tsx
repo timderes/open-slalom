@@ -10,9 +10,12 @@ import {
   Button,
   ButtonGroup,
   EmptyState,
+  Grid,
   Group,
+  MultiSelect,
   Skeleton,
   Text,
+  Title,
   Tooltip,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
@@ -20,14 +23,14 @@ import { notifications } from '@mantine/notifications';
 import { IconPencil, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 const TrainingsIndexPage = () => {
+  const [modes, setModes] = useState<string[]>(['JKS', 'SKS']);
   const router = useRouter();
-  const trainings = useLiveQuery(() => database.trainings.toArray(), undefined)?.sort((a, b) => {
-    if (a.createdAt < b.createdAt) return 1;
-    if (a.createdAt > b.createdAt) return -1;
-    return 0;
-  });
+  const trainings = useLiveQuery(() => database.trainings.toArray(), [modes])
+    ?.sort((a, b) => b.createdAt - a.createdAt)
+    .filter((t) => modes.includes(t.mode));
 
   const TableActions = ({ uuid }: { uuid: Training['uuid'] }) => {
     return (
@@ -78,70 +81,89 @@ const TrainingsIndexPage = () => {
 
   return (
     <Layout currentRoute="/trainings">
-      <PageContent>
-        <Group justify="space-between">
-          <PageHeader title="Trainings" />
-          <Button onClick={() => router.push('/trainings/active')} leftSection={<IconPlus />}>
-            Neues Training
-          </Button>
-        </Group>
-        {trainings === undefined ? (
-          <Skeleton height={400} radius="sm" />
-        ) : trainings.length === 0 ? (
-          <EmptyState
-            icon={<IconSearch />}
-            title="Keine Trainings gefunden!"
-            description="Wurden bereits Trainings abgeschlossen? Überprüfe die Filtereinstellungen oder starte ein neues Training an."
-            size="lg"
-            withIndicatorBackground
-          >
-            <EmptyState.Actions>
-              <Button onClick={() => router.push('/trainings/active')} variant="filled">
-                Neues Training starten
+      <PageContent fluid>
+        <Grid>
+          <Grid.Col span={12}>
+            <Group justify="space-between">
+              <PageHeader title="Trainings" />
+              <Button onClick={() => router.push('/trainings/active')} leftSection={<IconPlus />}>
+                Neues Training
               </Button>
-            </EmptyState.Actions>
-          </EmptyState>
-        ) : (
-          <ScrollableTable
-            striped
-            highlightOnHover
-            withRowBorders={false}
-            data={{
-              head: ['Datum', 'Modus', 'Fahrer', ''], // the "" is needed for the actions column
-              body: trainings?.map((training) => [
-                new Date(training.createdAt).toLocaleDateString(APP_LANGUAGE, {
-                  ...DEFAULT_DATE_FORMAT,
-                  ...DEFAULT_TIME_FORMAT,
-                  // This removes the seconds from the time format,
-                  // as they are not needed in the table view
-                  second: undefined,
-                }),
-                training.mode,
-                <AvatarGroup>
-                  {(training.drivers ?? []).slice(0, 7).map((driver) => (
-                    <Tooltip
-                      key={driver.uuid}
-                      label={`${driver.firstName} ${driver.lastName}`}
-                      withArrow
-                    >
-                      <Avatar name={`${driver.firstName} ${driver.lastName}`} color="initials" />
-                    </Tooltip>
-                  ))}
-                  {(training.drivers?.length ?? 0) > 7 && (
-                    <Tooltip
-                      label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
-                      withArrow
-                    >
-                      <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
-                    </Tooltip>
-                  )}
-                </AvatarGroup>,
-                <TableActions uuid={training.uuid} />,
-              ]),
-              caption: `${trainings.length} ${trainings.length === 1 ? 'Training' : 'Trainings'} wurden gefunden`,
-            }}
-          />
-        )}
+            </Group>
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Title order={2}>Filter</Title>
+
+            <MultiSelect
+              data={['JKS', 'SKS']}
+              defaultValue={['JKS', 'SKS']}
+              label="Trainingsmodus"
+              onChange={(modes) => setModes(modes)}
+            />
+          </Grid.Col>
+          <Grid.Col span={9}>
+            {trainings === undefined ? (
+              <Skeleton height={400} radius="sm" />
+            ) : trainings.length === 0 ? (
+              <EmptyState
+                icon={<IconSearch />}
+                title="Keine Trainings gefunden!"
+                description="Wurden bereits Trainings abgeschlossen? Überprüfe die Filtereinstellungen oder starte ein neues Training an."
+                size="lg"
+                withIndicatorBackground
+              >
+                <EmptyState.Actions>
+                  <Button onClick={() => router.push('/trainings/active')} variant="filled">
+                    Neues Training starten
+                  </Button>
+                </EmptyState.Actions>
+              </EmptyState>
+            ) : (
+              <ScrollableTable
+                striped
+                highlightOnHover
+                withRowBorders={false}
+                data={{
+                  head: ['Datum', 'Modus', 'Fahrer', ''], // the "" is needed for the actions column
+                  body: trainings?.map((training) => [
+                    new Date(training.createdAt).toLocaleDateString(APP_LANGUAGE, {
+                      ...DEFAULT_DATE_FORMAT,
+                      ...DEFAULT_TIME_FORMAT,
+                      // This removes the seconds from the time format,
+                      // as they are not needed in the table view
+                      second: undefined,
+                    }),
+                    training.mode,
+                    <AvatarGroup>
+                      {(training.drivers ?? []).slice(0, 7).map((driver) => (
+                        <Tooltip
+                          key={driver.uuid}
+                          label={`${driver.firstName} ${driver.lastName}`}
+                          withArrow
+                        >
+                          <Avatar
+                            name={`${driver.firstName} ${driver.lastName}`}
+                            color="initials"
+                          />
+                        </Tooltip>
+                      ))}
+                      {(training.drivers?.length ?? 0) > 7 && (
+                        <Tooltip
+                          label={`${(training.drivers?.length ?? 0) - 7} weitere Fahrer`}
+                          withArrow
+                        >
+                          <Avatar>+{(training.drivers?.length ?? 0) - 7}</Avatar>
+                        </Tooltip>
+                      )}
+                    </AvatarGroup>,
+                    <TableActions uuid={training.uuid} />,
+                  ]),
+                  caption: `${trainings.length} ${trainings.length === 1 ? 'Training' : 'Trainings'} wurden gefunden`,
+                }}
+              />
+            )}{' '}
+          </Grid.Col>{' '}
+        </Grid>
       </PageContent>
     </Layout>
   );
