@@ -12,7 +12,16 @@ dayjs.extend(customParseFormat);
 const dateParser = (input: string) => {
   if (!input) return null;
 
-  const formats = ['DDMMYYYY', 'DD.MM.YYYY', 'DD/MM/YYYY', 'DD-MM-YYYY', 'DD MM YYYY'];
+  const formats = [
+    // This is the format, when the user clicks on the date picker calendar
+    'YYYY-MM-DD',
+    // Other supported formats for user input
+    'DDMMYYYY',
+    'DD.MM.YYYY',
+    'DD/MM/YYYY',
+    'DD-MM-YYYY',
+    'DD MM YYYY',
+  ];
 
   for (const format of formats) {
     const parsed = dayjs(input, format, true);
