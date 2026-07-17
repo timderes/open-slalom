@@ -2,26 +2,6 @@
 
 TODOs for the upcoming releases of the app.
 
-## 1.2.0
-
-### Features
-
-- [x] feat: When a driver left the training early, the user should be able to mark the driver. So the app automatically skips the driver. This can be done by eg. adding a checkbox. It should be possible to "re-enable" the driver, in case the user marked the driver by accident or the driver wants to continue the training later. Also drivers, that left the training should be "grayed out" in the UI, so the user can easily see which drivers are still active in the training and which drivers left the training.
-- [x] feat: Add a "trainings view" route where the user can see all trainings that have been created. In this view, the user can also delete trainings.
-- [x] feat: Make laps per stint optional. Currently we need to pass many invalid laps, if the driver is doing less laps then the configured laps per stint. Since this can be common in trainings. We could set the laps per stint to `Infinity`. The UI then should only show the current lap instead of 1 / x laps.
-- [x] feat: Add light and dark mode to the app. (PR #11)
-
-### Bugs
-
-- [x] bug: After using the inputs for cones, gates or the invalid lap checkbox, the app keeps focus on the input. This is a problem because it prevents the user from using the keyboard hotkeys.
-- [x] bug: Sometimes, the keyboard hotkeys stop working. This problem is probably related to the user selecting text or when a overflow happens and the page scrolls. The hotkeys should work regardless of the user interaction with the page.
-- [x] bug: When the user opens a trainings view, for a split second, shows that for that UUID there is no training, before showing the correct training. This is a problem because it creates a bad user experience and can cause confusion. The app should show a loading state while the training is being fetched, and only show the "no training" message if the training is not found after the loading state is finished.
-- [x] bug: The electron app menu allows the user to open the developer console in production and use the browser specific hotkeys (eg. ctrl + w to close the window). This is a problem because it can cause confusion and can lead to the user accidentally closing the app or opening the developer console. The app menu should be disabled in production, or at least the options that allow the user to open the developer console or use browser specific hotkeys should be disabled. (PR #5)
-
-### Misc
-
-- [x] deps: Update the current used packages to their latest versions (if possible without breaking changes). This will help us to keep the app up to date and to benefit from the latest features and bug fixes of the packages we are using.
-
 ## 1.3.0
 
 ### Features
