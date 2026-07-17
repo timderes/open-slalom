@@ -3,7 +3,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import { GENDER_OPTIONS } from '@/lib/constants';
 import database from '@/lib/database';
 import { Button, Card, Group, NativeSelect, Stack, Text, TextInput } from '@mantine/core';
-import { DateInput, DatePickerInput } from '@mantine/dates';
+import { DateInput } from '@mantine/dates';
 import { hasLength, isInRange, isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -15,7 +15,7 @@ import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
 import Stat from '@/components/shared/Stat';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
-import dayjs from 'dayjs';
+import dateParser from '@/lib/dates/dateParser';
 
 const CreateDriverPage = () => {
   const router = useRouter();
@@ -45,10 +45,6 @@ const CreateDriverPage = () => {
     },
     validateInputOnChange: true,
   });
-
-  const handleBirthDateChange = (date: string) => {
-    form.getInputProps('birthDate').onChange(date);
-  };
 
   const handleCreateDriver = () => {
     database.drivers.add(form.values).then(() => {
@@ -112,13 +108,13 @@ const CreateDriverPage = () => {
               />
             </Group>
             <Group grow>
-              <DatePickerInput
+              <DateInput
+                dateParser={dateParser}
                 clearable
-                valueFormat="DD. MMMM YYYY"
-                value={form.values.birthDate}
-                onChange={(e) => handleBirthDateChange(e)}
+                valueFormat="DD.MM.YYYY"
+                onChange={(value) => form.setFieldValue('birthDate', value)}
                 label="Geburtsdatum"
-                placeholder="Geburtsdatum"
+                placeholder="TT.MM.JJJJ"
                 key={form.key('birthDate')}
                 error={form.getInputProps('birthDate').error}
               />
