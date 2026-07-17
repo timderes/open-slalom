@@ -4,6 +4,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import Stat from '@/components/shared/Stat';
 import { GENDER_OPTIONS, MAX_DRIVER_AGE, MIN_DRIVER_AGE } from '@/lib/constants';
 import database from '@/lib/database';
+import dateParser from '@/lib/dates/dateParser';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import { Button, Group, NativeSelect, Stack, TextInput, Text, Title, Card } from '@mantine/core';
@@ -104,10 +105,6 @@ const DriverEditPage = () => {
     });
   };
 
-  const handleBirthDateChange = (date: string) => {
-    form.getInputProps('birthDate').onChange(date);
-  };
-
   const handleEditDriver = () => {
     if (!form.isValid()) return;
 
@@ -159,11 +156,12 @@ const DriverEditPage = () => {
             </Group>
             <Group grow>
               <DateInput
-                valueFormat="DD. MMMM YYYY"
+                dateParser={dateParser}
+                valueFormat="DD.MM.YYYY"
                 value={form.values.birthDate ? new Date(form.values.birthDate) : null}
-                onChange={(e) => handleBirthDateChange(e)}
+                onChange={(value) => form.setFieldValue('birthDate', value)}
                 label="Geburtsdatum"
-                placeholder="Geburtsdatum"
+                placeholder="TT.MM.JJJJ"
                 key={form.key('birthDate')}
                 error={form.getInputProps('birthDate').error}
               />
