@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import serve from 'electron-serve';
 import { createWindow } from './helpers';
 import registerFileIpcHandlers from './ipc/files';
+import log from 'electron-log';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -14,6 +15,9 @@ if (isProd) {
 
 (async () => {
   await app.whenReady();
+
+  // This makes the logger available in the renderer process
+  log.initialize();
 
   const mainWindow = createWindow('main', {
     width: 1000,
