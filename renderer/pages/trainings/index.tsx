@@ -24,6 +24,7 @@ import { IconPencil, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import log from 'electron-log/renderer';
 
 const TrainingsIndexPage = () => {
   const [modes, setModes] = useState<string[]>(['JKS', 'SKS']);
@@ -72,7 +73,15 @@ const TrainingsIndexPage = () => {
           gelöscht. Das kann nicht rückgängig gemacht werden!
         </Text>
       ),
-      onConfirm: () => database.trainings.delete(training.uuid),
+      onConfirm: () =>
+        database.trainings
+          .delete(training.uuid)
+          .catch((error) => {
+            log.error(`Error occurred while deleting training with UUID ${training.uuid}:`, error);
+          })
+          .then(() => {
+            log.info(`The training with UUID ${training.uuid}  was deleted successfully.`);
+          }),
       labels: { confirm: 'Löschen', cancel: 'Abbrechen' },
       confirmProps: { color: 'red' },
       centered: true,

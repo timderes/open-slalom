@@ -16,6 +16,7 @@ import PageContent from '@/components/shared/PageContent';
 import Stat from '@/components/shared/Stat';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import dateParser from '@/lib/dates/dateParser';
+import log from 'electron-log/renderer';
 
 const CreateDriverPage = () => {
   const router = useRouter();
@@ -47,19 +48,26 @@ const CreateDriverPage = () => {
   });
 
   const handleCreateDriver = () => {
-    database.drivers.add(form.values).then(() => {
-      const { firstName, lastName } = form.values;
+    database.drivers
+      .add(form.values)
+      .then(() => {
+        const { firstName, lastName, uuid } = form.values;
 
-      notifications.show({
-        icon: <IconHelmet />,
-        title: 'Fahrer angelegt',
-        message: `${firstName} ${lastName} wurde erfolgreich angelegt.`,
-        color: 'green',
+        log.info(`The driver ${firstName} ${lastName} (UUID ${uuid}) was created successfully.`);
+
+        notifications.show({
+          icon: <IconHelmet />,
+          title: 'Fahrer angelegt',
+          message: `${firstName} ${lastName} wurde erfolgreich angelegt.`,
+          color: 'green',
+        });
+
+        form.reset();
+        router.push('/drivers');
+      })
+      .catch((error) => {
+        log.error('Error occurred while creating a new driver:', error);
       });
-
-      form.reset();
-      router.push('/drivers');
-    });
   };
 
   const handleGoBack = () => {
