@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { APP_NAME } from '../constants';
+import log from 'electron-log/renderer';
 
 const DB_NAME = APP_NAME.toLowerCase().replace(/\s+/g, '-');
 
@@ -15,8 +16,14 @@ database.version(1).stores({
   trainings: '&uuid',
 });
 
-// upgrade 2
+//
+// Migrations / Upgrades
+//
+// Should these be done in a separate file?
+//
 database.version(2).upgrade((tx) => {
+  log.info('Upgrading database to version 2...');
+
   return tx
     .table('trainings')
     .toCollection()
@@ -28,30 +35,41 @@ database.version(2).upgrade((tx) => {
           });
         });
       });
+    })
+    .catch((error) => {
+      log.error('Error during database upgrade to version 2:', error);
     });
 });
 
-// upgrade 3
 database.version(3).upgrade((tx) => {
+  log.info('Upgrading database to version 3.');
   return tx
     .table('drivers')
     .toCollection()
     .modify((driver) => {
       delete driver.driverClass;
+    })
+    .catch((error) => {
+      log.error('Error during database upgrade to version 3:', error);
     });
 });
 
 database.version(4).upgrade((tx) => {
+  log.info('Upgrading database to version 4...');
   return tx
     .table('drivers')
     .toCollection()
     .modify((driver) => {
       driver.gender = driver.sex;
       delete driver.sex;
+    })
+    .catch((error) => {
+      log.error('Error during database upgrade to version 4:', error);
     });
 });
 
 database.version(5).upgrade((tx) => {
+  log.info('Upgrading database to version 5...');
   return Promise.all([
     tx
       .table('trainings')
@@ -62,6 +80,9 @@ database.version(5).upgrade((tx) => {
             s.kartUuid = d.kartUuid ?? undefined;
           });
         });
+      })
+      .catch((error) => {
+        log.error('Error during database upgrade to version 5:', error);
       }),
 
     tx
@@ -77,6 +98,9 @@ database.version(5).upgrade((tx) => {
           lastTraining: kart.history?.lastTraining ?? undefined,
           usageByDriver: kart.history?.usageByDriver ?? {},
         };
+      })
+      .catch((error) => {
+        log.error('Error during database upgrade to version 5:', error);
       }),
   ]);
 });

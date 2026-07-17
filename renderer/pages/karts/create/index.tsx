@@ -8,6 +8,7 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/router';
 import { v4 as uuidv4 } from 'uuid';
+import log from 'electron-log/renderer';
 
 const CreateKartPage = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ const CreateKartPage = () => {
         router.push('/karts');
       })
       .catch((error) => {
-        console.error('Error creating kart:', error);
+        log.error('Error occurred while creating a new kart:', error);
 
         notifications.show({
           title: 'Fehler beim Anlegen des Karts',
