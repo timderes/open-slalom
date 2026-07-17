@@ -7,9 +7,9 @@ dayjs.extend(customParseFormat);
  * Parses user input and converts it to a date string value.
  *
  * @param input The user input string to parse
- * @returns A date string in ISO 8601 format (YYYY-MM-DD) or null if the input is invalid
+ * @returns A date string in ISO 8601 format (YYYY-MM-DD) or `null` if the input is invalid
  */
-const dateParser = (input: string) => {
+const dateParser = (input: string): string | null => {
   if (!input) return null;
 
   const formats = [
