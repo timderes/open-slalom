@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import handleSaveFile from './handleSaveFile';
 import handleOpenFile from './handleOpenFile';
-import log from 'electron-log/main';
+import log from 'electron-log';
 
 /**
  * Default path for saving files.

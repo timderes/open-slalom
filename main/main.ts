@@ -14,10 +14,10 @@ if (isProd) {
 }
 
 (async () => {
-  await app.whenReady();
-
-  // This makes the logger available in the renderer process
-  log.initialize();
+  await app.whenReady().then(() => {
+    // This makes the logger available in the renderer process
+    log.initialize();
+  });
 
   const mainWindow = createWindow('main', {
     width: 1000,

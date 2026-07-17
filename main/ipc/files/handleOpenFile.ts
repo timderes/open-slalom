@@ -1,7 +1,7 @@
 import { dialog, ipcMain } from 'electron';
 import { readFile } from 'fs';
 import { DEFAULT_SAVE_PATH } from '.';
-import log from 'electron-log/main';
+import log from 'electron-log';
 
 const handleOpenFile = () => {
   ipcMain.on('open-file', async (event, options: Electron.OpenDialogOptions) => {

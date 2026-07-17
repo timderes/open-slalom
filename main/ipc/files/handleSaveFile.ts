@@ -1,7 +1,7 @@
 import { dialog, ipcMain } from 'electron';
 import { writeFile } from 'fs';
 import { DEFAULT_SAVE_PATH } from './index';
-import log from 'electron-log/main';
+import log from 'electron-log';
 
 const handleSaveFile = () => {
   ipcMain.on('save-file', async (event, { fileName, bufferData }) => {
