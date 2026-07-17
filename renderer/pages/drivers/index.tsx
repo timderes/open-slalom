@@ -29,6 +29,7 @@ import { modals } from '@mantine/modals';
 import PageHeader from '@/components/shared/PageHeader';
 import ScrollableTable from '@/components/shared/ScrollableTable';
 import PageContent from '@/components/shared/PageContent';
+import log from 'electron-log/renderer';
 
 const DriversPage = () => {
   const router = useRouter();
@@ -69,7 +70,20 @@ const DriversPage = () => {
           rückgängig gemacht werden!
         </Text>
       ),
-      onConfirm: () => database.drivers.delete(driver.uuid),
+      onConfirm: () =>
+        database.drivers
+          .delete(driver.uuid)
+          .catch((error) => {
+            log.error(
+              `Error occurred while deleting driver ${driver.firstName} ${driver.lastName}:`,
+              error,
+            );
+          })
+          .then(() => {
+            log.info(
+              `The driver ${driver.firstName} ${driver.lastName} (UUID ${driver.uuid}) was deleted successfully.`,
+            );
+          }),
       labels: { confirm: 'Löschen', cancel: 'Abbrechen' },
       confirmProps: { color: 'red' },
       centered: true,

@@ -20,6 +20,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import log from 'electron-log/renderer';
 
 const KartEditPage = () => {
   const router = useRouter();
@@ -80,7 +81,7 @@ const KartEditPage = () => {
         router.push('/karts');
       })
       .catch((error) => {
-        console.error('Error updating kart:', error);
+        log.error(`Error occurred while updating kart "${kart.name} (UUID ${kart.uuid})":`, error);
 
         notifications.show({
           title: 'Fehler beim Bearbeiten des Karts',

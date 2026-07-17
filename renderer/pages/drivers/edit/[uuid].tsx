@@ -15,6 +15,7 @@ import { notifications } from '@mantine/notifications';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import log from 'electron-log/renderer';
 
 const DriverEditPage = () => {
   const router = useRouter();
@@ -111,6 +112,8 @@ const DriverEditPage = () => {
     database.drivers
       .update(uuid as string, { ...form.values, updatedAt: Date.now() })
       .catch((error) => {
+        log.error('Error occurred while editing the driver:', error);
+
         notifications.show({
           title: 'Fehler beim Bearbeiten des Fahrers',
           message: `Es ist ein Fehler aufgetreten: ${error.message}`,
@@ -118,6 +121,10 @@ const DriverEditPage = () => {
         });
       })
       .then(() => {
+        log.info(
+          `The driver ${form.values.firstName} ${form.values.lastName} (UUID ${uuid}) was edited successfully.`,
+        );
+
         notifications.show({
           title: 'Fahrer bearbeitet',
           message: 'Der Fahrer wurde erfolgreich bearbeitet.',

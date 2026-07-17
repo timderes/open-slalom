@@ -171,8 +171,6 @@ const StatisticsPage = () => {
   }, [trainings, drivers, karts]);
 
   const handleFiltering = (values: string[]) => {
-    console.log('Filtering by modes:', values);
-
     if (values.length === 0) {
       return;
     }

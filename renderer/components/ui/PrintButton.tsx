@@ -1,5 +1,6 @@
 import { Button, type ButtonProps } from '@mantine/core';
 import { IconPrinter } from '@tabler/icons-react';
+import log from 'electron-log/renderer';
 
 /**
  * A button component that triggers the print dialog when clicked.
@@ -13,7 +14,7 @@ const PrintButton = ({ size, variant, ms, className, ...props }: ButtonProps) =>
 
   const handlePrint = () => {
     if (!window) {
-      console.error('Window object is not available. Unable to print.');
+      log.error('Window object is not available. Unable to print.');
       return;
     }
 

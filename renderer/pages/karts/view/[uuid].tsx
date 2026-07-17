@@ -22,6 +22,7 @@ import { IconCode, IconPencil, IconTrash, IconZoomQuestion } from '@tabler/icons
 import { useLiveQuery } from 'dexie-react-hooks';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import log from 'electron-log/renderer';
 
 const KartViewPage = () => {
   const router = useRouter();
@@ -104,7 +105,10 @@ const KartViewPage = () => {
             });
           })
           .catch((error) => {
-            console.error('Error deleting kart history:', error);
+            log.error(
+              `Error occurred while deleting kart history for kart "${kart.name} (UUID ${kart.uuid})":`,
+              error,
+            );
 
             notifications.show({
               title: 'Fehler beim Löschen der Trainingsdaten',

@@ -7,6 +7,7 @@ import { IconDatabaseExport, IconDatabaseImport, IconDatabaseMinus } from '@tabl
 import PageContent from '@/components/shared/PageContent';
 import SettingsLayout from '@/components/shared/SettingsLayout';
 import dbService from '@/lib/database/utils/service';
+import log from 'electron-log/renderer';
 
 const SettingsPage = () => {
   const databaseVersion = dbService.getVersion() ?? 'Unbekannte Version';
@@ -29,7 +30,7 @@ const SettingsPage = () => {
             color: 'green',
           });
         } catch (err) {
-          console.error(err);
+          log.error('Error occurred while deleting the database:', err);
 
           notifications.show({
             title: 'Fehler',
@@ -59,7 +60,7 @@ const SettingsPage = () => {
         });
       }
     } catch (err) {
-      console.error(err);
+      log.error('Error occurred while exporting the database:', err);
 
       notifications.show({
         title: 'Export fehlgeschlagen',
@@ -92,7 +93,7 @@ const SettingsPage = () => {
             });
           }
         } catch (err) {
-          console.error(err);
+          log.error('Error occurred while importing the database:', err);
 
           notifications.show({
             title: 'Import fehlgeschlagen',

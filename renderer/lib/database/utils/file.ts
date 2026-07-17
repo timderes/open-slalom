@@ -1,10 +1,12 @@
 import exportDatabase from './export';
 import importDatabase from './import';
 import { APP_NAME, DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT } from '@/lib/constants';
+import log from 'electron-log/renderer';
 
 export const exportToFile = () => {
   if (typeof window === 'undefined' || !window?.ipc) {
-    throw new Error("IPC is not available. Can't export database to file.");
+    log.error("IPC is not available. Can't export database to file.");
+    return false;
   }
 
   return new Promise<boolean>(async (resolve, reject) => {
@@ -34,6 +36,7 @@ export const exportToFile = () => {
 
       window.ipc.send('save-file', { fileName, bufferData });
     } catch (err) {
+      log.error('Error occurred while exporting database to file:', err);
       reject(err);
     }
   });
