@@ -6,8 +6,6 @@ This file provides repository-wide instructions for AI coding assistants and aut
 
 These instructions apply to all files in the repository unless more specific instructions are provided elsewhere.
 
----
-
 # Project
 
 This project is about **Kartslalom**, including both:
@@ -19,8 +17,6 @@ The application should use the official terminology and rules whenever possible.
 
 When uncertain about motorsport terminology, prefer the definitions in this document over general internet knowledge.
 
----
-
 # Goals
 
 When making changes:
@@ -30,8 +26,6 @@ When making changes:
 - Keep the codebase easy to maintain.
 - Avoid unnecessary complexity.
 - Integrate naturally with the existing architecture.
-
----
 
 # Coding Guidelines
 
@@ -59,8 +53,6 @@ Update documentation whenever behavior, configuration or APIs change.
 
 Document non-obvious decisions directly in the code when appropriate.
 
----
-
 # Testing
 
 For non-trivial changes:
@@ -69,8 +61,6 @@ For non-trivial changes:
 - Ensure existing tests continue to pass.
 - Consider edge cases.
 - Prefer deterministic tests.
-
----
 
 # Security
 
@@ -84,8 +74,6 @@ Never:
 
 Prefer secure defaults whenever possible.
 
----
-
 # Dependencies
 
 Before adding new dependencies:
@@ -94,8 +82,6 @@ Before adding new dependencies:
 - Reuse existing project dependencies.
 - Avoid large dependencies for small problems.
 - Keep the dependency graph simple.
-
----
 
 # Performance
 
@@ -108,8 +94,6 @@ Prefer:
 - maintainable implementations
 
 Avoid premature optimization.
-
----
 
 # Code Style
 
@@ -128,7 +112,33 @@ Avoid:
 - unnecessary comments explaining obvious code
 - Unreadable or hard-to-read code for humans
 
----
+# Architecture
+
+## Tech Stack
+
+| Layer                 | Technology                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| Desktop Runtime       | [Electron](https://www.electronjs.org/)                                             |
+| Application Framework | [nextron](https://github.com/saltyshiomix/nextron) (Electron + Next.js integration) |
+| UI Framework          | [React 19](https://react.dev/) with [Next.js 16](https://nextjs.org/)               |
+| Component Library     | [Mantine](https://mantine.dev/)                                                     |
+| Database              | [Dexie.js](https://dexie.org/) (IndexedDB wrapper)                                  |
+| Persistent Storage    | [electron-store](https://github.com/sindresorhus/electron-store)                    |
+| Logging               | [electron-log](https://github.com/megahertz/electron-log)                           |
+| Testing               | [Vitest](https://vitest.dev/)                                                       |
+
+## Application Architecture
+
+- Electron main process handles native functionality.
+- Renderer process contains the UI.
+- Communication between processes should use Electron IPC.
+- Avoid accessing Node.js APIs directly from renderer code unless explicitly configured.
+
+## Data Management
+
+- IndexedDB data is managed through Dexie.js.
+- Changes to database schemas require migrations.
+- Do not remove or rename stored fields without considering existing user data.
 
 # Domain Knowledge
 
@@ -213,8 +223,6 @@ Superkart Slalom uses more powerful karts and larger distances between course el
 | 4     | 21–30                 |
 | 5     | 31+ (Adult / Trainer) |
 
----
-
 # Terminology
 
 Use these terms consistently.
@@ -234,8 +242,6 @@ Preferred terms:
 - timing
 
 Avoid translating established motorsport terminology into artificial alternatives.
-
----
 
 # AI Assistant Behavior
 
