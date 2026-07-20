@@ -15,15 +15,18 @@ Built with **Electron** + **Next.js** (via [nextron](https://github.com/saltyshi
 
 ## Tech Stack
 
-| Layer     | Technology                                                                                   |
-| --------- | -------------------------------------------------------------------------------------------- |
-| Framework | [Electron](https://www.electronjs.org/) / [nextron](https://github.com/saltyshiomix/nextron) |
-| UI        | [React 19](https://react.dev/) / [Next.js 16](https://nextjs.org/)                           |
-| Styling   | [@mantine/core](https://mantine.dev/)                                                        |
-| Database  | [Dexie.js](https://dexie.org/) (IndexedDB wrapper)                                           |
-| Storage   | [electron-store](https://github.com/sindresorhus/electron-store)                             |
-| Logging   | [electron-log](https://github.com/megahertz/electron-log)                                    |
-| Testing   | [Vitest](https://vitest.dev/)                                                                |
+## Tech Stack
+
+| Layer                 | Technology                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| Desktop Runtime       | [Electron](https://www.electronjs.org/)                                             |
+| Application Framework | [nextron](https://github.com/saltyshiomix/nextron) (Electron + Next.js integration) |
+| UI Framework          | [React 19](https://react.dev/) with [Next.js 16](https://nextjs.org/)               |
+| Component Library     | [Mantine](https://mantine.dev/)                                                     |
+| Database              | [Dexie.js](https://dexie.org/) (IndexedDB wrapper)                                  |
+| Persistent Storage    | [electron-store](https://github.com/sindresorhus/electron-store)                    |
+| Logging               | [electron-log](https://github.com/megahertz/electron-log)                           |
+| Testing               | [Vitest](https://vitest.dev/)                                                       |
 
 ## Prerequisites
 
