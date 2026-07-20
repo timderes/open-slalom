@@ -8,6 +8,7 @@ updates:
       time: '04:00'
     # Open Dependabot PRs against the deps-updates branch,
     # so grouped updates can be tested there before merging into main
+    # The branch is created automatically by GitHub Actions (see .github/workflows/create-deps-branch.yml).
     target-branch: 'deps-updates'
     open-pull-requests-limit: 10
     groups:
