@@ -1,0 +1,45 @@
+name: Lint and format code
+
+# Keep workflow permissions minimal; `actions: write` is required by `actions/setup-node`
+# to save the npm cache, while `contents` only needs read access.
+permissions:
+  actions: write # Needed for caching npm dependencies
+  contents: read
+
+# Cancel previous runs of the same workflow on the same branch
+# to avoid redundant CI jobs when new commits are pushed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main, 'deps-updates']
+  pull_request:
+    branches: [main, 'deps-updates']
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ESlint is currently not configured
+      # - name: Run ESLint
+      # run: npm run lint
+      - name: Run TypeScript renderer type checking
+        run: npm run typecheck:renderer
+
+      # Prettier is currently not configured
+      #- name: Check formatting with Prettier
+      # run: npm run format:check
