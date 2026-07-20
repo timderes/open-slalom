@@ -126,6 +126,7 @@ Avoid:
 - magic numbers
 - duplicated code
 - unnecessary comments explaining obvious code
+- Unreadable or hard-to-read code for humans
 
 ---
 
@@ -185,7 +186,7 @@ Do not invent new names for these elements.
 | 4     | 14–15                 |
 | 5     | 16–18                 |
 | 6     | 19–23                 |
-| 7     | 19+ (Adult / Trainer) |
+| 7     | 24+ (Adult / Trainer) |
 
 ---
 
@@ -204,12 +205,13 @@ Superkart Slalom uses more powerful karts and larger distances between course el
 
 ### Classes
 
-| Class | Age   |
-| ----- | ----- |
-| 1     | 12–14 |
-| 2     | 15–17 |
-| 3     | 18–20 |
-| 4     | 21–30 |
+| Class | Age                   |
+| ----- | --------------------- |
+| 1     | 12–14                 |
+| 2     | 15–17                 |
+| 3     | 18–20                 |
+| 4     | 21–30                 |
+| 5     | 31+ (Adult / Trainer) |
 
 ---
 
