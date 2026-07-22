@@ -1,3 +1,5 @@
+import getGapIndicator from './getGapIndicator';
+
 export type TimeFormatPreset = 'lap' | 'duration' | 'gap';
 
 type FormatTimeOptions = {
@@ -64,10 +66,10 @@ export const formatTime = (time: number, preset: TimeFormatPreset): string => {
       return formatTimeBase(time);
 
     case 'gap': {
-      const sign = time > 0 ? '+' : time < 0 ? '-' : '';
+      const indicator = getGapIndicator(time);
 
       return (
-        sign +
+        indicator +
         formatTimeBase(time, {
           showMilliseconds: true,
           trimLeadingZeroMinutes: true,
