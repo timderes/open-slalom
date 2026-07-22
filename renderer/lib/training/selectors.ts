@@ -19,8 +19,9 @@ export const getFastestLap = (laps: Lap[]) => {
     return undefined;
   }
 
-  return validLaps.reduce((fastest, lap) =>
-    lap.time_with_penalties < fastest.time_with_penalties ? lap : fastest,
+  return validLaps.reduce(
+    (fastest, lap) => (lap.time_with_penalties < fastest.time_with_penalties ? lap : fastest),
+    validLaps[0],
   );
 };
 
