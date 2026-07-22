@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron';
-import { readFile } from 'fs';
+import { readFile } from 'node:fs';
 import { DEFAULT_SAVE_PATH } from '.';
 import log from 'electron-log';
 

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import serve from 'electron-serve';
 import { createWindow } from './helpers';
