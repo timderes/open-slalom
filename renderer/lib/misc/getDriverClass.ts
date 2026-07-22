@@ -22,7 +22,7 @@ const getClassByAge = ({
 const getJksClass = ({ birthDate }: { birthDate: Driver['birthDate'] }): number | '-' => {
   const age = calculateDriverAgeBasedOfBirthYear(birthDate);
 
-  if (!age || isNaN(age)) {
+  if (!age || Number.isNaN(age)) {
     return '-';
   }
 
@@ -32,7 +32,7 @@ const getJksClass = ({ birthDate }: { birthDate: Driver['birthDate'] }): number 
 const getSksClass = ({ birthDate }: { birthDate: Driver['birthDate'] }): number | '-' => {
   const age = calculateDriverAgeBasedOfBirthYear(birthDate);
 
-  if (!age || isNaN(age)) {
+  if (!age || Number.isNaN(age)) {
     return '-';
   }
 
