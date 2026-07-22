@@ -1,6 +1,6 @@
 import Layout from '@/components/shared/Layout';
 import PageHeader from '@/components/shared/PageHeader';
-import { GENDER_OPTIONS } from '@/lib/constants';
+import { GENDER_OPTIONS, MIN_DRIVER_AGE, MAX_DRIVER_AGE } from '@/lib/constants';
 import database from '@/lib/database';
 import { Button, Card, Group, NativeSelect, Stack, Text, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
@@ -10,7 +10,6 @@ import { notifications } from '@mantine/notifications';
 import { IconHelmet } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { v4 as uuidv4 } from 'uuid';
-import { MIN_DRIVER_AGE, MAX_DRIVER_AGE } from '@/lib/constants';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
 import Stat from '@/components/shared/Stat';
