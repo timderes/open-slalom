@@ -33,7 +33,7 @@ import log from 'electron-log/renderer';
 
 const DriversPage = () => {
   const router = useRouter();
-  const drivers = useLiveQuery(() => database.drivers.toArray(), undefined)?.sort((a, b) => {
+  const drivers = useLiveQuery(() => database.drivers.toArray())?.sort((a, b) => {
     // Sort by last name, then first name
     if (a.lastName.toLowerCase() < b.lastName.toLowerCase()) return -1;
     if (a.lastName.toLowerCase() > b.lastName.toLowerCase()) return 1;
@@ -135,7 +135,7 @@ const DriversPage = () => {
                     const sksDisplay = sksClass === '-' ? '-' : `K${sksClass}`;
 
                     return [
-                      <Group gap="md">
+                      <Group gap="md" key={driver.uuid}>
                         <Avatar color="initials" name={`${driver.firstName} ${driver.lastName}`} />
                         <Text>
                           {driver.firstName} {driver.lastName}
