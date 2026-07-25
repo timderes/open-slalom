@@ -7,7 +7,7 @@ on:
 
   # Ensure the branch exists one hour before the weekly Dependabot run
   schedule:
-    - cron: "0 3 * * 1"
+    - cron: '0 3 * * 1'
 
   push:
     branches:
