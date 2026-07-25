@@ -14,7 +14,7 @@ concurrency:
 
 on:
   push:
-    branches: [main, 'deps-updates']
+    branches: [main]
   pull_request:
     branches: [main, 'deps-updates']
 
@@ -40,6 +40,5 @@ jobs:
       - name: Run TypeScript renderer type checking
         run: npm run typecheck:renderer
 
-      # Prettier is currently not configured
-      #- name: Check formatting with Prettier
-      # run: npm run format:check
+      - name: Check formatting with Prettier
+        run: npm run format:check
