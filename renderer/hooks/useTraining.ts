@@ -26,11 +26,9 @@ const useTraining = () => {
   const router = useRouter();
 
   const availableDrivers = useLiveQuery(() => database.drivers.toArray(), [], undefined) as
-    | Driver[]
-    | undefined;
+    Driver[] | undefined;
   const availableKarts = useLiveQuery(() => database.karts.toArray(), [], undefined) as
-    | Kart[]
-    | undefined;
+    Kart[] | undefined;
 
   const stopwatch = useStopwatch();
   const settings = useForm<Training>({
