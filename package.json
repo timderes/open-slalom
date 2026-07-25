@@ -11,6 +11,7 @@
     "dev": "nextron",
     "build": "nextron build",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck:renderer": "tsc --noEmit -p renderer/tsconfig.json",
