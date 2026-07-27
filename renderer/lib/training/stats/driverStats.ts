@@ -1,5 +1,7 @@
 type DriverStatsParams = {
-  trainings: Training[];
+  participations: Participation[];
+  stints: Stint[];
+  laps: Lap[];
   driverUUID: Driver['uuid'];
 };
 
@@ -10,12 +12,17 @@ type DriverStats = {
   hitGates: number;
 };
 
-const getDriverData = (training: Training, driverUUID: Driver['uuid']) => {
-  return training.drivers.find((d) => d.uuid === driverUUID);
-};
+export const getDriverStats = ({
+  participations,
+  stints,
+  laps,
+  driverUUID,
+}: DriverStatsParams): DriverStats => {
+  const driverParticipations = participations?.filter(
+    (participation) => participation.driverUuid === driverUUID,
+  );
 
-export const getDriverStats = ({ trainings, driverUUID }: DriverStatsParams): DriverStats => {
-  if (!trainings || trainings.length === 0) {
+  if (driverParticipations?.length === 0) {
     return {
       totalLaps: 0,
       totalDrivingTime: 0,
@@ -24,20 +31,25 @@ export const getDriverStats = ({ trainings, driverUUID }: DriverStatsParams): Dr
     };
   }
 
-  return trainings.reduce<DriverStats>(
-    (acc, training) => {
-      const driverData = getDriverData(training, driverUUID);
-      if (!driverData) return acc;
+  const participationUuids = driverParticipations?.map((participation) => participation.uuid);
 
-      acc.totalLaps += driverData.stints.length * training.lapsPerStint;
+  const driverStints = stints?.filter((stint) =>
+    participationUuids.includes(stint.participationUuid),
+  );
 
-      for (const stint of driverData.stints) {
-        for (const lap of stint.laps) {
-          acc.totalDrivingTime += lap.time;
-          acc.hitCones += lap.cones;
-          acc.hitGates += lap.gates;
-        }
-      }
+  const stintUuids = driverStints?.map((stint) => stint.uuid);
+
+  const driverLaps = laps?.filter((lap) => stintUuids?.includes(lap.stintUuid));
+
+  return driverLaps?.reduce<DriverStats>(
+    (acc, lap) => {
+      acc.totalLaps++;
+
+      acc.totalDrivingTime += lap.time;
+
+      acc.hitCones += lap.cones ?? 0;
+
+      acc.hitGates += lap.gates ?? 0;
 
       return acc;
     },
@@ -49,3 +61,5 @@ export const getDriverStats = ({ trainings, driverUUID }: DriverStatsParams): Dr
     },
   );
 };
+
+export default getDriverStats;
