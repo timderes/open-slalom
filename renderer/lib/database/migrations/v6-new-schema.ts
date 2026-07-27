@@ -1,85 +1,148 @@
 import type { Transaction } from 'dexie';
-import { v4 as uuid } from 'uuid';
 import log from 'electron-log/renderer';
 
 /**
- * Normalizes the database schema to version 6.
+ * Migrates legacy v5 trainings into the v6 session model.
+ *
+ * v5:
+ * Training
+ *  └── Drivers
+ *       └── Stints
+ *            └── Laps
+ *
+ * v6:
+ * Session
+ *  └── Participation
+ *       └── Stint
+ *            └── Lap
  */
 export const migrateV6 = async (tx: Transaction) => {
-  log.info('Migrating database to version 6 - normalize schema');
+  log.info('Migrating database to version 6...');
 
-  const sessions = tx.table('sessions');
-  const participations = tx.table('participations');
-  const stints = tx.table('stints');
-  const laps = tx.table('laps');
   const trainings = await tx.table('trainings').toArray();
 
-  for (const training of trainings) {
-    const sessionUuid = uuid();
+  const sessions = [];
+  const participations = [];
+  const stints = [];
+  const laps = [];
 
-    await sessions.add({
+  for (const training of trainings) {
+    const sessionUuid = training.uuid;
+
+    /**
+     * Convert training -> session
+     */
+    sessions.push({
+      // New session fields will be filled with `undefined`
       uuid: sessionUuid,
       type: 'practice',
       slalomType: training.mode,
+      venueUuid: undefined,
       date: training.createdAt,
       lapsPerStint: training.lapsPerStint,
       unlimitedLapsPerStint: training.unlimitedLapsPerStint,
+      weather: undefined,
+      notes: undefined,
       createdAt: training.createdAt,
       updatedAt: training.updatedAt,
     });
 
-    for (const driver of training.drivers) {
-      const participationUuid = uuid();
+    /**
+     * Convert drivers
+     */
+    for (const driver of training.drivers ?? []) {
+      /**
+       * One participation per driver + kart.
+       *
+       * A driver could use multiple karts
+       * in one training in v5.
+       */
+      const participationMap = new Map<string, string>();
 
-      await participations.add({
-        uuid: participationUuid,
-        sessionUuid,
-        driverUuid: driver.uuid,
-        kartUuid: driver.kartUuid,
-        isActive: driver.isActive,
-      });
+      for (let stintIndex = 0; stintIndex < (driver.stints ?? []).length; stintIndex++) {
+        const legacyStint = driver.stints[stintIndex];
+        const kartUuid = legacyStint.kartUuid ?? driver.kartUuid;
+        const participationKey = `${driver.uuid}-${kartUuid ?? 'unknown'}`;
 
-      let stintNumber = 1;
+        let participationUuid = participationMap.get(participationKey);
 
-      for (const oldStint of driver.stints) {
-        const stintUuid = uuid();
+        /**
+         * Create participation if this
+         * driver/kart combination does not exist yet.
+         */
+        if (!participationUuid) {
+          participationUuid = crypto.randomUUID();
 
-        await stints.add({
+          participationMap.set(participationKey, participationUuid);
+
+          participations.push({
+            uuid: participationUuid,
+            sessionUuid,
+            driverUuid: driver.uuid,
+            kartUuid,
+            isActive: driver.isActive ?? true,
+          });
+        }
+
+        /**
+         * Convert stint
+         */
+        const stintUuid = crypto.randomUUID();
+
+        stints.push({
           uuid: stintUuid,
           participationUuid,
-          stintNumber,
+          stintNumber: stintIndex + 1,
+          startedAt: legacyStint.startedAt,
+          finishedAt: legacyStint.finishedAt,
         });
 
-        let lapNumber = 1;
+        /**
+         * Convert laps
+         */
+        for (let lapIndex = 0; lapIndex < (legacyStint.laps ?? []).length; lapIndex++) {
+          const legacyLap = legacyStint.laps[lapIndex];
 
-        for (const oldLap of oldStint.laps) {
-          await laps.add({
-            uuid: uuid(),
+          laps.push({
+            uuid: crypto.randomUUID(),
             stintUuid,
             sessionUuid,
             driverUuid: driver.uuid,
-            lapNumber,
-            time: oldLap.time,
-            timeWithPenalties: oldLap.time_with_penalties,
-            cones: oldLap.cones,
-            gates: oldLap.gates,
-            timestamp: oldLap.timestamp,
-            isInvalid: oldLap.isInvalid,
+            lapNumber: lapIndex + 1,
+            time: legacyLap.time,
+            timeWithPenalties: legacyLap.time_with_penalties ?? legacyLap.time,
+            cones: legacyLap.cones ?? 0,
+            gates: legacyLap.gates ?? 0,
+            timestamp: legacyLap.timestamp,
+            isInvalid: legacyLap.isInvalid ?? false,
           });
-
-          lapNumber++;
         }
-
-        stintNumber++;
       }
     }
   }
 
-  //
-  // Remove old tables after migration
-  //
+  log.info(
+    [
+      `Creating ${sessions.length} sessions`,
+      `${participations.length} participations`,
+      `${stints.length} stints`,
+      `${laps.length} laps`,
+    ].join(', '),
+  );
 
+  /**
+   * Insert new v6 data.
+   */
+  await tx.table('sessions').bulkAdd(sessions);
+  await tx.table('participations').bulkAdd(participations);
+  await tx.table('stints').bulkAdd(stints);
+  await tx.table('laps').bulkAdd(laps);
+
+  /**
+   * Remove old v5 data only after
+   * everything succeeded.
+   */
   await tx.table('trainings').clear();
 
-  log.info('Database migration v6 finished');
+  log.info('Database migration to version 6 completed.');
 };
