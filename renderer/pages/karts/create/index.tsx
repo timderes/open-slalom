@@ -14,20 +14,11 @@ const CreateKartPage = () => {
   const router = useRouter();
   const form = useForm<Kart>({
     initialValues: {
-      name: '',
-      engine: '',
-      chassis: '',
-      type: 'JKS',
-      history: {
-        usageByDriver: {},
-        trainingUuids: [],
-        totalLaps: 0,
-        totalStints: 0,
-        totalTime: 0,
-        firstTraining: undefined,
-        lastTraining: undefined,
-      },
       uuid: uuidv4(),
+      name: '',
+      chassis: '',
+      engine: '',
+      type: 'JKS',
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
@@ -75,7 +66,7 @@ const CreateKartPage = () => {
     modals.openConfirmModal({
       title: 'Kart nicht anlegen?',
       centered: true,
-      children: <Text>Bereits eingetragende Informationen werden nicht gespeichert!</Text>,
+      children: <Text>Bereits eingetragene Informationen werden nicht gespeichert!</Text>,
       labels: { confirm: 'Ja', cancel: 'Nein' },
       onConfirm: () => router.push('/karts'),
     });
@@ -99,7 +90,7 @@ const CreateKartPage = () => {
             <Group grow align="end">
               <TextInput
                 label="Kart"
-                placeholder="Jugendkart #1"
+                placeholder="Kart #1"
                 {...form.getInputProps('name')}
                 key={form.key('name')}
               />

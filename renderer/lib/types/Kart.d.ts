@@ -13,13 +13,13 @@ type Kart = {
    * The chassis name with manufacturer
    * @example `MS-Kart RA97`
    */
-  chassis?: string;
+  chassis: string;
 
   /**
    * The engine name with manufacturer.
    * @example `Honda GX-200`
    */
-  engine?: string;
+  engine: string;
 
   type: SlalomType;
 

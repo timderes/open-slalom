@@ -28,20 +28,11 @@ const KartEditPage = () => {
 
   const form = useForm<Kart>({
     initialValues: {
-      name: '',
-      engine: '',
-      chassis: '',
-      type: 'JKS',
-      history: {
-        usageByDriver: {},
-        trainingUuids: [],
-        totalLaps: 0,
-        totalStints: 0,
-        totalTime: 0,
-        firstTraining: undefined,
-        lastTraining: undefined,
-      },
       uuid: uuidv4(),
+      name: '',
+      chassis: '',
+      engine: '',
+      type: 'JKS',
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
