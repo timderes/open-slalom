@@ -7,14 +7,14 @@ import { isNotEmpty, useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/router';
-import { v4 as uuidv4 } from 'uuid';
 import log from 'electron-log/renderer';
+import getUUID from '@/lib/misc/getUUID';
 
 const CreateKartPage = () => {
   const router = useRouter();
   const form = useForm<Kart>({
     initialValues: {
-      uuid: uuidv4(),
+      uuid: getUUID(),
       name: '',
       chassis: '',
       engine: '',

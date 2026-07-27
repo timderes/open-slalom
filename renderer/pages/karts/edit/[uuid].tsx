@@ -19,8 +19,8 @@ import { IconZoomQuestion } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import log from 'electron-log/renderer';
+import getUUID from '@/lib/misc/getUUID';
 
 const KartEditPage = () => {
   const router = useRouter();
@@ -28,7 +28,7 @@ const KartEditPage = () => {
 
   const form = useForm<Kart>({
     initialValues: {
-      uuid: uuidv4(),
+      uuid: getUUID(),
       name: '',
       chassis: '',
       engine: '',

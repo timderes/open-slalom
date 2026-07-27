@@ -9,13 +9,13 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconHelmet } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import { v4 as uuidv4 } from 'uuid';
 import calculateDriverAge from '@/lib/misc/calculateDriverAge';
 import PageContent from '@/components/shared/PageContent';
 import Stat from '@/components/shared/Stat';
 import { getJksClass, getSksClass } from '@/lib/misc/getDriverClass';
 import dateParser from '@/lib/dates/dateParser';
 import log from 'electron-log/renderer';
+import getUUID from '@/lib/misc/getUUID';
 
 const CreateDriverPage = () => {
   const router = useRouter();
@@ -25,7 +25,7 @@ const CreateDriverPage = () => {
       lastName: '',
       birthDate: '',
       gender: 'male',
-      uuid: uuidv4(),
+      uuid: getUUID(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },

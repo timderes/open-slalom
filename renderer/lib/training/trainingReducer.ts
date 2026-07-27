@@ -1,4 +1,5 @@
 import { TIME_PENALTIES_JKS, TIME_PENALTIES_SKS } from '@/lib/constants';
+import getUUID from '../misc/getUUID';
 
 // =========================
 // TYPES
@@ -94,6 +95,7 @@ export const trainingReducer = (state: TrainingState, action: TrainingAction): T
         cones: 0,
         gates: 0,
         isInvalid: false,
+        uuid: getUUID(),
       };
 
       return {
