@@ -1,27 +1,29 @@
+/**
+ * Represents a kart used in slalom events.
+ */
 type Kart = {
-  name: string;
-  uuid: string; // UUID v4
-  createdAt: number; // Unix timestamp
-  updatedAt: number; // Unix timestamp
-  engine: string;
-  chassis: string;
-  type: SlalomType;
-  history: KartHistory;
-};
+  uuid: UUID;
 
-type KartHistory = {
-  totalLaps: number;
-  trainingUuids: Training['uuid'][];
-  totalTime: number;
-  totalStints: number;
-  usageByDriver?: Record<
-    Driver['uuid'],
-    {
-      stints: number;
-      laps: number;
-      totalTime: number;
-    }
-  >;
-  firstTraining?: number; // Unix timestamp
-  lastTraining?: number; // Unix timestamp
+  /**
+   * @example `Kart 1` or `JKS #1`
+   */
+  name: string;
+
+  /**
+   * The chassis name with manufacturer
+   * @example `MS-Kart RA97`
+   */
+  chassis?: string;
+
+  /**
+   * The engine name with manufacturer.
+   * @example `Honda GX-200`
+   */
+  engine?: string;
+
+  type: SlalomType;
+
+  createdAt: Timestamp;
+
+  updatedAt: Timestamp;
 };

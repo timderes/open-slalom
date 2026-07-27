@@ -1,13 +1,22 @@
 /**
- * Represents a stint — a sequence of laps during a driver is on track.
- * It includes information about the current driver, completed laps, and the
- * total elapsed time of the stint.
+ * Represents one continuous driving session.
  */
 type Stint = {
-  currentDriverIndex: number; // Index of the driver currently on track
-  currentLap: number; // Current lap number within the stint (starting from 1)
-  driver?: TrainingDriver; // Optional reference to the driver currently on track (can be undefined if no driver is assigned yet)
-  laps: Lap[]; // Array of laps completed in this stint
-  time: number; // Total elapsed time for the stint
-  kartUuid?: string; // Optional kart UUID associated with the stint (can be undefined if no kart is assigned yet)
+  uuid: UUID;
+
+  participationUuid: UUID;
+
+  /**
+   * Sequential index of the stint within a driver's participation.
+   * Starts at `1`
+   *
+   * ? Maybe remove this field later:
+   * Is this really necessary? We can always derive this from the
+   * array index of the stint in the participation's stints array.
+   */
+  stintNumber: number;
+
+  startedAt?: Timestamp;
+
+  finishedAt?: Timestamp;
 };
