@@ -1,6 +1,6 @@
 {
   "cSpell.language": "de, en",
-  "cSpell.words": ["dexie", "linux", "nextron", "tabler"],
+  "cSpell.words": ["dexie", "linux", "nextron", "participations", "tabler", "Uuids"],
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "js/ts.tsdk.path": "node_modules\\typescript\\lib"

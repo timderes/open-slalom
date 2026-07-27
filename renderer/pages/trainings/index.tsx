@@ -29,11 +29,39 @@ import log from 'electron-log/renderer';
 const TrainingsIndexPage = () => {
   const [modes, setModes] = useState<string[]>(['JKS', 'SKS']);
   const router = useRouter();
-  const trainings = useLiveQuery(() => database.trainings.toArray(), [modes])
-    ?.sort((a, b) => b.createdAt - a.createdAt)
-    .filter((t) => modes.includes(t.mode));
 
-  const TableActions = ({ uuid }: { uuid: Training['uuid'] }) => {
+  const trainings = useLiveQuery(async () => {
+    const sessions = await database.sessions
+      .where('slalomType')
+      .anyOf(modes)
+      // Ignore competition sessions, only show trainings --> See championships route
+      .and((s) => s.type === 'practice')
+      .toArray();
+
+    return Promise.all(
+      sessions
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .map(async (session) => {
+          const participations = await database.participations
+            .where('sessionUuid')
+            .equals(session.uuid)
+            .toArray();
+
+          const drivers = await database.drivers
+            .where('uuid')
+            .anyOf(participations.map((p) => p.driverUuid))
+            .toArray();
+
+          return {
+            ...session,
+            participations,
+            drivers,
+          };
+        }),
+    );
+  }, [modes]);
+
+  const TableActions = ({ uuid }: { uuid: Session['uuid'] }) => {
     return (
       <ButtonGroup ms="auto" w="fit-content" key={uuid}>
         <Button onClick={() => router.push(`/trainings/${uuid}/view`)}>
@@ -52,7 +80,7 @@ const TrainingsIndexPage = () => {
     );
   };
 
-  const handleDeleteTraining = (uuid: Training['uuid']) => {
+  const handleDeleteTraining = (uuid: Session['uuid']) => {
     const training = trainings?.find((t) => t.uuid === uuid);
 
     if (!training) {
@@ -69,12 +97,12 @@ const TrainingsIndexPage = () => {
       title: `Training löschen?`,
       children: (
         <Text>
-          Das {training.mode}-Training vom {new Date(training.createdAt).toLocaleDateString()} wird
-          gelöscht. Das kann nicht rückgängig gemacht werden!
+          Das {training.slalomType}-Training vom {new Date(training.createdAt).toLocaleDateString()}{' '}
+          wird gelöscht. Das kann nicht rückgängig gemacht werden!
         </Text>
       ),
       onConfirm: () =>
-        database.trainings
+        database.sessions
           .delete(training.uuid)
           .catch((error) => {
             log.error(`Error occurred while deleting training with UUID ${training.uuid}:`, error);
@@ -142,7 +170,7 @@ const TrainingsIndexPage = () => {
                       // as they are not needed in the table view
                       second: undefined,
                     }),
-                    training.mode,
+                    training.slalomType,
                     <AvatarGroup>
                       {(training.drivers ?? []).slice(0, 7).map((driver) => (
                         <Tooltip
