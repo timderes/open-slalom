@@ -24,7 +24,7 @@
     "@mantine/hooks": "^9.4.1",
     "@mantine/modals": "^9.4.1",
     "@mantine/notifications": "^9.4.1",
-    "@tabler/icons-react": "^3.44.0",
+    "@tabler/icons-react": "^3.45.0",
     "dayjs": "^1.11.21",
     "dexie": "^4.4.2",
     "dexie-export-import": "^4.4.0",
