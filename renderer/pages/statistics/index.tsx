@@ -6,7 +6,7 @@ import { Text } from '@mantine/core';
 const StatisticsPage = () => {
   return (
     <Layout currentRoute="/statistics">
-      <PageContent fluid>
+      <PageContent>
         <PageHeader title="Statistiken" />
         <Text>
           Die Statistik-Seite wird aktuell überarbeitet und wird in der nächsten Version wieder
