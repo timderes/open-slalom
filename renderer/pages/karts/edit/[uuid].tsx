@@ -92,7 +92,7 @@ const KartEditPage = () => {
     modals.openConfirmModal({
       title: 'Kart nicht bearbeiten?',
       centered: true,
-      children: <Text>Bereits eingetragende Informationen werden nicht gespeichert!</Text>,
+      children: <Text>Bereits eingetragene Informationen werden nicht gespeichert!</Text>,
       labels: { confirm: 'Ja', cancel: 'Nein' },
       onConfirm: () => router.push('/karts'),
     });
@@ -149,7 +149,7 @@ const KartEditPage = () => {
             <Group grow align="end">
               <TextInput
                 label="Kart"
-                placeholder="Jugendkart #1"
+                placeholder="Jugend-Kart #1"
                 {...form.getInputProps('name')}
                 key={form.key('name')}
               />
