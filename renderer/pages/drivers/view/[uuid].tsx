@@ -29,15 +29,45 @@ const DriverViewPage = () => {
   const router = useRouter();
   const { uuid } = router.query;
 
-  const driver = useLiveQuery(() => database.drivers.get(uuid?.toString()), [uuid], undefined);
-  const trainings = useLiveQuery(
-    () =>
-      database.trainings
-        .filter((training) => training.drivers.some((driver) => driver.uuid === uuid?.toString()))
-        .toArray(),
-    [uuid],
-    undefined,
-  );
+  const driverUuid = uuid?.toString();
+
+  const driver = useLiveQuery(() => database.drivers.get(driverUuid), [driverUuid]);
+
+  const sessionData = useLiveQuery(async () => {
+    if (!driverUuid) {
+      return undefined;
+    }
+
+    const participations = await database.participations
+      .where('driverUuid')
+      .equals(driverUuid)
+      .toArray();
+
+    const sessionUuids = participations.map((participation) => participation.sessionUuid);
+
+    const sessions = (await database.sessions.where('uuid').anyOf(sessionUuids).toArray())?.sort(
+      // Newest sessions first
+      (a, b) => b.date - a.date,
+    );
+
+    const participationUuids = participations.map((participation) => participation.uuid);
+
+    const stints = await database.stints
+      .where('participationUuid')
+      .anyOf(participationUuids)
+      .toArray();
+
+    const stintUuids = stints.map((stint) => stint.uuid);
+
+    const laps = await database.laps.where('stintUuid').anyOf(stintUuids).toArray();
+
+    return {
+      sessions,
+      participations,
+      stints,
+      laps,
+    };
+  }, [driverUuid]);
 
   if (driver === undefined) {
     return (
@@ -74,7 +104,7 @@ const DriverViewPage = () => {
   }
 
   const driverStats = getDriverStats({
-    trainings: trainings ?? [],
+    ...sessionData,
     driverUUID: driver.uuid,
   });
 
@@ -115,22 +145,25 @@ const DriverViewPage = () => {
             <Stat label="Geschlecht" value={translateGender(driver.gender)} />
             <Stat label="JKS" value={getJksClass({ birthDate: driver.birthDate })} />
             <Stat label="SKS" value={getSksClass({ birthDate: driver.birthDate })} />
-            <Stat label="Trainings" value={trainings?.length ?? 0} />
+            <Stat label="Trainings" value={sessionData?.sessions.length} />
           </Group>
         </Card>
         <Divider label="Statistiken" labelPosition="left" />
         <Group flex={{ xs: 'flex-row' }} grow>
-          <Stat label="Gefahrene Runden" value={driverStats.totalLaps} />
-          <Stat label="Fahrzeit" value={formatTime(driverStats.totalDrivingTime, 'duration')} />
-          <Stat label="Pylonen" value={driverStats.hitCones} />
-          <Stat label="Torfehler" value={driverStats.hitGates} />
+          <Stat label="Gefahrene Runden" value={driverStats?.totalLaps ?? 0} />
+          <Stat
+            label="Fahrzeit"
+            value={formatTime(driverStats?.totalDrivingTime, 'duration') ?? '00:00'}
+          />
+          <Stat label="Pylonen" value={driverStats?.hitCones ?? 0} />
+          <Stat label="Torfehler" value={driverStats?.hitGates ?? 0} />
         </Group>
         <Divider label="Trainings" labelPosition="left" />
-        {trainings === undefined ? (
+        {sessionData?.sessions === undefined ? (
           <Skeleton height={300} mt={8} radius="sm" />
         ) : (
-          trainings &&
-          trainings.length > 0 && (
+          sessionData?.sessions &&
+          sessionData.sessions.length > 0 && (
             <Table mt="md">
               <Table.Thead>
                 <Table.Tr>
@@ -140,19 +173,19 @@ const DriverViewPage = () => {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {trainings.map((training) => (
-                  <Table.Tr key={training.uuid}>
+                {sessionData.sessions.map((session) => (
+                  <Table.Tr key={session.uuid}>
                     <Table.Td>
-                      {new Date(training.createdAt).toLocaleDateString(
+                      {new Date(session.createdAt).toLocaleDateString(
                         APP_LANGUAGE,
                         DEFAULT_DATE_FORMAT,
                       )}
                     </Table.Td>
-                    <Table.Td>{training.mode}</Table.Td>
+                    <Table.Td>{session.slalomType}</Table.Td>
                     <Table.Td>
                       <Button
                         size="xs"
-                        onClick={() => router.push(`/trainings/${training.uuid}/view`)}
+                        onClick={() => router.push(`/trainings/${session.uuid}/view`)}
                       >
                         <IconSearch />
                       </Button>
@@ -163,7 +196,7 @@ const DriverViewPage = () => {
             </Table>
           )
         )}
-        {trainings?.length === 0 ? (
+        {sessionData?.sessions.length === 0 ? (
           <Text>{driver.firstName} hat noch an keinem Training teilgenommen.</Text>
         ) : null}
       </PageContent>

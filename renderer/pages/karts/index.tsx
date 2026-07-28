@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 
 const KartsPage = () => {
   const router = useRouter();
-  const karts = useLiveQuery(() => database.karts.toArray(), undefined)?.sort((a, b) =>
+  const karts = useLiveQuery(() => database.karts.toArray())?.sort((a, b) =>
     a.name.localeCompare(b.name),
   );
 
@@ -48,12 +48,7 @@ const KartsPage = () => {
       <PageContent>
         <Group justify="space-between">
           <PageHeader title="Karts" />
-          <Button
-            // leftSection={<Icon />}
-            onClick={() => router.push('/karts/create')}
-            variant="filled"
-            w="fit-content"
-          >
+          <Button onClick={() => router.push('/karts/create')} variant="filled" w="fit-content">
             Kart anlegen
           </Button>
         </Group>

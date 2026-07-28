@@ -19,8 +19,8 @@ import { IconZoomQuestion } from '@tabler/icons-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import log from 'electron-log/renderer';
+import getUUID from '@/lib/misc/getUUID';
 
 const KartEditPage = () => {
   const router = useRouter();
@@ -28,20 +28,11 @@ const KartEditPage = () => {
 
   const form = useForm<Kart>({
     initialValues: {
+      uuid: getUUID(),
       name: '',
-      engine: '',
       chassis: '',
+      engine: '',
       type: 'JKS',
-      history: {
-        usageByDriver: {},
-        trainingUuids: [],
-        totalLaps: 0,
-        totalStints: 0,
-        totalTime: 0,
-        firstTraining: undefined,
-        lastTraining: undefined,
-      },
-      uuid: uuidv4(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     },
@@ -101,7 +92,7 @@ const KartEditPage = () => {
     modals.openConfirmModal({
       title: 'Kart nicht bearbeiten?',
       centered: true,
-      children: <Text>Bereits eingetragende Informationen werden nicht gespeichert!</Text>,
+      children: <Text>Bereits eingetragene Informationen werden nicht gespeichert!</Text>,
       labels: { confirm: 'Ja', cancel: 'Nein' },
       onConfirm: () => router.push('/karts'),
     });
@@ -158,7 +149,7 @@ const KartEditPage = () => {
             <Group grow align="end">
               <TextInput
                 label="Kart"
-                placeholder="Jugendkart #1"
+                placeholder="Jugend-Kart #1"
                 {...form.getInputProps('name')}
                 key={form.key('name')}
               />

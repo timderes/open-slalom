@@ -2,7 +2,6 @@ import Layout from '@/components/shared/Layout';
 import PageContent from '@/components/shared/PageContent';
 import PageHeader from '@/components/shared/PageHeader';
 import SettingsLayout from '@/components/shared/SettingsLayout';
-import { TrainingState } from '@/lib/training/trainingReducer';
 import { Button, Text } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
@@ -20,7 +19,8 @@ import { useRouter } from 'next/router';
  */
 const RestoreTrainingSettingsPage = () => {
   const router = useRouter();
-  const [restorableTraining] = useLocalStorage<TrainingState | undefined>({
+  // TODO: Add there correct type here later
+  const [restorableTraining] = useLocalStorage<undefined>({
     key: 'training-backup',
     defaultValue: undefined,
   });
