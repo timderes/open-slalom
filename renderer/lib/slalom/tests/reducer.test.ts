@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import slalomReducer from '@/lib/slalom/engine/reducer';
-import type { SlalomState } from '../types/state';
 import getUUID from '@/lib/misc/getUUID';
 import type { SlalomAction } from '../engine/actions';
+import createMockSlalomState from './mocks/createMockSlalomState';
 
 const NOW = new Date('2026-07-08T16:42:00Z');
 
@@ -15,34 +15,9 @@ afterAll(() => {
   vi.useRealTimers();
 });
 
-const MOCK_INITIAL_STATE: SlalomState = {
-  currentDriverUuid: undefined,
-  currentStint: undefined,
-  drivers: [],
-  session: {
-    uuid: getUUID(),
-    type: 'practice',
-    slalomType: 'JKS',
-    venueUuid: undefined,
-    date: Date.now(),
-    lapsPerStint: 3,
-    unlimitedLapsPerStint: false,
-    weather: undefined,
-    notes: undefined,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  },
-
-  stopwatch: {
-    isRunning: true,
-    startedAt: Date.now() - 5000, // Started 5 seconds ago
-    elapsed: 5000,
-  },
-};
-
 describe('slalomReducer', () => {
   it('should reset the stopwatch state when RESET_STOPWATCH action is dispatched', () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = { type: 'RESET_STOPWATCH' };
     const newState = slalomReducer(action, state);
@@ -61,7 +36,7 @@ describe('slalomReducer', () => {
   });
 
   it('should start the stopwatch state when START_STOPWATCH action is dispatched', () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = { type: 'START_STOPWATCH' };
     const newState = slalomReducer(action, state);
@@ -80,7 +55,7 @@ describe('slalomReducer', () => {
   });
 
   it('should stop the stopwatch state when STOP_STOPWATCH action is dispatched', () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = { type: 'STOP_STOPWATCH' };
     const newState = slalomReducer(action, state);
@@ -99,7 +74,7 @@ describe('slalomReducer', () => {
   });
 
   it('should update the elapsed time when TICK action is dispatched', () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = { type: 'TICK', payload: { elapsed: 10000 } };
     const newState = slalomReducer(action, state);
@@ -118,7 +93,7 @@ describe('slalomReducer', () => {
   });
 
   it("should return the state stopwatch elapsed time if the 'TICK' action is dispatched without a payload", () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = { type: 'TICK' };
     const newState = slalomReducer(action, state);
@@ -131,7 +106,7 @@ describe('slalomReducer', () => {
   });
 
   it("should reset the stint if the 'RESET_STINT' action is dispatched", () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = { type: 'RESET_STINT' };
     const newState = slalomReducer(action, state);
@@ -152,7 +127,7 @@ describe('slalomReducer', () => {
   });
 
   it("should start a new stint if the 'START_STINT' action is dispatched", () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     const action: SlalomAction = {
       type: 'START_STINT',
@@ -182,7 +157,7 @@ describe('slalomReducer', () => {
   });
 
   it('should return the state if the action type is unknown', () => {
-    const state = structuredClone(MOCK_INITIAL_STATE);
+    const state = createMockSlalomState();
 
     // Return a state with an not existing action type to test the default case
     const action = { type: 'NOT_EXISTING_ACTION' } as any;
