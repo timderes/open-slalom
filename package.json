@@ -44,7 +44,7 @@
     "@vitest/coverage-v8": "^4.1.6",
     "electron": "^42.4.1",
     "electron-builder": "^26.15.3",
-    "nextron": "^10.0.0",
+    "nextron": "^10.2.0",
     "postcss": "^8.5.15",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
