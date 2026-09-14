@@ -39,7 +39,7 @@
     "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.5.1",
     "@types/react": "^19.3.0",
     "@vitest/coverage-v8": "^4.1.6",
     "electron": "^42.4.1",
