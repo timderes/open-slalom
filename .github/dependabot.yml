@@ -38,6 +38,10 @@ updates:
         patterns:
           - 'dexie'
           - 'dexie-*'
+      vitest:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
